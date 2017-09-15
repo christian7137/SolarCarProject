@@ -39,4 +39,5 @@ if [ "" == "$PKG_OK" ]; then
 	echo "Done!"
 fi
 
-# Need to do this prior to running script: chmod -x /path/to/IGinstall.sh
+echo "Script is done!"
+# Need to do this prior to running script: chmod +x /path/to/IGinstall.sh

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # install Grafana
-PKG_OK=$(dpkg-query -W --showformat='${Status}\n' grafana|grep "Grafana is installed.")
+PKG_OK=$(dpkg-query -W --showformat='${Status}\n' grafana|grep "install ok installed")
 echo Checking for Grafana: $PKG_OK
 if [ "" == "$PKG_OK" ]; then
 	echo "Grafana is not installed. Installing Grafana . . ."
@@ -17,7 +17,7 @@ if [ "" == "$PKG_OK" ]; then
 fi
 
 # install InfluxDB
-PKG_OK=$(dpkg-query -W --showformat='${Status}\n' influxdb|grep "InfluxDB is installed.")
+PKG_OK=$(dpkg-query -W --showformat='${Status}\n' influxdb|grep "install ok installed")
 echo Checking for InfluxDB: $PKG_OK
 if [ "" == "$PKG_OK" ]; then
 	echo "InfluxDB is not installed. Installing InfluxDB . . ."

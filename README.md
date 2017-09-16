@@ -4,11 +4,11 @@ Solar Car Project
 ## Running display.sh
 In the shell,
 *	git clone https://github.com/christian7137/SolarCarProject.git
- * Alternately, just load display.sh onto the RPi3.
+    * Alternately, just load display.sh onto the RPi3.
 *	cd SolarCarProject
 *	chmod +x display.sh
 *	dos2unix display.sh
-  * sudo apt-get install dos2unix (if not installed, temporary)
+    * sudo apt-get install dos2unix (if not installed, temporary)
 *	./display.sh
 
 At this point, InfluxDB and Grafana should be installed and running upon boot. Next, configure InfluxDB settings.

@@ -11,6 +11,6 @@ In the shell,
 *	./display.sh
 
 At this point, InfluxDB and Grafana should be installed and running upon boot. Next, configure InfluxDB settings.
-*	We need to test this first, I haven’t recreated this yet.
+*	We need to test this first, I haven’t been able to recreate this yet.
 *	We might even be able to do this in the script.
 

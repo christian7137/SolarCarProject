@@ -1,3 +1,0 @@
-Here the gnuarm tools etc are installed, but are not added to git. The gccarm tools are found
-at: https://launchpadlibrarian.net/200701245/gcc-arm-none-eabi-4_9-2015q1-20150306-linux.tar.bz2
-and can be retrieved with wget.  Unpack with tar xjf.  May need to install bzip2. (apt-get install bzip2).

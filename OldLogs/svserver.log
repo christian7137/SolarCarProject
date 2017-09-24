@@ -1,0 +1,1078 @@
+
+
+----- 14_10_13_08_54__ -- svserver start -------------
+system clock in valid UTC interval[1409745691, 1413208464, 1417521691].
+System time at start, before SolVehicle created: 14_10_13_08_54__
+SolVehicle: init finished
+SolVehicle: test finished, begin run - main loop
+--- config file ---
+MAXRECORDCOUNT = 500000   // don't write more than this many records
+LOGFILEINTERVAL  = 1000   // time interval in ms between log entries
+TPMSADDTIRE     = 60000   // time in ms to wait for new tire sensor
+BPSBSLOWTHRESHOLD = 13500 // in mV  nominal voltage is 14 V or 14000 mV.
+BPSBSHITHRESHOLD  = 14000 // bootstrap battery high threshold
+MAXCELLVOLTSMAX  = 35500  // Max cell voltage (mV) at which to shutdown all 3 power trackers
+MAXCELLVOLTSMID  = 35250  // Max cell voltage (mV) at which to shutdown 2 power trackers
+MAXCELLVOLTSMIN  = 35000  // Max cell voltage (mV) at which to shutdown 1 power tracker
+SNSP = 0x063A80           // marked UTSVT 2 - Front Left  (408192) SN tp sensors 
+SNRF = 0x0631C3           // marked UTSVT 3 - Front Right (404955) use hex
+SNRT = 0x063BD8           // marked UTSVT 1 - REAR        (408536)  
+SNLF = 0x0683D8           // marked JCW - (426969) spare sensor || naked sensor 0635F8 (407032)
+500000
+1000
+60000
+13500
+14000
+405955
+426968
+408536
+408192
+35000
+35250
+35500
+---- end config ---
+
+move log files to oldlog
+open port /dev/ttyO1 302792
+SV_Dashboard: Initializing variables...
+SV_gyro::init writeRegister failed  err -6
+IMU sensors:
+gyro offsets 0 0 0
+  compass
+  accelerometer
+  gyro
+SV_gyro::init writeRegister failed  err -6
+open port /dev/ttyO5 307480
+open port /dev/ttyO4 309312
+open port /dev/ttyO2 311144
+PIC24B Uart open
+/home/texsun8/log/10_13_08_54_DSH.log
+/home/texsun8/log/10_13_08_54_BPS.log
+/home/texsun8/log/10_13_08_54_BPT.log
+/home/texsun8/log/10_13_08_54_BPV.log
+/home/texsun8/log/10_13_08_54_BPB.log
+/home/texsun8/log/10_13_08_54_PCA.log
+/home/texsun8/log/10_13_08_54_PPT.log
+/home/texsun8/log/10_13_08_54_PAT.log
+/home/texsun8/log/10_13_08_54_PCB.log
+/home/texsun8/log/10_13_08_54_PAM.log
+/home/texsun8/log/10_13_08_54_PSV.log
+/home/texsun8/log/10_13_08_54_RVI.log
+/home/texsun8/log/10_13_08_54_IMU.log
+/home/texsun8/log/10_13_08_54_CTR.log
+active subsystems: 
+   DSH: passed.
+   IMU: passed.
+   PCA: passed.
+   BPS: passed.
+   PCB: passed.
+   CTR: passed.
+starting logdaemon
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+SV_Accelerometer::getData readRegister failed  err -5
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+SV_Accelerometer::getData readRegister failed  err -5
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+SV_Accelerometer::getData readRegister failed  err -5
+SV_Accelerometer::getData readRegister failed  err -5
+SV_Accelerometer::getData readRegister failed  err -5
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+SV_Accelerometer::getData readRegister failed  err -5
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+SV_Accelerometer::getData readRegister failed  err -5
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+SV_compass::getData readRegister failed  err -5
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+SV_Accelerometer::getData readRegister failed  err -5
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+SV_compass::getData readRegister failed  err -5
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+SV_compass::getData readRegister failed  err -5
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+SV_Accelerometer::getData readRegister failed  err -5
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Remote I/O error
+SV_Accelerometer::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+i2c::readRegister failed in write register: Connection timed out
+SV_compass::getData readRegister failed  err -3
+
+
+----- 14_10_16_15_46__ -- svserver start -------------
+system clock in valid UTC interval[1409745691, 1413492394, 1417521691].
+System time at start, before SolVehicle created: 14_10_16_15_46__
+SolVehicle: init finished
+SolVehicle: test finished, begin run - main loop
+--- config file ---
+MAXRECORDCOUNT = 500000   // don't write more than this many records
+LOGFILEINTERVAL  = 1000   // time interval in ms between log entries
+TPMSADDTIRE     = 60000   // time in ms to wait for new tire sensor
+BPSBSLOWTHRESHOLD = 13500 // in mV  nominal voltage is 14 V or 14000 mV.
+BPSBSHITHRESHOLD  = 14000 // bootstrap battery high threshold
+MAXCELLVOLTSMAX  = 35500  // Max cell voltage (mV) at which to shutdown all 3 power trackers
+MAXCELLVOLTSMID  = 35250  // Max cell voltage (mV) at which to shutdown 2 power trackers
+MAXCELLVOLTSMIN  = 35000  // Max cell voltage (mV) at which to shutdown 1 power tracker
+SNSP = 0x063A80           // marked UTSVT 2 - Front Left  (408192) SN tp sensors 
+SNRF = 0x0631C3           // marked UTSVT 3 - Front Right (404955) use hex
+SNRT = 0x063BD8           // marked UTSVT 1 - REAR        (408536)  
+SNLF = 0x0683D8           // marked JCW - (426969) spare sensor || naked sensor 0635F8 (407032)
+500000
+1000
+60000
+13500
+14000
+405955
+426968
+408536
+408192
+35000
+35250
+35500
+---- end config ---
+
+move log files to oldlog
+open port /dev/ttyO1 302792
+SV_Dashboard: Initializing variables...
+IMU sensors:
+gyro offsets 87 69 -66
+  compass
+  accelerometer
+  gyro
+open port /dev/ttyO5 307480
+open port /dev/ttyO4 309312
+open port /dev/ttyO2 311144
+PIC24B Uart open
+/home/texsun8/log/10_16_15_46_DSH.log
+/home/texsun8/log/10_16_15_46_BPS.log
+/home/texsun8/log/10_16_15_46_BPT.log
+/home/texsun8/log/10_16_15_46_BPV.log
+/home/texsun8/log/10_16_15_46_BPB.log
+/home/texsun8/log/10_16_15_46_PCA.log
+/home/texsun8/log/10_16_15_46_PPT.log
+/home/texsun8/log/10_16_15_46_PAT.log
+/home/texsun8/log/10_16_15_46_PCB.log
+/home/texsun8/log/10_16_15_46_PAM.log
+/home/texsun8/log/10_16_15_46_PSV.log
+/home/texsun8/log/10_16_15_46_RVI.log
+/home/texsun8/log/10_16_15_46_IMU.log
+/home/texsun8/log/10_16_15_46_CTR.log
+active subsystems: 
+   DSH: passed.
+   IMU: passed.
+   PCA: passed.
+   BPS: passed.
+   PCB: passed.
+   CTR: passed.
+starting logdaemon
+2390 action c_state: Estop
+
+
+----- 14_10_16_16_11__ -- svserver start -------------
+system clock in valid UTC interval[1409745691, 1413493916, 1417521691].
+System time at start, before SolVehicle created: 14_10_16_16_11__
+SolVehicle: init finished
+SolVehicle: test finished, begin run - main loop
+--- config file ---
+MAXRECORDCOUNT = 500000   // don't write more than this many records
+LOGFILEINTERVAL  = 1000   // time interval in ms between log entries
+TPMSADDTIRE     = 60000   // time in ms to wait for new tire sensor
+BPSBSLOWTHRESHOLD = 13500 // in mV  nominal voltage is 14 V or 14000 mV.
+BPSBSHITHRESHOLD  = 14000 // bootstrap battery high threshold
+MAXCELLVOLTSMAX  = 35500  // Max cell voltage (mV) at which to shutdown all 3 power trackers
+MAXCELLVOLTSMID  = 35250  // Max cell voltage (mV) at which to shutdown 2 power trackers
+MAXCELLVOLTSMIN  = 35000  // Max cell voltage (mV) at which to shutdown 1 power tracker
+SNSP = 0x063A80           // marked UTSVT 2 - Front Left  (408192) SN tp sensors 
+SNRF = 0x0631C3           // marked UTSVT 3 - Front Right (404955) use hex
+SNRT = 0x063BD8           // marked UTSVT 1 - REAR        (408536)  
+SNLF = 0x0683D8           // marked JCW - (426969) spare sensor || naked sensor 0635F8 (407032)
+500000
+1000
+60000
+13500
+14000
+405955
+426968
+408536
+408192
+35000
+35250
+35500
+---- end config ---
+
+move log files to oldlog
+open port /dev/ttyO1 302792
+SV_Dashboard: Initializing variables...
+IMU sensors:
+gyro offsets 67 22 -50
+  compass
+  accelerometer
+  gyro
+open port /dev/ttyO5 307480
+open port /dev/ttyO4 309312
+open port /dev/ttyO2 311144
+PIC24B Uart open
+/home/texsun8/log/10_16_16_11_DSH.log
+/home/texsun8/log/10_16_16_11_BPS.log
+/home/texsun8/log/10_16_16_11_BPT.log
+/home/texsun8/log/10_16_16_11_BPV.log
+/home/texsun8/log/10_16_16_11_BPB.log
+/home/texsun8/log/10_16_16_11_PCA.log
+/home/texsun8/log/10_16_16_11_PPT.log
+/home/texsun8/log/10_16_16_11_PAT.log
+/home/texsun8/log/10_16_16_11_PCB.log
+/home/texsun8/log/10_16_16_11_PAM.log
+/home/texsun8/log/10_16_16_11_PSV.log
+/home/texsun8/log/10_16_16_11_RVI.log
+/home/texsun8/log/10_16_16_11_IMU.log
+/home/texsun8/log/10_16_16_11_CTR.log
+active subsystems: 
+   DSH: passed.
+   IMU: passed.
+   PCA: passed.
+   BPS: passed.
+   PCB: passed.
+   CTR: passed.
+starting logdaemon
+                            
+
+----- 14_10_16_16_13__ -- svserver start -------------
+system clock in valid UTC interval[1409745691, 1413494016, 1417521691].
+System time at start, before SolVehicle created: 14_10_16_16_13__
+SolVehicle: init finished
+SolVehicle: test finished, begin run - main loop
+--- config file ---
+MAXRECORDCOUNT = 500000   // don't write more than this many records
+LOGFILEINTERVAL  = 1000   // time interval in ms between log entries
+TPMSADDTIRE     = 60000   // time in ms to wait for new tire sensor
+BPSBSLOWTHRESHOLD = 13500 // in mV  nominal voltage is 14 V or 14000 mV.
+BPSBSHITHRESHOLD  = 14000 // bootstrap battery high threshold
+MAXCELLVOLTSMAX  = 35500  // Max cell voltage (mV) at which to shutdown all 3 power trackers
+MAXCELLVOLTSMID  = 35250  // Max cell voltage (mV) at which to shutdown 2 power trackers
+MAXCELLVOLTSMIN  = 35000  // Max cell voltage (mV) at which to shutdown 1 power tracker
+SNSP = 0x063A80           // marked UTSVT 2 - Front Left  (408192) SN tp sensors 
+SNRF = 0x0631C3           // marked UTSVT 3 - Front Right (404955) use hex
+SNRT = 0x063BD8           // marked UTSVT 1 - REAR        (408536)  
+SNLF = 0x0683D8           // marked JCW - (426969) spare sensor || naked sensor 0635F8 (407032)
+500000
+1000
+60000
+13500
+14000
+405955
+426968
+408536
+408192
+35000
+35250
+35500
+---- end config ---
+
+move log files to oldlog
+open port /dev/ttyO1 302792
+SV_Dashboard: Initializing variables...
+IMU sensors:
+gyro offsets 75 25 -59
+  compass
+  accelerometer
+  gyro
+open port /dev/ttyO5 307480
+open port /dev/ttyO4 309312
+open port /dev/ttyO2 311144
+PIC24B Uart open
+/home/texsun8/log/10_16_16_13_DSH.log
+/home/texsun8/log/10_16_16_13_BPS.log
+/home/texsun8/log/10_16_16_13_BPT.log
+/home/texsun8/log/10_16_16_13_BPV.log
+/home/texsun8/log/10_16_16_13_BPB.log
+/home/texsun8/log/10_16_16_13_PCA.log
+/home/texsun8/log/10_16_16_13_PPT.log
+/home/texsun8/log/10_16_16_13_PAT.log
+/home/texsun8/log/10_16_16_13_PCB.log
+/home/texsun8/log/10_16_16_13_PAM.log
+/home/texsun8/log/10_16_16_13_PSV.log
+/home/texsun8/log/10_16_16_13_RVI.log
+/home/texsun8/log/10_16_16_13_IMU.log
+/home/texsun8/log/10_16_16_13_CTR.log
+active subsystems: 
+   DSH: passed.
+   IMU: passed.
+   PCA: passed.
+   BPS: passed.
+   PCB: passed.
+   CTR: passed.
+starting logdaemon
+Reverse engaged at 2 s
+24V engaged at 2 s
+2175 action c_state: Estop
+Forward engaged at 66 s
+Reverse engaged at 67 s
+Forward engaged at 70 s
+Reverse engaged at 71 s
+100439 action c_state: Estop
+Shutdown requested at 114 s
+cntrls_msg 0 cntrls_changes 1
+114171 action c_state: shutdown
+114171SV_Controller: shutdown
+114171
+SolVehicle:: datalogger update failed  err -99
+SolVehicle::run failed err -99
+svserver beginning shutdown 
+SolVehicle:: destructor
+shutdown now
+system command returned
+
+
+----- 14_10_16_16_16__ -- svserver start -------------
+system clock in valid UTC interval[1409745691, 1413494204, 1417521691].
+System time at start, before SolVehicle created: 14_10_16_16_16__
+SolVehicle: init finished
+SolVehicle: test finished, begin run - main loop
+--- config file ---
+MAXRECORDCOUNT = 500000   // don't write more than this many records
+LOGFILEINTERVAL  = 1000   // time interval in ms between log entries
+TPMSADDTIRE     = 60000   // time in ms to wait for new tire sensor
+BPSBSLOWTHRESHOLD = 13500 // in mV  nominal voltage is 14 V or 14000 mV.
+BPSBSHITHRESHOLD  = 14000 // bootstrap battery high threshold
+MAXCELLVOLTSMAX  = 35500  // Max cell voltage (mV) at which to shutdown all 3 power trackers
+MAXCELLVOLTSMID  = 35250  // Max cell voltage (mV) at which to shutdown 2 power trackers
+MAXCELLVOLTSMIN  = 35000  // Max cell voltage (mV) at which to shutdown 1 power tracker
+SNSP = 0x063A80           // marked UTSVT 2 - Front Left  (408192) SN tp sensors 
+SNRF = 0x0631C3           // marked UTSVT 3 - Front Right (404955) use hex
+SNRT = 0x063BD8           // marked UTSVT 1 - REAR        (408536)  
+SNLF = 0x0683D8           // marked JCW - (426969) spare sensor || naked sensor 0635F8 (407032)
+500000
+1000
+60000
+13500
+14000
+405955
+426968
+408536
+408192
+35000
+35250
+35500
+---- end config ---
+
+move log files to oldlog
+open port /dev/ttyO1 302792
+SV_Dashboard: Initializing variables...
+IMU sensors:
+gyro offsets 81 18 -62
+  compass
+  accelerometer
+  gyro
+open port /dev/ttyO5 307480
+open port /dev/ttyO4 309312
+open port /dev/ttyO2 311144
+PIC24B Uart open
+/home/texsun8/log/10_16_16_16_DSH.log
+/home/texsun8/log/10_16_16_16_BPS.log
+/home/texsun8/log/10_16_16_16_BPT.log
+/home/texsun8/log/10_16_16_16_BPV.log
+/home/texsun8/log/10_16_16_16_BPB.log
+/home/texsun8/log/10_16_16_16_PCA.log
+/home/texsun8/log/10_16_16_16_PPT.log
+/home/texsun8/log/10_16_16_16_PAT.log
+/home/texsun8/log/10_16_16_16_PCB.log
+/home/texsun8/log/10_16_16_16_PAM.log
+/home/texsun8/log/10_16_16_16_PSV.log
+/home/texsun8/log/10_16_16_16_RVI.log
+/home/texsun8/log/10_16_16_16_IMU.log
+/home/texsun8/log/10_16_16_16_CTR.log
+active subsystems: 
+   DSH: passed.
+   IMU: passed.
+   PCA: passed.
+   BPS: passed.
+   PCB: passed.
+   CTR: passed.
+starting logdaemon
+24V engaged at 2 s
+BPS On engaged at 47 s
+47152 action c_state: bps turn on
+47152 send BPS SYSON command to bps subsystem
+47258 action c_state: BPS on
+49764 action c_state: arrays on
+Reverse engaged at 57 s
+Forward engaged at 58 s
+24V engaged at 59 s
+59747 action c_state: bps turn off
+59747Arrays off
+59747 send BPS SYSOFF command to bps subsystem
+59771 action c_state: bootstrap charge on
+Cruise switch pressed at 228 s
+BPS On engaged at 383 s
+383394 action c_state: bps turn on
+383394 send BPS SYSON command to bps subsystem
+383495 action c_state: BPS on
+386005 action c_state: arrays on
+Blinkers turned on at 835 s
+Blinkers turned off at 836 s
+24V engaged at 7506 s
+7506038 action c_state: bps turn off
+7506038Arrays off
+7506038 send BPS SYSOFF command to bps subsystem
+Shutdown requested at 7508 s
+cntrls_msg 0 cntrls_changes 1
+7508443 action c_state: shutdown
+7508443SV_Controller: shutdown
+7508443
+SolVehicle:: datalogger update failed  err -99
+SolVehicle::run failed err -99
+svserver beginning shutdown 
+SolVehicle:: destructor
+shutdown now
+system command returned
+
+
+----- 14_10_18_00_07__ -- svserver start -------------
+system clock in valid UTC interval[1409745691, 1413608874, 1417521691].
+System time at start, before SolVehicle created: 14_10_18_00_07__
+SolVehicle: init finished
+SolVehicle: test finished, begin run - main loop
+--- config file ---
+MAXRECORDCOUNT = 500000   // don't write more than this many records
+LOGFILEINTERVAL  = 1000   // time interval in ms between log entries
+TPMSADDTIRE     = 60000   // time in ms to wait for new tire sensor
+BPSBSLOWTHRESHOLD = 13500 // in mV  nominal voltage is 14 V or 14000 mV.
+BPSBSHITHRESHOLD  = 14000 // bootstrap battery high threshold
+MAXCELLVOLTSMAX  = 35500  // Max cell voltage (mV) at which to shutdown all 3 power trackers
+MAXCELLVOLTSMID  = 35250  // Max cell voltage (mV) at which to shutdown 2 power trackers
+MAXCELLVOLTSMIN  = 35000  // Max cell voltage (mV) at which to shutdown 1 power tracker
+SNSP = 0x063A80           // marked UTSVT 2 - Front Left  (408192) SN tp sensors 
+SNRF = 0x0631C3           // marked UTSVT 3 - Front Right (404955) use hex
+SNRT = 0x063BD8           // marked UTSVT 1 - REAR        (408536)  
+SNLF = 0x0683D8           // marked JCW - (426969) spare sensor || naked sensor 0635F8 (407032)
+500000
+1000
+60000
+13500
+14000
+405955
+426968
+408536
+408192
+35000
+35250
+35500
+---- end config ---
+
+move log files to oldlog
+open port /dev/ttyO1 302792
+SV_Dashboard: Initializing variables...
+IMU sensors:
+gyro offsets 90 71 -68
+  compass
+  accelerometer
+  gyro
+open port /dev/ttyO5 307480
+open port /dev/ttyO4 309312
+open port /dev/ttyO2 311144
+PIC24B Uart open
+/home/texsun8/log/10_18_00_07_DSH.log
+/home/texsun8/log/10_18_00_07_BPS.log
+/home/texsun8/log/10_18_00_07_BPT.log
+/home/texsun8/log/10_18_00_07_BPV.log
+/home/texsun8/log/10_18_00_07_BPB.log
+/home/texsun8/log/10_18_00_07_PCA.log
+/home/texsun8/log/10_18_00_07_PPT.log
+/home/texsun8/log/10_18_00_07_PAT.log
+/home/texsun8/log/10_18_00_07_PCB.log
+/home/texsun8/log/10_18_00_07_PAM.log
+/home/texsun8/log/10_18_00_07_PSV.log
+/home/texsun8/log/10_18_00_07_RVI.log
+/home/texsun8/log/10_18_00_07_IMU.log
+/home/texsun8/log/10_18_00_07_CTR.log
+active subsystems: 
+   DSH: passed.
+   IMU: passed.
+   PCA: passed.
+   BPS: passed.
+   PCB: passed.
+   CTR: passed.
+starting logdaemon
+Blinkers turned on at 2 s
+Reverse engaged at 2 s
+24V engaged at 2 s
+BPS On engaged at 7 s
+7351 action c_state: bps turn on
+7351 send BPS SYSON command to bps subsystem
+7558 action c_state: BPS on
+10059 action c_state: arrays on
+Blinkers turned off at 10 s
+Motor engaged at 14 s
+14399 action c_state: motor turn on
+Forward engaged at 20 s
+Reverse engaged at 530 s
+Forward engaged at 535 s
+Back switch pressed at 4269 s
+Blinkers turned off at 4347 s
+BPS On engaged at 4444 s
+4444375 action c_state: motor turn off
+24V engaged at 4444 s
+4444870 action c_state: bps turn off
+4444870Arrays off
+4444870 send BPS SYSOFF command to bps subsystem
+Shutdown requested at 4444 s
+cntrls_msg 0 cntrls_changes 1
+4444949 action c_state: shutdown
+4444949SV_Controller: shutdown
+4444949
+SolVehicle:: datalogger update failed  err -99
+SolVehicle::run failed err -99
+svserver beginning shutdown 
+SolVehicle:: destructor
+shutdown now
+system command returned
+
+
+----- 14_10_18_01_23__ -- svserver start -------------
+system clock in valid UTC interval[1409745691, 1413613439, 1417521691].
+System time at start, before SolVehicle created: 14_10_18_01_23__
+SolVehicle: init finished
+SolVehicle: test finished, begin run - main loop
+--- config file ---
+MAXRECORDCOUNT = 500000   // don't write more than this many records
+LOGFILEINTERVAL  = 1000   // time interval in ms between log entries
+TPMSADDTIRE     = 60000   // time in ms to wait for new tire sensor
+BPSBSLOWTHRESHOLD = 13500 // in mV  nominal voltage is 14 V or 14000 mV.
+BPSBSHITHRESHOLD  = 14000 // bootstrap battery high threshold
+MAXCELLVOLTSMAX  = 35500  // Max cell voltage (mV) at which to shutdown all 3 power trackers
+MAXCELLVOLTSMID  = 35250  // Max cell voltage (mV) at which to shutdown 2 power trackers
+MAXCELLVOLTSMIN  = 35000  // Max cell voltage (mV) at which to shutdown 1 power tracker
+SNSP = 0x063A80           // marked UTSVT 2 - Front Left  (408192) SN tp sensors 
+SNRF = 0x0631C3           // marked UTSVT 3 - Front Right (404955) use hex
+SNRT = 0x063BD8           // marked UTSVT 1 - REAR        (408536)  
+SNLF = 0x0683D8           // marked JCW - (426969) spare sensor || naked sensor 0635F8 (407032)
+500000
+1000
+60000
+13500
+14000
+405955
+426968
+408536
+408192
+35000
+35250
+35500
+---- end config ---
+
+move log files to oldlog
+open port /dev/ttyO1 302792
+SV_Dashboard: Initializing variables...
+IMU sensors:
+gyro offsets 95 23 -55
+  compass
+  accelerometer
+  gyro
+open port /dev/ttyO5 307480
+open port /dev/ttyO4 309312
+open port /dev/ttyO2 311144
+PIC24B Uart open
+/home/texsun8/log/10_18_01_23_DSH.log
+/home/texsun8/log/10_18_01_23_BPS.log
+/home/texsun8/log/10_18_01_23_BPT.log
+/home/texsun8/log/10_18_01_23_BPV.log
+/home/texsun8/log/10_18_01_23_BPB.log
+/home/texsun8/log/10_18_01_23_PCA.log
+/home/texsun8/log/10_18_01_23_PPT.log
+/home/texsun8/log/10_18_01_23_PAT.log
+/home/texsun8/log/10_18_01_23_PCB.log
+/home/texsun8/log/10_18_01_23_PAM.log
+/home/texsun8/log/10_18_01_23_PSV.log
+/home/texsun8/log/10_18_01_23_RVI.log
+/home/texsun8/log/10_18_01_23_IMU.log
+/home/texsun8/log/10_18_01_23_CTR.log
+active subsystems: 
+   DSH: passed.
+   IMU: passed.
+   PCA: passed.
+   BPS: passed.
+   PCB: passed.
+   CTR: passed.
+starting logdaemon
+Reverse engaged at 2 s
+Forward engaged at 5 s
+24V engaged at 11 s
+BPS On engaged at 11 s
+11947 action c_state: bps turn on
+11947 send BPS SYSON command to bps subsystem
+12100 action c_state: BPS on
+14603 action c_state: arrays on
+Motor engaged at 17 s
+17093 action c_state: motor turn on
+Reverse engaged at 38 s
+BPS On engaged at 61 s
+61927 action c_state: motor turn off
+24V engaged at 62 s
+62579 action c_state: bps turn off
+62579Arrays off
+62579 send BPS SYSOFF command to bps subsystem
+Shutdown requested at 63 s
+cntrls_msg 0 cntrls_changes 1
+63564 action c_state: shutdown
+63564SV_Controller: shutdown
+63564
+SolVehicle:: datalogger update failed  err -99
+SolVehicle::run failed err -99
+svserver beginning shutdown 
+SolVehicle:: destructor
+shutdown now
+system command returned
+
+
+----- 14_10_19_13_00__ -- svserver start -------------
+system clock in valid UTC interval[1409745691, 1413741614, 1417521691].
+System time at start, before SolVehicle created: 14_10_19_13_00__
+SolVehicle: init finished
+SolVehicle: test finished, begin run - main loop
+--- config file ---
+MAXRECORDCOUNT = 500000   // don't write more than this many records
+LOGFILEINTERVAL  = 1000   // time interval in ms between log entries
+TPMSADDTIRE     = 60000   // time in ms to wait for new tire sensor
+BPSBSLOWTHRESHOLD = 13500 // in mV  nominal voltage is 14 V or 14000 mV.
+BPSBSHITHRESHOLD  = 14000 // bootstrap battery high threshold
+MAXCELLVOLTSMAX  = 35500  // Max cell voltage (mV) at which to shutdown all 3 power trackers
+MAXCELLVOLTSMID  = 35250  // Max cell voltage (mV) at which to shutdown 2 power trackers
+MAXCELLVOLTSMIN  = 35000  // Max cell voltage (mV) at which to shutdown 1 power tracker
+SNSP = 0x063A80           // marked UTSVT 2 - Front Left  (408192) SN tp sensors 
+SNRF = 0x0631C3           // marked UTSVT 3 - Front Right (404955) use hex
+SNRT = 0x063BD8           // marked UTSVT 1 - REAR        (408536)  
+SNLF = 0x0683D8           // marked JCW - (426969) spare sensor || naked sensor 0635F8 (407032)
+500000
+1000
+60000
+13500
+14000
+405955
+426968
+408536
+408192
+35000
+35250
+35500
+---- end config ---
+
+move log files to oldlog
+open port /dev/ttyO1 302792
+SV_Dashboard: Initializing variables...
+IMU sensors:
+gyro offsets 82 65 -63
+  compass
+  accelerometer
+  gyro
+open port /dev/ttyO5 307480
+open port /dev/ttyO4 309312
+open port /dev/ttyO2 311144
+PIC24B Uart open
+/home/texsun8/log/10_19_13_00_DSH.log
+/home/texsun8/log/10_19_13_00_BPS.log
+/home/texsun8/log/10_19_13_00_BPT.log
+/home/texsun8/log/10_19_13_00_BPV.log
+/home/texsun8/log/10_19_13_00_BPB.log
+/home/texsun8/log/10_19_13_00_PCA.log
+/home/texsun8/log/10_19_13_00_PPT.log
+/home/texsun8/log/10_19_13_00_PAT.log
+/home/texsun8/log/10_19_13_00_PCB.log
+/home/texsun8/log/10_19_13_00_PAM.log
+/home/texsun8/log/10_19_13_00_PSV.log
+/home/texsun8/log/10_19_13_00_RVI.log
+/home/texsun8/log/10_19_13_00_IMU.log
+/home/texsun8/log/10_19_13_00_CTR.log
+active subsystems: 
+   DSH: passed.
+   IMU: passed.
+   PCA: passed.
+   BPS: passed.
+   PCB: passed.
+   CTR: passed.
+starting logdaemon
+Cruise switch pressed at 3430 s
+Cruise switch pressed at 3431 s
+Cruise switch pressed at 3433 s
+Cruise switch pressed at 3433 s
+Cruise switch pressed at 3434 s
+24V engaged at 3462 s
+Reverse engaged at 3463 s
+Forward engaged at 3471 s
+BPS On engaged at 5252 s
+5252591 action c_state: bps turn on
+5252591 send BPS SYSON command to bps subsystem
+5252868 action c_state: BPS on
+5255369 action c_state: arrays on
+24V engaged at 5484 s
+5484095 action c_state: bps turn off
+5484095Arrays off
+5484095 send BPS SYSOFF command to bps subsystem
+5484106 action c_state: bootstrap charge on
+Shutdown requested at 5486 s
+cntrls_msg 0 cntrls_changes 1
+5486473 action c_state: shutdown
+5486473SV_Controller: shutdown
+5486473
+SolVehicle:: datalogger update failed  err -99
+SolVehicle::run failed err -99
+svserver beginning shutdown 
+SolVehicle:: destructor
+shutdown now
+system command returned
+
+
+----- 14_10_19_14_35__ -- svserver start -------------
+system clock in valid UTC interval[1409745691, 1413747308, 1417521691].
+System time at start, before SolVehicle created: 14_10_19_14_35__
+SolVehicle: init finished
+SolVehicle: test finished, begin run - main loop
+--- config file ---
+MAXRECORDCOUNT = 500000   // don't write more than this many records
+LOGFILEINTERVAL  = 1000   // time interval in ms between log entries
+TPMSADDTIRE     = 60000   // time in ms to wait for new tire sensor
+BPSBSLOWTHRESHOLD = 13500 // in mV  nominal voltage is 14 V or 14000 mV.
+BPSBSHITHRESHOLD  = 14000 // bootstrap battery high threshold
+MAXCELLVOLTSMAX  = 35500  // Max cell voltage (mV) at which to shutdown all 3 power trackers
+MAXCELLVOLTSMID  = 35250  // Max cell voltage (mV) at which to shutdown 2 power trackers
+MAXCELLVOLTSMIN  = 35000  // Max cell voltage (mV) at which to shutdown 1 power tracker
+SNSP = 0x063A80           // marked UTSVT 2 - Front Left  (408192) SN tp sensors 
+SNRF = 0x0631C3           // marked UTSVT 3 - Front Right (404955) use hex
+SNRT = 0x063BD8           // marked UTSVT 1 - REAR        (408536)  
+SNLF = 0x0683D8           // marked JCW - (426969) spare sensor || naked sensor 0635F8 (407032)
+500000
+1000
+60000
+13500
+14000
+405955
+426968
+408536
+408192
+35000
+35250
+35500
+---- end config ---
+
+move log files to oldlog
+open port /dev/ttyO1 302792
+SV_Dashboard: Initializing variables...
+IMU sensors:
+gyro offsets 100 7 -59
+  compass
+  accelerometer
+  gyro
+open port /dev/ttyO5 307480
+open port /dev/ttyO4 309312
+open port /dev/ttyO2 311144
+PIC24B Uart open
+/home/texsun8/log/10_19_14_35_DSH.log
+/home/texsun8/log/10_19_14_35_BPS.log
+/home/texsun8/log/10_19_14_35_BPT.log
+/home/texsun8/log/10_19_14_35_BPV.log
+/home/texsun8/log/10_19_14_35_BPB.log
+/home/texsun8/log/10_19_14_35_PCA.log
+/home/texsun8/log/10_19_14_35_PPT.log
+/home/texsun8/log/10_19_14_35_PAT.log
+/home/texsun8/log/10_19_14_35_PCB.log
+/home/texsun8/log/10_19_14_35_PAM.log
+/home/texsun8/log/10_19_14_35_PSV.log
+/home/texsun8/log/10_19_14_35_RVI.log
+/home/texsun8/log/10_19_14_35_IMU.log
+/home/texsun8/log/10_19_14_35_CTR.log
+active subsystems: 
+   DSH: passed.
+   IMU: passed.
+   PCA: passed.
+   BPS: passed.
+   PCB: passed.
+   CTR: passed.
+starting logdaemon
+Reverse engaged at 2 s
+24V engaged at 2 s
+Forward engaged at 5 s
+BPS On engaged at 8 s
+8585 action c_state: bps turn on
+8585 send BPS SYSON command to bps subsystem
+8880 action c_state: BPS on
+11383 action c_state: arrays on
+24V engaged at 7922 s
+7922317 action c_state: bps turn off
+7922317Arrays off
+7922317 send BPS SYSOFF command to bps subsystem
+Shutdown requested at 7924 s
+cntrls_msg 0 cntrls_changes 1
+7924721 action c_state: shutdown
+7924721SV_Controller: shutdown
+7924721
+SolVehicle:: datalogger update failed  err -99
+SolVehicle::run failed err -99
+svserver beginning shutdown 
+SolVehicle:: destructor
+shutdown now
+system command returned
+
+
+----- 14_10_23_16_17__ -- svserver start -------------
+system clock in valid UTC interval[1409745691, 1414099051, 1417521691].
+System time at start, before SolVehicle created: 14_10_23_16_17__
+SolVehicle: init finished
+SolVehicle: test finished, begin run - main loop
+--- config file ---
+MAXRECORDCOUNT = 500000   // don't write more than this many records
+LOGFILEINTERVAL  = 1000   // time interval in ms between log entries
+TPMSADDTIRE     = 60000   // time in ms to wait for new tire sensor
+BPSBSLOWTHRESHOLD = 13500 // in mV  nominal voltage is 14 V or 14000 mV.
+BPSBSHITHRESHOLD  = 14000 // bootstrap battery high threshold
+MAXCELLVOLTSMAX  = 35500  // Max cell voltage (mV) at which to shutdown all 3 power trackers
+MAXCELLVOLTSMID  = 35250  // Max cell voltage (mV) at which to shutdown 2 power trackers
+MAXCELLVOLTSMIN  = 35000  // Max cell voltage (mV) at which to shutdown 1 power tracker
+SNSP = 0x063A80           // marked UTSVT 2 - Front Left  (408192) SN tp sensors 
+SNRF = 0x0631C3           // marked UTSVT 3 - Front Right (404955) use hex
+SNRT = 0x063BD8           // marked UTSVT 1 - REAR        (408536)  
+SNLF = 0x0683D8           // marked JCW - (426969) spare sensor || naked sensor 0635F8 (407032)
+500000
+1000
+60000
+13500
+14000
+405955
+426968
+408536
+408192
+35000
+35250
+35500
+---- end config ---
+
+move log files to oldlog
+open port /dev/ttyO1 302792
+SV_Dashboard: Initializing variables...
+IMU sensors:
+gyro offsets 83 77 -68
+  compass
+  accelerometer
+  gyro
+open port /dev/ttyO5 307480
+open port /dev/ttyO4 309312
+open port /dev/ttyO2 311144
+PIC24B Uart open
+/home/texsun8/log/10_23_16_17_DSH.log
+/home/texsun8/log/10_23_16_17_BPS.log
+/home/texsun8/log/10_23_16_17_BPT.log
+/home/texsun8/log/10_23_16_17_BPV.log
+/home/texsun8/log/10_23_16_17_BPB.log
+/home/texsun8/log/10_23_16_17_PCA.log
+/home/texsun8/log/10_23_16_17_PPT.log
+/home/texsun8/log/10_23_16_17_PAT.log
+/home/texsun8/log/10_23_16_17_PCB.log
+/home/texsun8/log/10_23_16_17_PAM.log
+/home/texsun8/log/10_23_16_17_PSV.log
+/home/texsun8/log/10_23_16_17_RVI.log
+/home/texsun8/log/10_23_16_17_IMU.log
+/home/texsun8/log/10_23_16_17_CTR.log
+active subsystems: 
+   DSH: passed.
+   IMU: passed.
+   PCA: passed.
+   BPS: passed.
+   PCB: passed.
+   CTR: passed.
+starting logdaemon
+24V engaged at 3 s

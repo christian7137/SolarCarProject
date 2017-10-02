@@ -11,9 +11,9 @@
 #include <list>
 
 typedef struct{
-	unsigned int id;
-	char * pData;
-	unsigned int size;	//bytes of data allocated for data per sensor
+    unsigned int id;
+    char * pData;
+    unsigned int size;  //bytes of data allocated for data per sensor
 }sensorDataListElem;
 
 class canPayloadCreator
@@ -28,14 +28,14 @@ class canPayloadCreator
         canPayloadCreator();    //constructor
         ~canPayloadCreator();   //destructor
     
-		/* initialize functions */
+        /* initialize functions */
         bool addSensor( unsigned int sensorId, unsigned int numBytes);
-		void Init(void);
-		
-		/* public access and modify functions */
+        void Init(void);
+        
+        /* public access and modify functions */
         void updateSensorData( unsigned int sensorIdx, int * pDataNew );
-		void getSensorData(unsigned int sensorIdx);
-		void createCanMessage(void);
+        void getSensorData(unsigned int sensorIdx);
+        void createCanMessage(void);
     private:
 
 };

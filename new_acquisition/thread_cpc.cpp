@@ -1,7 +1,9 @@
 #include "mbed.h"
 #include "canPayloadCreator.hh"
+#include "can_structs.hh"
 
 extern canPayloadCreator * CPC;
+extern bool bLock;
 bool bCanTimerFlag = false;
 Ticker canDumpTimer;
 DigitalOut led2(LED2);
@@ -14,14 +16,10 @@ void canTimerCallback(void){
 void processTimerInterrupt_CAN(){
     led2 = !led2;    
     
-    while(lock != AVAIL){}
-    lock = LOCKED;
-    //first let's just print the data in the buffer
-    for(int a=0; a< dataBufferSize; a++){
-        pc.printf("id:%d data:%d\r\n", a , pDataBuffer[a] );
+    if(CPC != NULL){
+        CPC->createCanMessage();
     }
     
-    lock = AVAIL;
 }
 
 #define CAN_TIMER_SECS  1

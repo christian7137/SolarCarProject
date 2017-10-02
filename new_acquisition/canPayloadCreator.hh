@@ -12,7 +12,7 @@
 
 typedef struct{
 	unsigned int id;
-	int * pData;
+	char * pData;
 	unsigned int size;	//bytes of data allocated for data per sensor
 }sensorDataListElem;
 
@@ -35,6 +35,7 @@ class canPayloadCreator
 		/* public access and modify functions */
         void updateSensorData( unsigned int sensorIdx, int * pDataNew );
 		void getSensorData(unsigned int sensorIdx);
+		void createCanMessage(void);
     private:
 
 };

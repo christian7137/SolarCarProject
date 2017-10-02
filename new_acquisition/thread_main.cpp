@@ -13,10 +13,14 @@ void timerCallback(void) {
     bTimerFlag = true;
 }
 
-void addDataToBuffer(int sensorIdx, int * pData){
+void addDataToBuffer(unsigned int sensorIdx, int * pData){
     led1 = !led1;    
 
-    CPC->updateSensorData( sensorIdx, pData );    
+	if(CPC != NULL)
+	{
+		// TODO ADD MUTEX TO CPC AND CHECK IF IT'S HERE IF AVAILABLE
+		CPC->updateSensorData( sensorIdx, pData );	
+	}    
 }
 
 /* main thread*/
@@ -27,7 +31,7 @@ int main() {
     
     // initialize sensors and add a storage element to the data buffer
     //test, creating one sensor
-    CPC->addSensor(SENSOR_1_ID);   
+    CPC->addSensor(SENSOR_1_ID, sizeof(int));   
     
     CPC->Init();
 	
@@ -46,7 +50,7 @@ int main() {
             static int count = 1;
             while(lock != AVAIL){}
             lock = LOCKED;
-            addDataToBuffer( CPC->getSensorIdxFromSensorId(SENSOR_1_ID) , &count );
+            addDataToBuffer( SENSOR_1_ID , &count );
             lock = AVAIL;
             count++;
             bTimerFlag = false;    

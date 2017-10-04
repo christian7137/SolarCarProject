@@ -41,7 +41,7 @@ sudo apt-get update && sudo apt-get install influxdb
 After the installation was successful, you can enable and start InfluxDB as any other program:
 
 ```
-sudo systemctcl daemon-reload
+sudo systemctl daemon-reload
 sudo systemctl enable influxdb.service
 sudo systemctl start influxdb.service
 ```

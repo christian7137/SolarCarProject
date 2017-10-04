@@ -58,9 +58,5 @@ void canPayloadCreator::createCanMessage(void)
     
     msg1.type = PKT_TYPE_3;
     msg1.data.type3.sensor1Data = *(it->pData);
-    pc.printf("Count: %d \t", msg1.data.type3.sensor1Data);
-    
-    //pc.printf("Payload: %#016x\r\n",msg1); 
-    pc.printf("Payload: %#x\r\n",msg1); 
 }
 

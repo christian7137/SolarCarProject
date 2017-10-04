@@ -32,6 +32,7 @@ void addDataToBuffer(unsigned int sensorIdx, int * pData){
 /* main thread*/
 #define SENSOR_1_ID 1
 int main() {
+	/* TODO: there's no reason to create these dynamically with new, remove and change all pointer accesses to object access*/
     /*INIT storage classes needed for all of the threads*/
     CPC = new canPayloadCreator();
     

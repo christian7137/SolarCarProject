@@ -1,4 +1,5 @@
 /*!
+ * \file canPayloadCreator.hh
  * \class canPayloadCreator
  * \brief Defines the class holding, modifying, and using the sensor data captured by the nucleo board.
  *
@@ -11,10 +12,11 @@
 #include <list>
 #include "can_structs.hh"
 
+/// \brief structure that defines the data elements for each sensor
 typedef struct{
-    unsigned int id;
-    char * pData;
-    unsigned int size;  //bytes of data allocated for data per sensor
+    unsigned int id;	///< \brief Sensor ID
+    char * pData;		///< \brief pointer to dynamically created memory that will hold the sensor data
+    unsigned int size;  ///< \brief Number of bytes of data allocated for data per sensor
 }sensorDataListElem;
 
 class canPayloadCreator
@@ -24,19 +26,18 @@ class canPayloadCreator
     private:
     std::list<sensorDataListElem> sensorList;
     
-    /* constructors, destructors, and member functions*/
     public:
-        canPayloadCreator();    //constructor
-        ~canPayloadCreator();   //destructor
+		/// \brief Constructor
+        canPayloadCreator();
+		/// \brief Destructor
+        ~canPayloadCreator();
     
-        /* initialize functions */
+	public: 
         bool addSensor( unsigned int sensorId, unsigned int numBytes);
-        void Init(void);
-        
-        /* public access and modify functions */
         void updateSensorData( unsigned int sensorIdx, char * pDataNew );
         void getSensorData(unsigned int sensorIdx);
         std::list<CAN_MSG> createCanMessages(void);
+		
     private:
 
 };

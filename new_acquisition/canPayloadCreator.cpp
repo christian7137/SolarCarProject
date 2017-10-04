@@ -1,3 +1,9 @@
+/*!
+ * \file canPayloadCreator.cpp
+ * \class canPayloadCreator
+ *
+ * \author Beau Roland
+*/
 #include "mbed.h"
 #include "canPayloadCreator.hh"
 #include "can_structs.hh"
@@ -11,13 +17,16 @@ extern Serial pc;
 canPayloadCreator::canPayloadCreator()
 {
 }
+//TODO: Consider deleting all of the dynamically created memory in the sensor list
 canPayloadCreator::~canPayloadCreator()
 {
 }
-void canPayloadCreator::Init(void){
-    // add any additional initialization
-}
-
+/*!
+ *	\brief Public function that adds a sensor to the list of sensors that data is collected and sent out via the CAN bus
+ *	\param Sensor ID
+ *	\param Number of bytes needed to store the sensor data. Will create memory dynamically for this size.
+ *	\return Boolean whether we had the size to add the sensor to the list
+ */
 bool canPayloadCreator::addSensor( unsigned int sensorId, unsigned int numBytes)
 {
     sensorDataListElem elem;
@@ -35,7 +44,11 @@ bool canPayloadCreator::addSensor( unsigned int sensorId, unsigned int numBytes)
     return false;
     
 }
-
+/*!
+ *	\brief Public function that updates a given sensor's data
+ *	\param The Sensor ID that we wish to update its data
+ *	\param A pointer to the new data we wish to update
+ */
 void canPayloadCreator::updateSensorData( unsigned int sensorIdx, char * pDataNew )
 {
     std::list<sensorDataListElem>::iterator it;
@@ -56,7 +69,10 @@ void canPayloadCreator::updateSensorData( unsigned int sensorIdx, char * pDataNe
         }
     }
 }
-
+/*!
+ *	\brief Public function that creates CAN Message(s) based on the current state of all of the sensor data
+ *	\return A list of CAN_MSG(s) dictating the current state of all of the sensor data
+ */
 std::list<CAN_MSG> canPayloadCreator::createCanMessages(void)
 {
     /* You must define the number of can messages you want to generate per sample*/

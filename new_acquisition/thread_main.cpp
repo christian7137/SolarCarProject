@@ -1,3 +1,12 @@
+/*!
+ * \file thread_main.cpp
+ * \author Beau Roland
+ * \brief Thread software that begins the program.
+ * \details This thread initializes the sensors, the threads, and any timers
+ * needed to run the software.
+ *
+ */
+ 
 #include "mbed.h"
 #include "canPayloadCreator.hh"
  
@@ -13,10 +22,15 @@ bool bTimerFlag = false;
 extern void thread_canPayloadCreator_main(void);
 extern void thread_canager_main(void);
 
+/*!
+ * \brief Main Thread's Timer Callback Function that set's a flag indicating that it is time to update our sample sensor data (a counter)
+ */
 void timerCallback(void) {
     bTimerFlag = true;
 }
-
+/*!
+ * \brief Thread function that makes use of the CPC (canPayloadCreator class) to update our sample sensor data
+ */
 void addDataToBuffer(unsigned int sensorIdx, int * pData){
     led1 = !led1;    
 
@@ -26,6 +40,12 @@ void addDataToBuffer(unsigned int sensorIdx, int * pData){
 
 /* main thread*/
 #define SENSOR_1_ID 1
+/*!
+ * \brief Main function of Data Aquisition Firmware
+ * \details This function adds sensors to the list of sensors to create CAN Messages<br>
+ * In addition, it starts the different threads.<br>
+ * Finally, this main thread on a timely basis, increments a counter, updates our sample sensor data to be this counter, and sleeps till the next timer interrupt.
+ */
 int main() {
     // initialize sensors and add a storage element to the data buffer
     //test, creating one sensor

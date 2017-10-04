@@ -1,3 +1,10 @@
+/*!
+ * \file thread_canager.cpp
+ * \author Beau Roland
+ * \brief Thread software that manages the out going CAN bus messages
+ *
+ */
+ 
 #include "mbed.h"
 #include "canQueue.hh"
 #include "can_structs.hh"
@@ -7,6 +14,10 @@ extern Serial pc;
 DigitalOut led3(LED3);
 
 /*THREAD BEGIN*/
+/*!
+ * \brief Thread function that checks whether we have any CAN messages to sendCanMessage
+ * and sends it on the CAN Bus.
+ */
 void sendCanMessage(){
     led3 = !led3;    
 	if(CQ.queueEmpty() == false){
@@ -20,6 +31,11 @@ void sendCanMessage(){
     
 }
 
+/*!
+ * \brief Thread function that defines the start of the Canager Thread.
+ * \details In this function, it continually calls function that sends the next CAN Message
+ * if there are any in the FIFO queue.
+ */
 void thread_canager_main(void){
     while(1)
     {

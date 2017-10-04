@@ -1,4 +1,5 @@
 /*!
+ * \file canQueue.hh
  * \class canQueue
  * \brief Defines FIFO class that holds the outgoing CAN Messages.
  * We may extend this to incorporate more storage elements to handle incoming messages off
@@ -20,9 +21,11 @@ class canQueue
     private:/* private member objects */
     std::queue<CAN_MSG> fifo;
     
-    public: /* constructors, destructors, and member functions*/
-        canQueue();    //constructor
-        ~canQueue();   //destructor
+    public:
+		/// Constructor
+        canQueue();
+		/// Destructor
+        ~canQueue();
         
 	public: /* public functions */
 		void push(CAN_MSG msg);

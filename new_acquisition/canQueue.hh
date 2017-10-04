@@ -11,6 +11,7 @@
 #define CAN_QUEUE_HH
 
 #include <queue>
+#include "can_structs.hh"
 
 class canQueue
 {
@@ -33,3 +34,4 @@ class canQueue
 };
 
 #endif
+

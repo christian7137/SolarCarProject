@@ -9,6 +9,7 @@
 #define CAN_PAYLOAD_CREATOR_HH
 
 #include <list>
+#include "can_structs.hh"
 
 typedef struct{
     unsigned int id;
@@ -33,9 +34,9 @@ class canPayloadCreator
         void Init(void);
         
         /* public access and modify functions */
-        void updateSensorData( unsigned int sensorIdx, int * pDataNew );
+        void updateSensorData( unsigned int sensorIdx, char * pDataNew );
         void getSensorData(unsigned int sensorIdx);
-        void createCanMessage(void);
+        std::list<CAN_MSG> createCanMessages(void);
     private:
 
 };

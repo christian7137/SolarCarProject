@@ -10,15 +10,9 @@ http://www-numi.fnal.gov/offline_software/srt_public_context/WebDocs/doxygen-how
 In the shell,
 *	git clone https://github.com/christian7137/SolarCarProject.git
     * Alternately, just load display.sh onto the RPi3.
-*	cd SolarCarProject
-*	chmod +x display.sh
-*	dos2unix display.sh
-    * sudo apt-get install dos2unix (if not installed, temporary)
-*	./display.sh
+*	source ./SolarCarProject/Display/display.sh
 
-At this point, InfluxDB and Grafana should be installed and running upon boot. Next, configure InfluxDB settings.
-*	We need to test this first, I haven’t been able to recreate my settings successfully yet.
-*	We might even be able to do this in the script.
+At this point, InfluxDB and Grafana should be installed and running upon boot. Next, configure InfluxDB settings. To do this, skip to <b>Setting up an InfluxDB Database</b>. If you are not using the script, follow the instructions below.
 
 ### Manually installing InfluxDB on the Raspberry Pi 2 or 3
 These steps will install InfluxDB and Grafana on a Raspberry Pi 2 or 3. Please note that the older Raspberry Pi 1 is not suited for this due to its ARMv6 architecture.

@@ -43,17 +43,18 @@ if [ "" == "$PKG_OK" ]; then
 	echo "Done!"
 fi
 
-influx
-expect ">"
-send CREATE DATABASE my_db
-expect ">"
-send CREATE USER admin WITH PASSWORD 'password123' WITH ALL PRIVILEGES
-expect ">"
-send CREATE USER grafana WITH PASSWORD 'letmeread123'
-expect ">"
-send GRANT READ ON my_db TO grafana
-expect ">"
-send exit
+# It's supposed to be something like this, but it doesn't work. I'll play with it later since it's not a high priority.
+#influx
+#expect ">"
+#send CREATE DATABASE my_db
+#expect ">"
+#send CREATE USER admin WITH PASSWORD 'password123' WITH ALL PRIVILEGES
+#expect ">"
+#send CREATE USER grafana WITH PASSWORD 'letmeread123'
+#expect ">"
+#send GRANT READ ON my_db TO grafana
+#expect ">"
+#send exit
 
 echo "Script is done!"
 # Before being able to run script, need to: chmod +x /path/to/display.sh

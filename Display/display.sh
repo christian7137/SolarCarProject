@@ -57,4 +57,3 @@ fi
 #send exit
 
 echo "Script is done!"
-# Before being able to run script, need to: chmod +x /path/to/display.sh

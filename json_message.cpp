@@ -39,7 +39,8 @@ class Json_Message {
         }*/
     
         // GET AND SET FUNCTIONS
-        uintptr_t get_address() const {
+        uintptr_t 
+        get_address() const {
             return reinterpret_cast<uintptr_t>(this);
         }
     

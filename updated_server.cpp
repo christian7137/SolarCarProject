@@ -24,7 +24,7 @@ class Server {
         Server(){
             port = 1500;    
             server.sin_family = AF_INET;
-            server.sin_addr.s_addr = inet_addr("127.0.0.1");
+            server.sin_addr.s_addr = inet_addr("169.254.252.100");//169.254.252.250, 127.0.0.1, 169.254.255.255, 255.255.0.0, 128.62.28.163
             server.sin_port = htons(port);//atoi(argv[2])
             length=sizeof(struct sockaddr_in);
         }
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
     Server server;
     if(!server.connectSock())
         return 0;
-    char buffer[256] = {"hi does 4129 29565 -89 13205 1413741618 4129 29565 -89 13205 0 1 29430 -89 13215 77 1 1413741619 5131 29565 -89 13200 0 1 29430 -89 13215 77 11413741617 3127 29565 -89 13205 0 1 29385 -89 13215 77 1 1413741623 9145 29565 -89 13200 0 1 29430 -89 13215 77 1"};
+    char buffer[256] = {"hi"};//{"hi does 4129 29565 -89 13205 1413741618 4129 29565 -89 13205 0 1 29430 -89 13215 77 1 1413741619 5131 29565 -89 13200 0 1 29430 -89 13215 77 11413741617 3127 29565 -89 13205 0 1 29385 -89 13215 77 1 1413741623 9145 29565 -89 13200 0 1 29430 -89 13215 77 1"};
             
     int count = 0;      //testing
     while(count < 100){
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
        //code below is testing
        count++;
        std::cout << "number of packets sent is: " << count << std::endl;
-       //usleep(100);//microseconds
+       usleep(10000);//microseconds
     }
    
    server.closeSocket();

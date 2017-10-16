@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <iostream>
 
-//https://github.com/tunnuz/json.git
+
 void error(const char *msg){
     perror(msg);
     exit(0);
@@ -52,6 +52,7 @@ class Client {
         }
         
         void receivePacket(void){
+            std::cout << "wating for data..." << std::endl;
             possError = recvfrom(sock, buf, 256, 0,(struct sockaddr *)&sourceAddress,&sourceSize);
             if (possError < 0){ 
                 error("recvfrom");
@@ -80,7 +81,7 @@ int main(int argc, char *argv[]){
        std::cout << client.buf << std::endl;
        count++;
        std::cout << "Received packet # " << count << std::endl;
-       if(count >= 100) break; 
+      // if(count >= 100) break; 
    }
    
    client.closeSocket();

@@ -24,7 +24,7 @@ class Server {
         Server(){
             port = 1500;    
             server.sin_family = AF_INET;
-            server.sin_addr.s_addr = inet_addr("169.254.252.100");//169.254.252.250, 127.0.0.1, 169.254.255.255, 255.255.0.0, 128.62.28.163
+            server.sin_addr.s_addr = inet_addr("169.254.255.255");//169.254.252.250, 127.0.0.1, 169.254.255.255, 255.255.0.0, 128.62.28.163
             server.sin_port = htons(port);//atoi(argv[2])
             length=sizeof(struct sockaddr_in);
         }

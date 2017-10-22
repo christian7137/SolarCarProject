@@ -15,11 +15,6 @@ dbname = "my_db"
 # Sample period (s)
 interval = 1
 
-# For GPIO
-# channel = 14
-# GPIO.setmode(GPIO.BCM)
-# GPIO.setup(channel, GPIO.IN)
-
 # Allow user to set session and runno via args otherwise auto-generate
 if len(sys.argv) > 1:
     if (len(sys.argv) < 3):
@@ -42,11 +37,11 @@ client = InfluxDBClient(host, port, user, password, dbname)
 # Run until keyboard out
 try:
     while True:
-        # This gets a dict of the three values
+        # This generates a random value for testing purposes.
         vsense = random.randint(0,100)
-        # gpio = GPIO.input(channel)
-        print vsense
-        iso = time.ctime()
+        
+        #print vsense
+        iso = time.ctime()	# Time stamp here.
 
         json_body = [
         {
@@ -75,8 +70,7 @@ try:
 				  "vsense17" : vsense + 17,
 				  "vsense18" : vsense + 18,
 				  "vsense19" : vsense + 19,
-				  "vsense20" : vsense + 20,
-                  # ,"gpio" : gpio
+				  "vsense20" : vsense + 20
               }
           }
         ]

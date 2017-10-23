@@ -51,8 +51,9 @@ class Server {
             return sockConnect;
         }
         
-        void sendPacket(char buffer[]){
-            possError = sendto(sock,buffer, 1024,0,(const struct sockaddr *)&serverAddr,length);//change strlen(buffer)
+        void sendPacket(){//void sendPacket(char buffer[]){
+			possError = sendto(sock,(struct Json_Message*)&json_message.all_json, sizeof(json_message.all_json),0,(const struct sockaddr *)&serverAddr,length);
+            //possError = sendto(sock,buffer, 1024,0,(const struct sockaddr *)&serverAddr,length);//change strlen(buffer)
         }
         
         void closeSocket(void){
@@ -82,7 +83,8 @@ int main(int argc, char *argv[])
 		server.json_message.setAllJson();
 		server.json_message.printJson();
 		//std::cout << "Timestamp: " << server.json_message.all_json.json1.timestamp << " Time: " << server.json_message.all_json.json2.time << std::endl;
-		server.possError = sendto(server.sock,(struct Json_Message*)&server.json_message.all_json, sizeof(server.json_message.all_json),0,(const struct sockaddr *)&server.serverAddr,server.length);//change strlen(buffer)
+		server.sendPacket();
+		//server.possError = sendto(server.sock,(struct Json_Message*)&server.json_message.all_json, sizeof(server.json_message.all_json),0,(const struct sockaddr *)&server.serverAddr,server.length);//change strlen(buffer)
 	}
 	/*while(count < 100){
        server.sendPacket(buffer);

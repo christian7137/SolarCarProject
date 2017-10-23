@@ -25,23 +25,34 @@ class Json_Message{
 			int header[];
 			int sensor_values[];
 		};
+		
+		struct Luminosity{
+			int data;
+			int sensor_id;
+		};
+		//value ID of sensor
 		//luminosity,state of charge, orientation
 		struct All_Json{
 			struct Json1 json1;
 			struct Json2 json2;
+			struct Luminosity luminosity_message;
 		};
 		
 	public:
 	All_Json all_json;
 	Json1 json;//get error when putting this in private, cant send a temp variable
 	Json2 json_temp;
+	Luminosity luminosity_child;
 	
 	Json_Message(){
 		//json = (struct Json*)malloc(sizeof(Json));
 		json.timestamp = 0;
 		json_temp.time = 15;
 		all_json.json1=json;
-		all_json.json2=json_temp;	
+		all_json.json2=json_temp;
+		all_json.luminosity_message=luminosity_child;		
+		all_json.luminosity_message.data = 0;
+		all_json.luminosity_message.sensor_id = 0;
 	}
 	/*Json_Message(1){
 		//json = (struct Json*)malloc(sizeof(Json));
@@ -50,6 +61,7 @@ class Json_Message{
 	
 	void printJson(){
 		std::cout << "Timestamp: " << all_json.json1.timestamp << " Time is: " << all_json.json2.time << std::endl;
+		std::cout << "Lum data: " << all_json.luminosity_message.data << " Lum ID " << all_json.luminosity_message.sensor_id << std::endl;
 	}
 	
 	void setTime(int i){
@@ -61,6 +73,16 @@ class Json_Message{
 		all_json.json2=json_temp;
 	}
 	//set methods
+	void setLumData(int i){
+		luminosity_child.data = i;
+		all_json.luminosity_message = luminosity_child;
+	}
+	
+	void setLumID(int i){
+		luminosity_child.sensor_id = i;
+		all_json.luminosity_message = luminosity_child;
+	}
+	
 	void setTimestamp(int temp_ts){
 		//std::cout << "VALUE FROM TIMESTAMP IS: " << temp_ts << std::endl;
 		json.timestamp = temp_ts;
@@ -75,6 +97,13 @@ class Json_Message{
 	}
 	
 	//get methods
+	int getLumData(){
+		return all_json.luminosity_message.data;
+	}
+	
+	int getLumID(){
+		return all_json.luminosity_message.sensor_id;
+	}
 	int getTimestamp(){
 		return json.timestamp;
 	}

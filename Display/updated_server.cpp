@@ -74,12 +74,14 @@ int main(int argc, char *argv[])
     int count = 0;      //testing
 	//std::cout << "Sending the following data: " << server.json_message.json.timestamp << std::endl;
 	for(int i = 0; i < 20; i++){
+		server.json_message.setLumData(i+20);
+		server.json_message.setLumID(i+100);
 		server.json_message.setTimestamp(i);
 		int temp = 20 - i;
 		server.json_message.setTime(temp);
 		server.json_message.setAllJson();
-		//server.json_message.printJson();
-		std::cout << "Timestamp: " << server.json_message.all_json.json1.timestamp << " Time: " << server.json_message.all_json.json2.time << std::endl;
+		server.json_message.printJson();
+		//std::cout << "Timestamp: " << server.json_message.all_json.json1.timestamp << " Time: " << server.json_message.all_json.json2.time << std::endl;
 		server.possError = sendto(server.sock,(struct Json_Message*)&server.json_message.all_json, sizeof(server.json_message.all_json),0,(const struct sockaddr *)&server.serverAddr,server.length);//change strlen(buffer)
 	}
 	/*while(count < 100){

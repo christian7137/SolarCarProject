@@ -6,8 +6,8 @@
  */
  
 #include "mbed.h"
-#include "canQueue.hh"
-#include "can_structs.hh"
+#include "canQueue.h"
+#include "can_structs.h"
 #include "CAN.h"
 
 extern canQueue CQ;

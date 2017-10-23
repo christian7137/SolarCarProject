@@ -7,7 +7,7 @@
    - author: J. C. Wiley, Sept. 2014
    -
 ***************************************************************/
-#include "svtSensor.hh"
+#include "svtSensor.h"
 extern Serial pc;
 
 extern sensorManager sensorMan;

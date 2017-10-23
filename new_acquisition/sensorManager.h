@@ -10,7 +10,7 @@
 #define CAN_PAYLOAD_CREATOR_HH
 
 #include <list>
-#include "can_structs.hh"
+#include "can_structs.h"
 
 /// \brief structure that defines the data elements for each sensor
 typedef struct{

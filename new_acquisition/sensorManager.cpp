@@ -5,8 +5,8 @@
  * \author Beau Roland
 */
 #include "mbed.h"
-#include "sensorManager.hh"
-#include "can_structs.hh"
+#include "sensorManager.h"
+#include "can_structs.h"
 #include "BNO055.h"
 
 sensorManager sensorMan;

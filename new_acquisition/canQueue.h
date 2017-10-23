@@ -12,7 +12,7 @@
 #define CAN_QUEUE_HH
 
 #include <queue>
-#include "can_structs.hh"
+#include "can_structs.h"
 
 class canQueue
 {

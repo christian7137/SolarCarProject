@@ -27,7 +27,7 @@
 
 #include <utility/imumaths.h>
 #include "mbed.h"
-#include "svtSensor.hh"
+#include "svtSensor.h"
 
 extern Serial pc;
 

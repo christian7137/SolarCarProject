@@ -9,7 +9,7 @@
 #define _SVTSENSOR_H_
 
 #include "mbed.h"
-#include "sensorManager.hh"
+#include "sensorManager.h"
 
 class svtSensor{
 public:

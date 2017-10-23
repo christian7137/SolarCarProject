@@ -4,9 +4,9 @@
  * \brief Thread software that controls the creation of CAN Messages and update access to new sensor data
  */
 #include "mbed.h"
-#include "sensorManager.hh"
-#include "canQueue.hh"
-#include "can_structs.hh"
+#include "sensorManager.h"
+#include "canQueue.h"
+#include "can_structs.h"
 
 extern sensorManager sensorMan;
 extern canQueue CQ;

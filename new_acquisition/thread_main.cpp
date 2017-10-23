@@ -9,8 +9,8 @@
  
 #include "mbed.h"
 #include "BNO055.h"
-#include "svtSensor.hh"
-#include "sensorManager.hh"
+#include "svtSensor.h"
+#include "sensorManager.h"
  
 #define THREAD_TIME_INTERVAL_SEC    2
 #define SENSOR_1_ID 1

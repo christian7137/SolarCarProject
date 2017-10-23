@@ -8,18 +8,22 @@
  */
  
 #include "mbed.h"
-#include "canPayloadCreator.hh"
+#include "BNO055.h"
+#include "svtSensor.hh"
+#include "sensorManager.hh"
  
 #define THREAD_TIME_INTERVAL_SEC    2
-extern bool bLock;
-extern canPayloadCreator CPC;
+#define SENSOR_1_ID 1
+
+extern Mutex mutex_sensor_states;
+extern sensorManager sensorMan;
 Serial pc(USBTX, USBRX); // tx, rx
 DigitalOut led1(LED1);
 
 Ticker dataTimer;
 bool bTimerFlag = false;
 
-extern void thread_canPayloadCreator_main(void);
+extern void thread_sensorManager_main(void);
 extern void thread_canager_main(void);
 
 /*!
@@ -29,17 +33,23 @@ void timerCallback(void) {
     bTimerFlag = true;
 }
 /*!
- * \brief Thread function that makes use of the CPC (canPayloadCreator class) to update our sample sensor data
+ * \brief Thread function that makes use of the CPC (sensorManager class) to update our sample sensor data
  */
-void addDataToBuffer(unsigned int sensorIdx, int * pData){
+void addDataToBuffer(unsigned int sensorIdx, char * pData){
     led1 = !led1;    
 
-    pc.printf("%d\r\n", *pData);
-    CPC.updateSensorData( sensorIdx, (char *)pData);  
+    if(sensorIdx == SENSOR_1_ID){
+        BNO055_VECTOR_DATA * pVals;
+        pVals = (BNO055_VECTOR_DATA *) pData;
+        pc.printf("x:%d ", pVals->fields.x);
+        pc.printf("y:%d ", pVals->fields.y);
+        pc.printf("z:%d\r\n", pVals->fields.z);    
+    }
+    sensorMan.updateSensorData( sensorIdx, pData);  
 }
 
 /* main thread*/
-#define SENSOR_1_ID 1
+
 /*!
  * \brief Main function of Data Aquisition Firmware
  * \details This function adds sensors to the list of sensors to create CAN Messages<br>
@@ -47,9 +57,14 @@ void addDataToBuffer(unsigned int sensorIdx, int * pData){
  * Finally, this main thread on a timely basis, increments a counter, updates our sample sensor data to be this counter, and sleeps till the next timer interrupt.
  */
 int main() {
-    // initialize sensors and add a storage element to the data buffer
-    //test, creating one sensor
-    CPC.addSensor(SENSOR_1_ID, sizeof(int));   
+
+    Adafruit_BNO055 s1(SENSOR_1_ID, (0x28<<1), 1500, PB_9, PB_8);
+    
+    s1.init();
+    
+    sensorMan.addSensor(s1.getId(), s1.getSizeOfData());   
+    
+    mutex_sensor_states.unlock();
     
     // start CAN message threads
     Thread thread_CANager;
@@ -57,21 +72,24 @@ int main() {
 
     // start payload creator thread
     Thread thread_CPC;
-    thread_CPC.start(thread_canPayloadCreator_main);
+    thread_CPC.start(thread_sensorManager_main);
     
-    // SAMPLE INTERNAL DATA LOOP
-    dataTimer.attach(&timerCallback, 0.2);
+    pc.printf("begin acq loop\r\n");
     while(1)
     {
-        if(bTimerFlag == true){
-            static int count = 1;
-            while(bLock != false){}
-            bLock = true;
-            addDataToBuffer( SENSOR_1_ID , &count );
-            bLock = false;
-            count++;
-            bTimerFlag = false;    
+        if(s1.timeToSample()){
+            pc.printf("sample\t");
+            
+            bool bLock;
+            do{
+                bLock = mutex_sensor_states.trylock();
+            }while( bLock == false);
+            
+            BNO055_VECTOR_DATA data;
+            s1.sampleSensor(data.data);
+            addDataToBuffer( s1.getId() , data.data );
+            
+           mutex_sensor_states.unlock();
         }
-        sleep();
     }
 }

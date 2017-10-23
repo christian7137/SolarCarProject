@@ -24,7 +24,11 @@ void sendCanMessage(){
 		CAN_MSG nextMsg = CQ.getNextCanMsg();
 
 		/* print the can message for debugging purposes */
-		pc.printf("Canager: %#x\r\n",nextMsg); 
+		pc.printf("Out: 0x");
+	    for(int a=0; a<8; a++){
+	    	pc.printf("%2.2x", nextMsg.raw_msg[a]);
+	    }
+	    pc.printf("\r\n");
 		/* TODO: keep sending this message out of the can bus until it was successful */
 		
 	}
@@ -40,6 +44,6 @@ void thread_canager_main(void){
     while(1)
     {
 		sendCanMessage();
-		//wait(0.1); // TODO: remove at some point to increase bandwidth
     }
 }
+

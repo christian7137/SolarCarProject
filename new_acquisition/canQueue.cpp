@@ -47,5 +47,3 @@ bool canQueue::queueEmpty(void)
 {
 	return fifo.empty();
 }
-
-

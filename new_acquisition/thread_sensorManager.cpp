@@ -4,14 +4,14 @@
  * \brief Thread software that controls the creation of CAN Messages and update access to new sensor data
  */
 #include "mbed.h"
-#include "canPayloadCreator.hh"
+#include "sensorManager.hh"
 #include "canQueue.hh"
 #include "can_structs.hh"
 
-extern canPayloadCreator CPC;
+extern sensorManager sensorMan;
 extern canQueue CQ;
 extern Serial pc;
-extern bool bLock;
+extern Mutex mutex_sensor_states;
 bool bCanTimerFlag = false;
 Ticker canDumpTimer;
 DigitalOut led2(LED2);
@@ -30,11 +30,17 @@ void processTimerInterrupt_CAN(){
     led2 = !led2;    
     
     std::list<CAN_MSG> canMsgs;
-    canMsgs = CPC.createCanMessages();
+    
+    bool bLock;
+    do{
+        bLock = mutex_sensor_states.trylock();
+    }while( bLock == false);
+            
+    canMsgs = sensorMan.createCanMessages();
+    mutex_sensor_states.unlock();
     
     std::list<CAN_MSG>::iterator it;
     for ( it = canMsgs.begin(); it != canMsgs.end(); ++it){
-        pc.printf("CPC: %#x\r\n",*it); 
         CQ.push(*it);
     }
 }
@@ -44,7 +50,9 @@ void processTimerInterrupt_CAN(){
  * \brief CPC Thread start function entrance
  * \details On a timely basis, creates CAN Messages, adds them to the CAN Message FIFO, and sleeps till the next timer interrupt.
  */
-void thread_canPayloadCreator_main(void){
+void thread_sensorManager_main(void){
+    sensorMan.startTimer();
+    
     canDumpTimer.attach(&canTimerCallback, CAN_TIMER_SECS);
     while(1)
     {
@@ -55,3 +63,4 @@ void thread_canPayloadCreator_main(void){
         sleep();
     }
 }
+

@@ -21,31 +21,24 @@ class Server {
 	private:
 		
     public:
-	/*struct Json_Message{
-		int timestamp;
-        char header[];
-        float sensor_values[];
-		
-		
-		char message[3];//this is for testing, remove when done testing
-	};*/
+        
         int sock, possError,port; 
         unsigned int length;
         struct sockaddr_in serverAddr; 
 		Json_Message json_message;
 		//struct Json_Message json_message;
-        
+		
         Server(){
             port = 1500;    
             serverAddr.sin_family = AF_INET;
-            serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");//127.0.0.1, 192.168.0.255, 169.254.255.255 <- this one computer to RPi
+            serverAddr.sin_addr.s_addr = inet_addr("169.254.255.255");//127.0.0.1, 192.168.0.255, 169.254.255.255 <- this one computer to RPi
             serverAddr.sin_port = htons(port);//atoi(argv[2])
             length=sizeof(struct sockaddr_in);
 			//json_message.message[0]= 'y';
 			//json_message.message[1]='o';
 			//json_message.message[2]='\n';
 			//strcpy(json_message.message,"does this work");
-			json_message.json.timestamp = 0;
+			//json_message.json.timestamp = 0;
         }
         
         bool connectSock(void){
@@ -81,9 +74,10 @@ int main(int argc, char *argv[])
     int count = 0;      //testing
 	//std::cout << "Sending the following data: " << server.json_message.json.timestamp << std::endl;
 	for(int i = 0; i < 20; i++){
+		server.json_message.setTimestamp(i);
 		server.json_message.printJson();
 		server.possError = sendto(server.sock,(struct Json_Message*)&server.json_message.json, strlen(buffer),0,(const struct sockaddr *)&server.serverAddr,server.length);//change strlen(buffer)
-		server.json_message.setTimestamp(i+1);
+		
 	}
 	/*while(count < 100){
        server.sendPacket(buffer);

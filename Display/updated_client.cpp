@@ -90,8 +90,10 @@ int main(int argc, char *argv[]){
 	//client.json_message.json.timestamp = 1;
 	
 	for(int i = 0; i <20; i++){
-		client.possError = recvfrom(client.sock, (struct Json_Message*)&client.json_message.json, 256, 0,(struct sockaddr *)&client.sourceAddress,&client.sourceSize);//(struct Json_Message*)&json_message
-		std::cout << "Count is at: " << i << " Timestamp is: " << client.json_message.json.timestamp << std::endl;
+		client.possError = recvfrom(client.sock, (struct Json_Message*)&client.json_message.all_json, sizeof(client.json_message.all_json), 0,(struct sockaddr *)&client.sourceAddress,&client.sourceSize);//(struct Json_Message*)&json_message
+		//std::cout << "Time is: " <<client.json_message.all_json.json2.time << std::endl;
+		client.json_message.printJson();
+		//std::cout << "Count is at: " << i << " Timestamp is: " << client.json_message.all_json.json1.timestamp << std::endl;
 	}
 	
    int count = 0;//testing

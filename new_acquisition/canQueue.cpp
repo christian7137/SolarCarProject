@@ -6,8 +6,8 @@
 */
 
 #include "mbed.h"
-#include "canQueue.hh"
-#include "can_structs.hh"
+#include "canQueue.h"
+#include "can_structs.h"
 
 canQueue CQ;
 extern Serial pc;
@@ -47,5 +47,3 @@ bool canQueue::queueEmpty(void)
 {
 	return fifo.empty();
 }
-
-

@@ -21,11 +21,10 @@ typedef struct{
 #define PKT_TYPE_1 1
 
 typedef struct{
-    unsigned short  sensor1Data;
-    signed char     sensor2Data;
-    unsigned short  sensor3Data;
+    int16_t  accX;
+    int16_t  accY;
+    int16_t  accZ;
 }canPktType2;
-#define PKT_SIZE_2 5
 #define PKT_TYPE_2 2
 
 typedef struct{
@@ -37,13 +36,18 @@ typedef struct{
 /* CAN PAYLOAD STRUCT */
 #define MAX_CAN_MSG_LEN 8
 typedef struct{
-    char type;
     union{
-        unsigned char pData[MAX_CAN_MSG_LEN - 1 ];
-        canPktType1 type1;
-        canPktType2 type2;
-        canPktType3 type3;
-    }data;
+        char raw_msg[MAX_CAN_MSG_LEN];
+        struct{
+            char type;
+            union{
+                unsigned char pData[MAX_CAN_MSG_LEN - 1 ];
+                canPktType1 type1;
+                canPktType2 type2;
+                canPktType3 type3;
+            }data;
+        }payload;
+    };
 }CAN_MSG;
 #pragma pop
 

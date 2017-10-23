@@ -11,6 +11,7 @@
 #include "BNO055.h"
 #include "svtSensor.h"
 #include "sensorManager.h"
+#include "nucleo_hat_pin_names.h"
  
 #define THREAD_TIME_INTERVAL_SEC    2
 #define SENSOR_1_ID 1
@@ -58,7 +59,7 @@ void addDataToBuffer(unsigned int sensorIdx, char * pData){
  */
 int main() {
 
-    Adafruit_BNO055 s1(SENSOR_1_ID, (0x28<<1), 1500, PB_9, PB_8);
+    Adafruit_BNO055 s1(SENSOR_1_ID, (HAT_BNO_ADDR<<1), 1500, HAT_BNO_SDA, HAT_BNO_SCL);
     
     s1.init();
     

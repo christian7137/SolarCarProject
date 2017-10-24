@@ -1,14 +1,6 @@
 //this is the json message format that will be sent between the pit and car RPi
 //Note: Cannot use strings. When a string is created, it is a pointer to the string, not the string value.
 //Thus, the value associated with the string will be pointer, which will cause a seg. fault
-/*struct Json_Message{{
-		int timestamp;
-        char header[];
-        float sensor_values[];
-		
-		
-		char message[3];//this is for testing, remove when done testing
-};*/
 
 class Json_Message{
 	private:
@@ -45,14 +37,16 @@ class Json_Message{
 	Luminosity luminosity_child;
 	
 	Json_Message(){
-		//json = (struct Json*)malloc(sizeof(Json));
 		json.timestamp = 0;
-		json_temp.time = 15;
-		all_json.json1=json;
-		all_json.json2=json_temp;
-		all_json.luminosity_message=luminosity_child;		
-		all_json.luminosity_message.data = 0;
-		all_json.luminosity_message.sensor_id = 0;
+		json_temp.time = 0;
+		luminosity_child.data = 0;
+		luminosity_child.sensor_id = 0;
+		combineIntoSingleJson();
+		//all_json.json1=json;
+		//all_json.json2=json_temp;
+		//all_json.luminosity_message=luminosity_child;		
+		//all_json.luminosity_message.data = 0;
+		//all_json.luminosity_message.sensor_id = 0;
 	}
 	/*Json_Message(1){
 		//json = (struct Json*)malloc(sizeof(Json));
@@ -60,17 +54,19 @@ class Json_Message{
 	}*/
 	
 	void printJson(){
-		std::cout << "Timestamp: " << all_json.json1.timestamp << " Time is: " << all_json.json2.time << std::endl;
+		//std::cout << "Timestamp: " << all_json.json1.timestamp << " Time is: " << all_json.json2.time << std::endl;
 		std::cout << "Lum data: " << all_json.luminosity_message.data << " Lum ID " << all_json.luminosity_message.sensor_id << std::endl;
 	}
 	
 	void setTime(int i){
 		//std::cout << "VALUE FROM TIME IS: " << i << std::endl;
 		json_temp.time = i;
+		all_json.json2 = json_temp;
 	}
-	void setAllJson(){
+	void combineIntoSingleJson(){
 		all_json.json1=json;
 		all_json.json2=json_temp;
+		all_json.luminosity_message=luminosity_child;
 	}
 	//set methods
 	void setLumData(int i){
@@ -86,6 +82,7 @@ class Json_Message{
 	void setTimestamp(int temp_ts){
 		//std::cout << "VALUE FROM TIMESTAMP IS: " << temp_ts << std::endl;
 		json.timestamp = temp_ts;
+		all_json.json1 = json;
 	}
 	
 	void setHeader(char tempHead[]){
@@ -104,15 +101,16 @@ class Json_Message{
 	int getLumID(){
 		return all_json.luminosity_message.sensor_id;
 	}
-	int getTimestamp(){
-		return json.timestamp;
-	}
 	
+	int getTimestamp(){
+		return all_json.json1.timestamp;
+	}
+	/*
 	char* getHeader(){//DONT KNOW IF THIS WORKS
-		return json.header;
+		return all_json.json1.header;
 	}
 	
 	float* getSenor(){//DONT KNOW IF THIS WORKS
-		return json.sensor_values;
-	}
+		return all_json.json1.sensor_values;
+	}*/
 };

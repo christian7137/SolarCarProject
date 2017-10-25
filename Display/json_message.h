@@ -5,14 +5,14 @@
 class Json_Message{
 	private:
 		
-		struct Json1{
+		struct StateOfCharge{
 			int timestamp;
 			char header[];
 			float sensor_values[];		
 		};
 		
 		
-		struct Json2{
+		struct Orientation{
 			int time;
 			int header[];
 			int sensor_values[];
@@ -22,56 +22,55 @@ class Json_Message{
 			int data;
 			int sensor_id;
 		};
-		//value ID of sensor
-		//luminosity,state of charge, orientation
+		
 		struct All_Json{
-			struct Json1 json1;
-			struct Json2 json2;
+			struct StateOfCharge stateOfCharge_message;
+			struct Orientation orientation_message;
 			struct Luminosity luminosity_message;
 		};
 		
+		
+		//define all the sensor structs to use 
+		StateOfCharge stateOfCharge_child;
+		Orientation orientation_child;
+		Luminosity luminosity_child;
+	
 	public:
+	//define the main json struct as public
 	All_Json all_json;
-	Json1 json;//get error when putting this in private, cant send a temp variable
-	Json2 json_temp;
-	Luminosity luminosity_child;
+	
 	
 	Json_Message(){
-		json.timestamp = 0;
-		json_temp.time = 0;
+		stateOfCharge_child.timestamp = 0;
+		orientation_child.time = 0;
 		luminosity_child.data = 0;
 		luminosity_child.sensor_id = 0;
 		combineIntoSingleJson();
-		//all_json.json1=json;
-		//all_json.json2=json_temp;
-		//all_json.luminosity_message=luminosity_child;		
-		//all_json.luminosity_message.data = 0;
-		//all_json.luminosity_message.sensor_id = 0;
 	}
-	/*Json_Message(1){
-		//json = (struct Json*)malloc(sizeof(Json));
-		json.timestamp = 0;
-	}*/
+	
+	//put all of the structs into a single json message/struct
+	void combineIntoSingleJson(){
+		all_json.stateOfCharge_message=stateOfCharge_child;
+		all_json.orientation_message=orientation_child;
+		all_json.luminosity_message=luminosity_child;
+	}
 	
 	void printJson(){
 		//std::cout << "Timestamp: " << all_json.json1.timestamp << " Time is: " << all_json.json2.time << std::endl;
 		std::cout << "Lum data: " << all_json.luminosity_message.data << " Lum ID " << all_json.luminosity_message.sensor_id << std::endl;
 	}
 	
-	void setTime(int i){
-		//std::cout << "VALUE FROM TIME IS: " << i << std::endl;
-		json_temp.time = i;
-		all_json.json2 = json_temp;
-	}
-	void combineIntoSingleJson(){
-		all_json.json1=json;
-		all_json.json2=json_temp;
-		all_json.luminosity_message=luminosity_child;
-	}
-	//set methods
+	/****************************************************************************************************************
+	* Set Methods
+	****************************************************************************************************************/
 	void setLumData(int i){
 		luminosity_child.data = i;
 		all_json.luminosity_message = luminosity_child;
+	}
+	
+	void setTime(int i){
+		orientation_child.time = i;
+		all_json.orientation_message = orientation_child;
 	}
 	
 	void setLumID(int i){
@@ -80,20 +79,22 @@ class Json_Message{
 	}
 	
 	void setTimestamp(int temp_ts){
-		//std::cout << "VALUE FROM TIMESTAMP IS: " << temp_ts << std::endl;
-		json.timestamp = temp_ts;
-		all_json.json1 = json;
+		stateOfCharge_child.timestamp = temp_ts;
+		all_json.stateOfCharge_message = stateOfCharge_child;
 	}
 	
+	/*
 	void setHeader(char tempHead[]){
 		
 	}
 	
 	void setSensor(float temp_sensor[]){
 		
-	}
+	}*/
 	
-	//get methods
+	/****************************************************************************************************************
+	* Get Methods
+	****************************************************************************************************************/
 	int getLumData(){
 		return all_json.luminosity_message.data;
 	}
@@ -103,7 +104,7 @@ class Json_Message{
 	}
 	
 	int getTimestamp(){
-		return all_json.json1.timestamp;
+		return all_json.stateOfCharge_message.timestamp;
 	}
 	/*
 	char* getHeader(){//DONT KNOW IF THIS WORKS

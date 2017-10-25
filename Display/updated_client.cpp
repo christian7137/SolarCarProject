@@ -32,10 +32,12 @@ class Client {
 			sockConnect();
 			bindClient();
         }
+		
 		void error(const char *msg){
-    perror(msg);
-    exit(0);
-}
+			perror(msg);
+			exit(0);
+		}
+		
         void sockConnect(void){
             if((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0){
                 error("Opening socket");
@@ -79,7 +81,7 @@ int main(int argc, char *argv[]){
        //code below is for testing
        client.json_message.printJson();
        count++;
-       std::cout << "Received packet # " << count << std::endl;
+       std::cout << "Received packet # " << count << std::endl << std::endl;
       // if(count >= 100) break; 
    }
    

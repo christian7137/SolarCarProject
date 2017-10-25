@@ -19,12 +19,11 @@ void error(const char *);
 
 class Server {
 	private:
-		
-    public:
-        
-        int sock, possError,port; 
+		int sock, possError,port; 
         unsigned int length;
         struct sockaddr_in serverAddr; 
+    
+	public: 
 		Json_Message json_message;
 		
         Server(){

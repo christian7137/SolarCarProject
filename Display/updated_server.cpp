@@ -23,6 +23,17 @@ class Server {
         unsigned int length;
         struct sockaddr_in serverAddr; 
     
+		void error(const char *msg){
+			perror(msg);
+			exit(0);
+		}
+
+        void connectSock(void){
+            if((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0){
+                 error("socket");
+            }
+        }
+		
 	public: 
 		Json_Message json_message;
 		
@@ -33,18 +44,7 @@ class Server {
             serverAddr.sin_port = htons(port);//atoi(argv[2])
             length=sizeof(struct sockaddr_in);
 			connectSock();
-		}
-		
-        void error(const char *msg){
-			perror(msg);
-			exit(0);
-		}
-
-        void connectSock(void){
-            if((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0){
-                 error("socket");
-            }
-        }
+		}  
         
         void sendPacket(){
 			possError = sendto(sock,(struct Json_Message*)&json_message.all_json, sizeof(json_message.all_json),0,(const struct sockaddr *)&serverAddr,length);
@@ -56,6 +56,7 @@ class Server {
 };
 
 
+//testing the class, delete or comment when testing is complete
 int main(int argc, char *argv[])
 {
 	

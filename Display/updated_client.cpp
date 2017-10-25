@@ -14,24 +14,11 @@
 //Once a Client object is created, everything will be initialized. Only maintenance is to
 //close the socket before exiting the program. client.closeSocket() must be called.
 class Client {
-	public:
-        int sock, possError, serverSize, port;
+	private:
+		int sock, possError, serverSize, port;
         socklen_t sourceSize;
         struct sockaddr_in server;
         struct sockaddr_in sourceAddress;
-		Json_Message json_message;
-            
-        Client(){//initalize the client side
-            port = 1500;
-            serverSize = sizeof(server);
-            server.sin_family=AF_INET;
-            server.sin_addr.s_addr=INADDR_ANY;
-            server.sin_port=htons(port);
-            sourceSize = sizeof(struct sockaddr_in);
-			
-			sockConnect();
-			bindClient();
-        }
 		
 		void error(const char *msg){
 			perror(msg);
@@ -49,6 +36,22 @@ class Client {
                  error("binding");
 		    } 
         }
+		
+		
+	public:
+		Json_Message json_message;
+           
+        Client(){//initalize the client side
+            port = 1500;
+            serverSize = sizeof(server);
+            server.sin_family=AF_INET;
+            server.sin_addr.s_addr=INADDR_ANY;
+            server.sin_port=htons(port);
+            sourceSize = sizeof(struct sockaddr_in);
+			
+			sockConnect();
+			bindClient();
+        }
         
         void receivePacket(void){
             //std::cout << "wating for data..." << std::endl;
@@ -65,6 +68,7 @@ class Client {
         }
 };
 
+//testing the class, delete or comment when testing is complete
 int main(int argc, char *argv[]){
    Client client;
 

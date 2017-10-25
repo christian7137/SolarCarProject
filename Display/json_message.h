@@ -2,13 +2,16 @@
 //Note: Cannot use strings. When a string is created, it is a pointer to the string, not the string value.
 //Thus, the value associated with the string will be pointer, which will cause a seg. fault
 
+//sizeof returns the size in bytes
 class Json_Message{
 	private:
 		
 		struct StateOfCharge{
-			int timestamp;
+			int timestamp;//each one is 4 bytes -> atleast for ints
 			char header[];
-			float sensor_values[];		
+			float sensor_values[];	
+//int sdfsd;
+//int asf;			
 		};
 		
 		
@@ -20,16 +23,17 @@ class Json_Message{
 		
 		struct Luminosity{
 			int data;
-			int sensor_id;
+			int sensor_id;//header
+			//int timestamp;
 		};
 		
 		struct All_Json{
 			struct StateOfCharge stateOfCharge_message;
-			struct Orientation orientation_message;
+			//struct Orientation orientation_message;
 			struct Luminosity luminosity_message;
 		};
 		
-		
+		//4 sensors
 		//define all the sensor structs to use 
 		StateOfCharge stateOfCharge_child;
 		Orientation orientation_child;
@@ -51,13 +55,14 @@ class Json_Message{
 	//put all of the structs into a single json message/struct
 	void combineIntoSingleJson(){
 		all_json.stateOfCharge_message=stateOfCharge_child;
-		all_json.orientation_message=orientation_child;
+		//all_json.orientation_message=orientation_child;
 		all_json.luminosity_message=luminosity_child;
 	}
 	
 	void printJson(){
 		//std::cout << "Timestamp: " << all_json.json1.timestamp << " Time is: " << all_json.json2.time << std::endl;
-		std::cout << "Lum data: " << all_json.luminosity_message.data << " Lum ID " << all_json.luminosity_message.sensor_id << std::endl;
+		std::cout << "Lum data: " << all_json.luminosity_message.data << " Lum ID " << all_json.luminosity_message.sensor_id;
+		//std::cout	<< " Timestamp: " << all_json.stateOfCharge_message.timestamp << std::endl;
 	}
 	
 	/****************************************************************************************************************
@@ -70,7 +75,7 @@ class Json_Message{
 	
 	void setTime(int i){
 		orientation_child.time = i;
-		all_json.orientation_message = orientation_child;
+		//all_json.orientation_message = orientation_child;
 	}
 	
 	void setLumID(int i){

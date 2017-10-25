@@ -16,7 +16,6 @@
 class Client {
 	public:
         int sock, possError, serverSize, port;
-        //char buf[256];remove after making sure it works
         socklen_t sourceSize;
         struct sockaddr_in server;
         struct sockaddr_in sourceAddress;

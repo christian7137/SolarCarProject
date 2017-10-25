@@ -46,9 +46,8 @@ class Server {
             }
         }
         
-        void sendPacket(){//void sendPacket(char buffer[]){
+        void sendPacket(){
 			possError = sendto(sock,(struct Json_Message*)&json_message.all_json, sizeof(json_message.all_json),0,(const struct sockaddr *)&serverAddr,length);
-            //possError = sendto(sock,buffer, 1024,0,(const struct sockaddr *)&serverAddr,length);//change strlen(buffer)
         }
         
         void closeSocket(void){

@@ -11,7 +11,8 @@
 #include "json_message.h"
 
 
-
+//Once a Client object is created, everything will be initialized. Only maintenance is to
+//close the socket before exiting the program. client.closeSocket() must be called.
 class Client {
 	public:
         int sock, possError, serverSize, port;
@@ -67,11 +68,7 @@ class Client {
 
 int main(int argc, char *argv[]){
    Client client;
-/*   if(!client.sockConnect())
-        return 0;
-   if(!client.bindClient())
-        return 0;
-*/
+
 	
    int count = 0;//testing
    

@@ -1,0 +1,5 @@
+Test 1 - 43 seconds
+Test 2 - 42 seconds
+Test 3 - 46 seconds
+
+Router Boot Time - TBD, but seems to be around 25 seconds

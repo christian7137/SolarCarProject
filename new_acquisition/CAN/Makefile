@@ -28,12 +28,12 @@ CMDOPTS=
 headers= SVT_CAN.h \
          SV_stdlibs.h \
          SV_gpio.h \
-         SV_error.h 
+         SV_error.h \
                  
 sources= main.cpp \
          SVT_CAN.cpp \
          SV_gpio.cpp \
-         SV_error.cpp 
+         SV_error.cpp \
      
 objects=  \
          main.o \

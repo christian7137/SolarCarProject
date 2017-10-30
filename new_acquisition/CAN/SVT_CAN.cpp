@@ -16,6 +16,11 @@
 ****************************************************/
 #include "SV_stdlibs.h"
 #include "SVT_CAN.h"
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include "json_message.h"
+#include <time.h>
+#include <chrono>
 #include "/usr/include/linux/can/error.h"
 
 /* At time of writing, these constants are not defined in the headers */
@@ -28,6 +33,17 @@
 #endif
 
 fstream outFile;
+fstream configFile;
+ifstream logCheck;
+
+int *msgname;
+int msgnamec = 0;
+string *sensors;
+string *ids;
+int tokc = 0;
+
+std::chrono::milliseconds uptime(0u);
+int uptime_seconds;
 
 //void SV_perror(const string& s, const int a_errno, const int err);
 /**************************************************
@@ -40,6 +56,44 @@ SVT_CAN::SVT_CAN(){
      msg_ready = false;
 }
 
+class Server {
+	private:
+		int sock, possError,port; 
+        unsigned int length;
+        struct sockaddr_in serverAddr; 
+    
+		void error(const char *msg){
+			perror(msg);
+			exit(0);
+		}
+
+        void connectSock(void){
+            if((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0){
+                 error("socket");
+            }
+        }
+		
+	public: 
+		Json_Message json_message;
+		
+        Server(){
+            port = 1500;    
+            serverAddr.sin_family = AF_INET;
+            serverAddr.sin_addr.s_addr = inet_addr("192.168.0.101");//127.0.0.1, 192.168.0.255, 169.254.255.255 <- this one computer to RPi
+            serverAddr.sin_port = htons(port);//atoi(argv[2])
+            length=sizeof(struct sockaddr_in);
+			connectSock();
+		}  
+        
+        void sendPacket(){
+			possError = sendto(sock,(struct Json_Message*)&json_message.all_json, sizeof(json_message.all_json),0,(const struct sockaddr *)&serverAddr,length);
+        }
+        
+        void closeSocket(void){
+            close(sock);
+        }
+};
+
 /**************************************************
 -
 - Destructor
@@ -48,6 +102,67 @@ SVT_CAN::SVT_CAN(){
 SVT_CAN::~SVT_CAN(){
 
 }
+
+int SVT_CAN::init_log(){
+
+	
+	int MAX_SENSE = 0;
+	string line;
+	char *token, *subtoken, *saveptr1, *saveptr2;
+
+	while(getline(configFile, line)){
+
+		char *dup = strdup(line.c_str());
+		token = strtok_r(dup, "'", &saveptr1);
+
+		if(!strcmp(token, "MAX_CONCURRENT_MSGS:")){
+		
+			token = strtok_r(NULL, "'", &saveptr1);
+			int MAX_CONCURRENT_MSGS = atoi(token);
+			msgname = new int [MAX_CONCURRENT_MSGS];
+			for(int i=0; i<MAX_CONCURRENT_MSGS; i++){
+				msgname[i] = 0;
+			}
+
+		} else if(!strcmp(token, "MAX_NUMBER_SENSORS:")){
+
+			token = strtok_r(NULL, "'", &saveptr1);
+			MAX_SENSE = atoi(token);				
+
+		} else if(!strcmp(token,"SENSORS:")){
+			
+			sensors = new string [MAX_SENSE];
+			ids = new string [MAX_SENSE];
+			token = strtok_r(NULL, "'", &saveptr1);
+			while(token != NULL){
+	
+				if(strcmp(token, ",")){
+					subtoken = strtok_r(token, "=", &saveptr2);
+					if(subtoken != NULL){
+						sensors[tokc] = subtoken;
+						subtoken = strtok_r(NULL, "=", &saveptr2); 
+						ids[tokc] = subtoken; 
+						tokc++;
+					} else {
+						cout << "ERROR: wrong format for config.txt SENSORS: \'name=id\'" << endl;
+					}
+				}
+				token = strtok_r(NULL, "'", &saveptr1);
+
+			}
+
+		}
+		free(dup);
+		
+
+	}
+	configFile.close();
+
+	return 0;
+
+}
+
+Server server;
 
 /**************************************************
 -
@@ -139,8 +254,20 @@ int SVT_CAN::init(){
    TxMsg.msg_iovlen = 1;
    TxMsg.msg_control = &ctrlmsg;
 
-   outFile.open("output.txt", ios::out);
-   cout << "output file made\n";
+   configFile.open("config.txt", ios::in);
+   if(std::ifstream("output.txt")){
+	outFile.open("output.txt", ios::out | ios::app);
+	init_log();
+   } else {
+	outFile.open("output.txt", ios::out | ios::app);
+	init_log();
+	for(int i=0; i<tokc; i++){
+		outFile << sensors[i] << " ";
+	}
+	outFile << endl;
+   }
+   
+   cout << "output file made\n"; 
 
    return 0;
 }
@@ -434,35 +561,107 @@ int SVT_CAN::readmsg(struct can_frame& frame){
 
 /**************************************************
    -
+   - parse_canframe
+   -
+ *************************************************/
+
+int SVT_CAN::parse_canframe(struct can_frame& cf, int sensor, stringstream& buf, int idx){
+
+	int value;
+	int i;
+	/* NEED TO MAKE THIS AUTO */
+	string LIGHT = "LIGHT";
+	string ORIEN = "ORIENTATION";
+	string GPS = "GPS";
+	string CHARGE = "CHARGE";
+
+	for(i=0; i<tokc; i++){
+		if(sensor == atoi(ids[i].c_str())){
+			break;
+		}
+	}
+
+	int msgid = int(cf.data[idx]);
+	msgname[msgid]++;
+	
+	if(!sensors[i].compare(LIGHT)){
+		value = int(cf.data[idx]) * 256;
+		idx++;
+		value += int(cf.data[idx]);
+		buf << value;
+	} else if(!sensors[i].compare(ORIEN)){
+	} else if(!sensors[i].compare(GPS)){
+	} else if(!sensors[i].compare(CHARGE)){
+	} else {
+		buf << int(cf.data[idx]);
+	}
+
+	UDP_send(uptime.count(), sensor, value);
+	return idx;
+
+}
+
+/**************************************************
+   -
    - store_canframe
    -
  *************************************************/
 void SVT_CAN::store_canframe(struct can_frame& cf){
 	stringstream buf;
 	int dlc = (cf.can_dlc > 8)? 8 : cf.can_dlc;
+	int type;
+
+	if(std::ifstream("/proc/uptime", std::ios::in) >> uptime_seconds){
+
+		uptime = std::chrono::milliseconds(
+			static_cast<unsigned long long>(uptime_seconds)*1000ULL
+			);
+
+	}
 
 	//buf << header;
 
-	if(cf.can_id & CAN_ERR_FLAG) {
+	/*if(cf.can_id & CAN_ERR_FLAG) {
 		buf <<  hex << int(cf.can_id & (CAN_ERR_MASK|CAN_ERR_FLAG));
 	} else if (cf.can_id & CAN_EFF_FLAG) {
 		buf << hex << int(cf.can_id & CAN_EFF_MASK);
 	} else {
 		buf << hex <<  int(cf.can_id & CAN_SFF_MASK);
 	}
-	buf << " ";
+	buf << " ";*/
 
 	if(cf.can_id & CAN_RTR_FLAG) /* there are no ERR frames with RTR */
 		buf << "R";
 	else
-		for(int i = 0; i < dlc; i++) {
-			buf <<  hex << int(cf.data[i]);
-			if((i+1 < dlc))
-				buf <<  ".";
+		type = int(cf.data[0]);
+		buf << uptime.count();
+		buf << " ";
+		buf << type;
+		buf << " ";
+		for(int i = 1; i < dlc; i++) {
+			if(!cf.data[i])
+				break;
+			
+			i = parse_canframe(cf, type, buf, i);
+			
 		}
+
 	buf << endl;
     	outFile << buf.str();
     	outFile.flush();
+
+}
+
+
+
+void SVT_CAN::UDP_send(int time, int ID, int val){
+
+	server.json_message.setTimestamp(time);
+	server.json_message.setLumData(val);
+	server.json_message.setLumID(ID);
+	server.json_message.printJson();
+	server.sendPacket();
+
 }
 
 /**************************************************
@@ -474,10 +673,9 @@ void SVT_CAN::store_canframe(struct can_frame& cf){
 //Modify this to get the data from the rxframe
 void SVT_CAN::print_canframe(string header, struct can_frame& cf){
 	
-	store_canframe(cf);
+	store_canframe(cf);	
 	
-	/*
-	stringstream buf;
+	/*stringstream buf;
 	int dlc = (cf.can_dlc > 8)? 8 : cf.can_dlc;
 	
 	buf << header;
@@ -490,6 +688,7 @@ void SVT_CAN::print_canframe(string header, struct can_frame& cf){
 		buf << hex <<  int(cf.can_id & CAN_SFF_MASK);
 	}
 	buf << " ";
+	
 
 	if(cf.can_id & CAN_RTR_FLAG) // there are no ERR frames with RTR 
 		buf << "R";
@@ -500,7 +699,7 @@ void SVT_CAN::print_canframe(string header, struct can_frame& cf){
 				buf <<  ".";
 		}
 	buf << endl;
-    	cout << buf.str();
-	*/
+    	cout << buf.str();*/
+	
 }
 

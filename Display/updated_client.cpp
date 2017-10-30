@@ -1,5 +1,5 @@
 //UDP Client: receives packets from the server
-#include <sys/types.h>
+/*#include <sys/types.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -66,7 +66,7 @@ class Client {
         void closeSocket(void){
             close(sock);
         }
-};
+};*/
 
 //testing the class, delete or comment when testing is complete
 int main(int argc, char *argv[]){

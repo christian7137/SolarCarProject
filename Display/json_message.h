@@ -9,14 +9,14 @@ class Json_Message{
 		
 		struct StateOfCharge{
 			bool valid;
-			int timestamp;//each one is 4 bytes -> atleast for ints
+			int16_t timestamp;//each one is 4 bytes -> atleast for ints
 			int sensor_id;
 			int data[4];
 		};
 		
 		struct Orientation{
 			bool valid;
-			int timestamp;
+			int16_t timestamp;
 			int sensor_id;
 			int angle[2];//int angle (dir, pitch)
 			int16_t accel[3];//acceleration x,y,z int16
@@ -26,19 +26,20 @@ class Json_Message{
 		
 		struct Luminosity{
 			bool valid;
-			int timestamp;
+			int16_t timestamp;
 			int sensor_id;
 			int data;			
 		};
 		
 		struct GPS{
 			bool valid;
-			int timestamp;
+			int16_t timestamp;
 			int sensor_id;
 			float location[2];//float lat and long
 		};
 		
 		struct All_Json{
+			int16_t topTimestamp;
 			struct StateOfCharge stateOfCharge;
 			struct Orientation orientation;
 			struct Luminosity luminosity;

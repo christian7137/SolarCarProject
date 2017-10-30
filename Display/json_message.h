@@ -26,7 +26,7 @@ class Json_Message{
 		
 		struct Luminosity{
 			bool valid;
-			int16_t timestamp;
+			int timestamp;
 			int sensor_id;
 			int data;			
 		};
@@ -434,7 +434,13 @@ class Json_Message{
 	* Set Methods
 	****************************************************************************************************************/
 	//LOOK IF THE USER INPUTS NULL!@!@!##!@@#!@$!@$&$^!&@$%!@^&$%!@^&$*@$@!$@!^$*@*^@
+	void set_ts_json(int ts){
+		all_json.topTimestamp = (ts&0xFF00)>>8;
+		std::cout << "Timestamp is: " << all_json.topTimestamp;
+	}
+	
 	void setLumSensor(int ts, int id, int tempData){
+		//set_ts_json(ts);
 		all_json.luminosity.valid = true;
 		all_json.luminosity.timestamp = ts;
 		all_json.luminosity.sensor_id = id;

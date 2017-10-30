@@ -36,10 +36,11 @@ fstream outFile;
 fstream configFile;
 ifstream logCheck;
 
+int *msgname;
+int msgnamec = 0;
 string *sensors;
 string *ids;
 int tokc = 0;
-int idc = 0;
 
 std::chrono::milliseconds uptime(0u);
 int uptime_seconds;
@@ -107,46 +108,46 @@ int SVT_CAN::init_log(){
 	
 	int MAX_SENSE = 0;
 	string line;
-	char* token;
-	string apschk("'");
-	string comchk(",");
+	char *token, *subtoken, *saveptr1, *saveptr2;
 
 	while(getline(configFile, line)){
 
 		char *dup = strdup(line.c_str());
-		token = strtok(dup, "'");
+		token = strtok_r(dup, "'", &saveptr1);
 
-		if(!strcmp(token, "MAX_NUMBER_SENSORS:")){
+		if(!strcmp(token, "MAX_CONCURRENT_MSGS:")){
+		
+			token = strtok_r(NULL, "'", &saveptr1);
+			int MAX_CONCURRENT_MSGS = atoi(token);
+			msgname = new int [MAX_CONCURRENT_MSGS];
+			for(int i=0; i<MAX_CONCURRENT_MSGS; i++){
+				msgname[i] = 0;
+			}
 
-			token = strtok(NULL, "'");
-			MAX_SENSE = atoi(token);
-				
+		} else if(!strcmp(token, "MAX_NUMBER_SENSORS:")){
+
+			token = strtok_r(NULL, "'", &saveptr1);
+			MAX_SENSE = atoi(token);				
 
 		} else if(!strcmp(token,"SENSORS:")){
 			
 			sensors = new string [MAX_SENSE];
-			token = strtok(NULL, "'");
-			while(token != NULL){
-
-				if(strcmp(token, ",")){ 
-					sensors[tokc] = token; 
-					tokc++;
-				}
-				token = strtok(NULL, "'");
-
-			}
-
-		} else if(!strcmp(token, "IDS:")){
-
 			ids = new string [MAX_SENSE];
-			token = strtok(NULL, "'");
+			token = strtok_r(NULL, "'", &saveptr1);
 			while(token != NULL){
-
+	
 				if(strcmp(token, ",")){
-					ids[idc] = token;
-					idc++;
+					subtoken = strtok_r(token, "=", &saveptr2);
+					if(subtoken != NULL){
+						sensors[tokc] = subtoken;
+						subtoken = strtok_r(NULL, "=", &saveptr2); 
+						ids[tokc] = subtoken; 
+						tokc++;
+					} else {
+						cout << "ERROR: wrong format for config.txt SENSORS: \'name=id\'" << endl;
+					}
 				}
-				token = strtok(NULL, "'");
+				token = strtok_r(NULL, "'", &saveptr1);
 
 			}
 
@@ -155,13 +156,7 @@ int SVT_CAN::init_log(){
 		
 
 	}
-	if(idc != tokc){ cout << "ERROR: Number of IDS=" << idc <<  "does not match number of SENSORS=" << tokc << "." << endl; }
 	configFile.close();
-	
-	for(int i=0; i<tokc; i++){
-		outFile << sensors[i] << " ";
-	}
-	outFile << endl;
 
 	return 0;
 
@@ -262,9 +257,14 @@ int SVT_CAN::init(){
    configFile.open("config.txt", ios::in);
    if(std::ifstream("output.txt")){
 	outFile.open("output.txt", ios::out | ios::app);
+	init_log();
    } else {
 	outFile.open("output.txt", ios::out | ios::app);
 	init_log();
+	for(int i=0; i<tokc; i++){
+		outFile << sensors[i] << " ";
+	}
+	outFile << endl;
    }
    
    cout << "output file made\n"; 
@@ -561,6 +561,48 @@ int SVT_CAN::readmsg(struct can_frame& frame){
 
 /**************************************************
    -
+   - parse_canframe
+   -
+ *************************************************/
+
+int SVT_CAN::parse_canframe(struct can_frame& cf, int sensor, stringstream& buf, int idx){
+
+	int value;
+	int i;
+	/* NEED TO MAKE THIS AUTO */
+	string LIGHT = "LIGHT";
+	string ORIEN = "ORIENTATION";
+	string GPS = "GPS";
+	string CHARGE = "CHARGE";
+
+	for(i=0; i<tokc; i++){
+		if(sensor == atoi(ids[i].c_str())){
+			break;
+		}
+	}
+
+	int msgid = int(cf.data[idx]);
+	msgname[msgid]++;
+	
+	if(!sensors[i].compare(LIGHT)){
+		value = int(cf.data[idx]) * 256;
+		idx++;
+		value += int(cf.data[idx]);
+		buf << value;
+	} else if(!sensors[i].compare(ORIEN)){
+	} else if(!sensors[i].compare(GPS)){
+	} else if(!sensors[i].compare(CHARGE)){
+	} else {
+		buf << int(cf.data[idx]);
+	}
+
+	UDP_send(uptime.count(), sensor, value);
+	return idx;
+
+}
+
+/**************************************************
+   -
    - store_canframe
    -
  *************************************************/
@@ -568,7 +610,6 @@ void SVT_CAN::store_canframe(struct can_frame& cf){
 	stringstream buf;
 	int dlc = (cf.can_dlc > 8)? 8 : cf.can_dlc;
 	int type;
-	int value;
 
 	if(std::ifstream("/proc/uptime", std::ios::in) >> uptime_seconds){
 
@@ -600,22 +641,15 @@ void SVT_CAN::store_canframe(struct can_frame& cf){
 		for(int i = 1; i < dlc; i++) {
 			if(!cf.data[i])
 				break;
-			//buf <<  cf.data[i];
-			if(type == 3){
-				value = int(cf.data[i]) * 256;
-				i++;
-				value += int(cf.data[i]);
-				buf << value;
-			} else {
-				buf << int(cf.data[i]);
-			}
+			
+			i = parse_canframe(cf, type, buf, i);
+			
 		}
 
 	buf << endl;
     	outFile << buf.str();
     	outFile.flush();
 
-	UDP_send(uptime.count(), type, value);
 }
 
 

@@ -16,9 +16,17 @@
  */
 class SVT_CAN: public SV_Thread {
 	public:
+		enum Sensors {
+			LIGHT,
+			ORIENTATION,
+			GPS,
+			CHARGE	
+		};
+
 		SVT_CAN();
 		~SVT_CAN();
 		int init();
+		int init_log();
 		int Update();
 		bool msgReady(void){return msg_ready;}
 		bool sendReady(void){return send_ready;}
@@ -26,9 +34,11 @@ class SVT_CAN: public SV_Thread {
 		int putCANMSG(uint32_t id,  vector<uint8_t> &data);
 		int readmsg(struct can_frame& frame);
 		int send(struct can_frame&);
+		int parse_canframe(struct can_frame& cf, int sensor, stringstream& buf, int idx);
 		void store_canframe(struct can_frame& cf);
 		void print_canframe(string header, struct can_frame& cf);
 		void InternalThreadEntry();
+		void UDP_send(int time, int ID, int val);
 	private:
 		int handleInput(void);
 		int handleOutput(void);

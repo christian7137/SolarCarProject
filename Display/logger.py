@@ -4,39 +4,37 @@ import datetime
 from influxdb import InfluxDBClient
 import UDPclient # C++ module
 
-#import json_message
+# SENSOR LIST:
+# TSL2561T - Luminosity Sensor, Range of 0.1 to 40,000+ in Lux
+# BNO055 - Orientation Sensor, Range of -180 to +180 in degrees (turning clock-wise increases values)
+# BNO055 - Orientation Sensor, Range of -90 to +90 in degrees (increasing with increasing inclination)
+# BNO055 - Orientation Sensor, Range of 0 to 360 in degrees (turning clockwise increases values)
+# Simulated BPS  - State of Charge, Range of ??
+# Simulated - GPS Latitude, Range of ??
+# Simulated - GPS Longitude, Range of ??
 
-sensorGroupData = {
-    # SENSOR LIST:
-    # TSL2561T - Luminosity Sensor, Range of 0.1 to 40,000+ in Lux
-    # BNO055 - Orientation Sensor, Range of -180 to +180 in degrees (turning clock-wise increases values)
-    # BNO055 - Orientation Sensor, Range of -90 to +90 in degrees (increasing with increasing inclination)
-    # BNO055 - Orientation Sensor, Range of 0 to 360 in degrees (turning clockwise increases values)
-    # Simulated BPS  - State of Charge, Range of ??
-    # Simulated - GPS Latitude, Range of ??
-    # Simulated - GPS Longitude, Range of ??
-    "OH" : ["LUMINOSITY", "ORI_PITCH", "ORI_ROLL", "ORI_YAW", "SOC", "GPS_LAT", "GPS_LONG"]
-}
+sensorID = {
+                0 : ["LUX"], 
+                1 : ["ORI0", "ORI1", "OR2" "ACC0", "ACC1", "ACC2", "MAG0", "MAG1", "MAG2"],
+                2 : ["SOC"],
+                3 : ["LAT", "LONG"]
+            }
 
 class UDP_Packet:
-    timestamp = 0
-    sensorGroup = ""
-    sensorValues = []
+    
+    sensorData = []
 
-    def __init__(self, timestamp, sensorGroup, sensorValues):
-        assert isinstance(timestamp, int)
-        assert isinstance(sensorGroup, str) and sensorGroup in sensorGroupData
-        assert isinstance(sensorValues, list) and len(sensorValues) == len(sensorGroupData[sensorGroup])
-        self.timestamp = timestamp   # Epoch timestamp in ms
-        self.sensorGroup = sensorGroup
-        for i in range(0, len(sensorValues)):
-            self.sensorValues.append(float(sensorValues[i]))
+    def __init__(self, sensorData):
+        assert isinstance(sensorData, list)
+        for i in range(0, len(sensorData)):
+            if sensorData[i] == "None":
+                self.SensorData[i] = "None"
+                continue
+            else:
+                self.sensorData[i] = sensorData[i].split(',')
 
-    def writeToSD(self):
-        return
-
-    def writeToCSV(self):
-        WRITE_PATH = "test_" + self.sensorGroup + ".csv"
+    def writeToCSV(self):   # modify for new json message format
+        WRITE_PATH = "test.csv"
         try:
             CSV = open(WRITE_PATH, 'r')
             CSV.close()
@@ -58,25 +56,29 @@ class UDP_Packet:
         CSV.close()
         return
 
-    def log(self, client, session, runNo, interval):
-        sensorValueDict = {}
-        for i in range(0, len(sensorGroupData[self.sensorGroup])):
-            sensorValueDict[sensorGroupData[self.sensorGroup][i]] = self.sensorValues[i]
+    def log(self, client, session, runNo, interval):    # edit for JSON class
+        for i in range(0, len(self.sensorData)):
+            if (self.sensorData[i] == "None"):
+                continue
+            else:
+                sensorLog = {}
+                for j in range(0, len(self.sensorData[i])):
+                    sensorLog[sensorID[self.sensorData[i][1]][j]] = self.sensorData[i][j + 2]
+                json_body = [
+                    {
+                        "measurement": session,
+                        "tags": {
+                            "run": runNo,
+                        },
+                        "time": self.sensorData[i][0]
+                        "fields": sensorLog
+                    }
+                ]
+                # Write JSON to InfluxDB
+                client.write_points(json_body)
 
-        json_body = [
-            {
-                "measurement": session,
-                "tags": {
-                    "run": runNo,
-                },
-                "time": self.timestamp,
-                "fields": sensorValueDict
-            }
-        ]
-        # Write JSON to InfluxDB
-        client.write_points(json_body)
-        # Wait for next sample
-        time.sleep(interval)
+    def clearData(self):    # edit for json format
+        self.sensorData[:] = []
 
 def setUpInfluxDB():
     # Set these variables, influxDB should be localhost on Pi
@@ -98,11 +100,11 @@ def setUpInfluxDB():
             session = sys.argv[1]
             runNo = sys.argv[2]
     else:
-        session = "dev"
+        session = "UTSVT"
         now = datetime.datetime.now()
         runNo = now.strftime("%Y%m%d%H%M")
     print "Session: ", session
-    print "runNo: ", runNo
+    print "RunNo: ", runNo
 
     # Create the InfluxDB object
     client = InfluxDBClient(host, port, user, password, dbname)
@@ -118,16 +120,12 @@ def main():
         print "FAILED TO SET UP UDP CLIENT\n"
     else:
         print "SUCCESSFULLY SET UP UDP CLIENT\n"
-        timestamp = 12345678
-        sensorGroup = "OH"
-        sensorValues = ["0.0", "1.0", "2.0", "3.0", "4.0", "5.0", "6.0"]
-        entry = UDP_Packet(int(timestamp), str(sensorGroup), list(sensorValues))
-        print entry.timestamp
-        # Write to CSV
-        entry.writeToCSV()
-        
-        # Log on InfluxDB
-        entry.log(client, session, runNo, interval)
+        while (1):
+            packet = UDP_Packet(UDPclient.pollUDPclient())
+            packet.writeToCSV()
+            packet.log(client, session, runNo, interval)    # write to CSV
+            packet.clearData()     # log on InfluxDB
+        UDPclient.closeUDPclient()
 
 if __name__ == "__main__":
     main()

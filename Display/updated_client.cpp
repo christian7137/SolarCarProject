@@ -53,7 +53,7 @@ class Client {
 			bindClient();
         }
         
-        void receivePacket(void){
+        void receiveMessage(void){
             //std::cout << "wating for data..." << std::endl;
             possError = recvfrom(sock, (struct Json_Message*)&json_message.all_json, sizeof(json_message.all_json), 0,
 				(struct sockaddr *)&sourceAddress,&sourceSize);
@@ -77,11 +77,12 @@ int main(int argc, char *argv[]){
    
    while (1) {
        //client.possError = recvfrom(client.sock, client.buf, 256, 0,(struct sockaddr *)&client.sourceAddress,&client.sourceSize);
-       client.receivePacket();
-       //code below is for testing
-       client.json_message.printJson();
-       count++;
+       client.receiveMessage();
+	   count++;
        std::cout << "Received packet # " << count << std::endl << std::endl;
+       //code below is for testing
+       //client.json_message.printLuminosity();//printJson();
+	   //client.json_message.printJson();      
       // if(count >= 100) break; 
    }
    

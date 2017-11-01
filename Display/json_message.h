@@ -6,7 +6,7 @@
 //sizeof returns the size in bytes
 class Json_Message{
 	private:
-		
+		int OFFSET = 0x0000FFFF;
 		struct StateOfCharge{
 			bool valid;
 			int16_t timestamp;//each one is 4 bytes -> atleast for ints
@@ -75,7 +75,7 @@ class Json_Message{
 	
 	//combine the ts in the total json message with the ts in the sensor data
 	int getTotalTS(int sensorTS){
-		return ((all_json.topTimestamp << 8) + sensorTS);
+		return ((all_json.topTimestamp << 16) + sensorTS);
 	}
 	
 	void printSOC(){
@@ -133,14 +133,14 @@ class Json_Message{
 	****************************************************************************************************************/
 	//LOOK IF THE USER INPUTS NULL!@!@!##!@@#!@$!@$&$^!&@$%!@^&$%!@^&$*@$@!$@!^$*@*^@
 	void set_ts_json(int ts){
-		all_json.topTimestamp = (ts&0xFF00)>>8;
-		std::cout << "Top timestamp is: " << all_json.topTimestamp << std::endl;
+		all_json.topTimestamp = (ts&0xFFFF0000)>>16;
+		//std::cout << "Top timestamp is: " << all_json.topTimestamp << std::endl;
 	}
 	
 	void setLumSensor(int ts, int id, int tempData){
 		all_json.luminosity.valid = true;
 		set_ts_json(ts);
-		all_json.luminosity.timestamp = (ts&0x00FF);
+		all_json.luminosity.timestamp = (ts&OFFSET);
 		all_json.luminosity.sensor_id = id;
 		all_json.luminosity.data = tempData;
 	}
@@ -148,7 +148,7 @@ class Json_Message{
 	void setSOCSensor(int ts, int id, int inputData[4]){
 		all_json.stateOfCharge.valid = true;
 		set_ts_json(ts);
-		all_json.stateOfCharge.timestamp = (ts&0x00FF);
+		all_json.stateOfCharge.timestamp = (ts&OFFSET);
 		all_json.stateOfCharge.sensor_id = id;
 		
 		all_json.stateOfCharge.data[0] = inputData[0];
@@ -160,7 +160,7 @@ class Json_Message{
 	void setOriSensor(int ts, int id, int inputAngle[2], int16_t inputAcc[3], int16_t inputGyr[3], int16_t inputMag[3]){
 		all_json.orientation.valid = true;
 		set_ts_json(ts);
-		all_json.orientation.timestamp = (ts&0x00FF);
+		all_json.orientation.timestamp = (ts&OFFSET);
 		all_json.orientation.sensor_id = id;
 		
 		all_json.orientation.angle[0] = inputAngle[0];
@@ -182,7 +182,7 @@ class Json_Message{
 	void setGPSSensor(int ts, int id, float inputLoc[2]){
 		all_json.gps.valid = true;
 		set_ts_json(ts);
-		all_json.gps.timestamp = (ts&0x00FF);
+		all_json.gps.timestamp = (ts&OFFSET);
 		all_json.gps.sensor_id = id;
 		
 		all_json.gps.location[0] = inputLoc[0];

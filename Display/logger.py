@@ -15,7 +15,7 @@ import UDPclient # C++ module
 
 sensorID = {
                 0 : ["LUX"], 
-                1 : ["ORI0", "ORI1", "OR2" "ACC0", "ACC1", "ACC2", "MAG0", "MAG1", "MAG2"],
+                1 : ["ORI0", "ORI1", "ACC0", "ACC1", "ACC2", "MAG0", "MAG1", "MAG2"],
                 2 : ["SOC"],
                 3 : ["LAT", "LONG"]
             }
@@ -62,23 +62,23 @@ class UDP_Packet:
                 continue
             else:
                 sensorLog = {}
-                for j in range(0, len(self.sensorData[i])):
-                    sensorLog[sensorID[self.sensorData[i][1]][j]] = self.sensorData[i][j + 2]
+                for j in range(2, len(self.sensorData[i])):
+                    sensorLog[sensorID[self.sensorData[i][1]][j - 2]] = self.sensorData[i][j]
                 json_body = [
                     {
                         "measurement": session,
                         "tags": {
                             "run": runNo,
                         },
-                        "time": self.sensorData[i][0]
+                        "time": self.sensorData[i][0],
                         "fields": sensorLog
                     }
                 ]
                 # Write JSON to InfluxDB
                 client.write_points(json_body)
 
-    def clearData(self):    # edit for json format
-        self.sensorData[:] = []
+    def clearData(self):
+        self.sensorData[:] = [] # clear sensorData
 
 def setUpInfluxDB():
     # Set these variables, influxDB should be localhost on Pi
@@ -121,8 +121,9 @@ def main():
     else:
         print "SUCCESSFULLY SET UP UDP CLIENT\n"
         while (1):
+            print "WAITING FOR PACKET"
             packet = UDP_Packet(UDPclient.pollUDPclient())
-            packet.writeToCSV()
+            #packet.writeToCSV()
             packet.log(client, session, runNo, interval)    # write to CSV
             packet.clearData()     # log on InfluxDB
         UDPclient.closeUDPclient()

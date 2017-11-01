@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 	//std::cout << "time: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 << std::endl;
 
 	int i = 0;
-	for(i; i < 10; i++){
+	for(i; i < 1000; i++){
 		/*if(i%4 == 0)
 			server.json_message.setLumSensor(i,3,20-i);//int ts, int id, int tempData
 		if(i%5 == 0)
@@ -59,13 +59,12 @@ int main(int argc, char *argv[])
 			std::cout << "Lum VALUE IS NOT VALID" << std::endl;
 		if(server.json_message.getOriValue().compare("None") == 0)
 			std::cout << "ORI VALUE IS NOT VALID" << std::endl;*/
+		//server.json_message.setLumSensor(0x3F69+i,3,20-i);//int ts, int id, int tempData
+		//server.json_message.printLuminosity();
 		server.sendPacket();
 		
-		//server.json_message.setLumSensor(count,3,20-count);//int ts, int id, int tempData
-		//server.json_message.setOriSensor(count,5,two,three1,three2,three3);//int ts, int id, int inputAngle[2], int16_t inputAcc[3], int16_t inputGyr[3], int16_t inputMag[3]
-		//server.json_message.setGPSSensor(count, 2, twoFloat);
 		//std::cout << "Sent message # " << i << std::endl;
-		//usleep(10000);//microseconds
+		usleep(184);//microseconds
 	}
 	std::cout << "Total Messages Sent: " << i << std::endl;
 	/*while(count < 100){

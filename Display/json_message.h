@@ -6,7 +6,7 @@
 //sizeof returns the size in bytes
 class Json_Message{
 	private:
-		int OFFSET = 0x0000FFFF;
+		int OFFSET;
 		struct StateOfCharge{
 			bool valid;
 			int16_t timestamp;//each one is 4 bytes -> atleast for ints
@@ -51,6 +51,7 @@ class Json_Message{
 	
 	
 	Json_Message(){
+		OFFSET = 0x0000FFFF;
 		resetJson();
 	}
 	

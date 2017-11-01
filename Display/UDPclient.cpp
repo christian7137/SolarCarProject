@@ -37,7 +37,7 @@ static PyObject* UDPclient_pollUDPclient(PyObject *self, PyObject *args) {
 	// get sensor value
 	client.receiveMessage();
 	client.json_message.printJson();
-	return Py_BuildValue("[s, s, s, s]", client.json_message.getLumValue(), client.json_message.getOriValue(), client.json_message.getSOCValue(), client.json_message.getGPSValue());
+	return Py_BuildValue("[s, s, s, s]", client.json_message.getSOCValue(), client.json_message.getOriValue(), client.json_message.getLumValue(), client.json_message.getGPSValue());
 }
 
 static PyObject* UDPclient_closeUDPclient(PyObject *self, PyObject *args) {	

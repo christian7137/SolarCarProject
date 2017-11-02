@@ -1,4 +1,4 @@
-/*!
+/*! 
  * \class can_structs
  * \brief Defines the structs shared to create the different CAN messages
  *
@@ -8,8 +8,7 @@
 #ifndef CAN_MSG_HH
 #define CAN_MSG_HH
 
-#pragma push
-#pragma pack(1)
+#pragma pack(push, 1)
 
 /* USER CAN PAYLOAD PACKING TYPES */
 typedef struct{
@@ -28,7 +27,7 @@ typedef struct{
 #define PKT_TYPE_2 2
 
 typedef struct{
-    int16_t  sensor1Data;
+    int  sensor1Data;
 }canPktType3;
 #define PKT_SIZE_3 sizeof(int)
 #define PKT_TYPE_3 3
@@ -49,6 +48,7 @@ typedef struct{
         }payload;
     };
 }CAN_MSG;
-#pragma pop
+#pragma pack(pop)
 
 #endif
+

@@ -35,6 +35,7 @@ class SVT_CAN: public SV_Thread {
 		int readmsg(struct can_frame& frame);
 		int send(struct can_frame&);
 		int parse_canframe(struct can_frame& cf, int sensor, stringstream& buf, int idx);
+		void parse_canframe_struct(uint8_t * pData, stringstream& buf);
 		void store_canframe(struct can_frame& cf);
 		void print_canframe(string header, struct can_frame& cf);
 		void InternalThreadEntry();

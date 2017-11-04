@@ -9,7 +9,6 @@ http://www-numi.fnal.gov/offline_software/srt_public_context/WebDocs/doxygen-how
 ### Running display.sh
 In the shell,
 *	git clone https://github.com/christian7137/SolarCarProject.git
-    * Alternately, just load display.sh onto the RPi3.
 *	cd SolarCarProject/Display
 *  source display.sh
 

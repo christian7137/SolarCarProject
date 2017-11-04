@@ -12,7 +12,7 @@ In the shell,
 At this point, InfluxDB and Grafana should be installed and running upon boot. Next, configure InfluxDB settings. To do this, proceed on to <b>Setting up an InfluxDB Database</b>. 
 
 ### Setting up an InfluxDB database
-After successful installation of InfluxDB, connect to the InfluxDB command line interface and create users and databases for our needs. You may alternatively also use the web frontend to do so. The following steps will create one database `my_db` and an `admin` user as well as a `grafana` user. The grafana user will only be allowed to read data from `my_db`. Be sure to store your selected passwords.
+After successful installation of InfluxDB, connect to the InfluxDB command line interface and create users and databases for our needs. The following steps will create one database `my_db` and an `admin` user as well as a `grafana` user. The grafana user will only be allowed to read data from `my_db`. Be sure to store your selected passwords.
 
 ```
 $ influx

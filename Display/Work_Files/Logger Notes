@@ -1,0 +1,30 @@
+HOW TO INSTALL PYTHON WRAPPER:
+1. Install python-dev by using the following command:
+	sudo apt-get install python-dev
+2. Create C/C++ source files.
+	- Create function in C++ file
+	- Create API function (Python <---> C++)
+	- Declare functions list
+	- Define initialize function
+3. Create setup.py file.
+4. Place all files in same directory.
+5. Run command:
+	sudo python setup.py build
+	sudo python setup.py install
+6. Run python and import module:
+	$ python
+	>>> import [module]
+	>>> [module].[function]
+
+VIDEO LINK: https://www.youtube.com/watch?v=n-xdFNmz6lk
+
+HOW TO ADD C++ FUNCTIONS:
+1. Write function in C++ file.
+2. Create PyObject* for C++ function.
+	a. Use PyArg_ParseTuple() when parameters need to be passed.
+	b. Use the DATA TYPE MAPPING LINK below to indicate the correct data type to be inputted or returned.
+3. Update C++ function list.
+	a. Include METH_VARARGS when parameters need to be passed.
+4. Complete steps 5 and 6 from "HOW TO INSTALL PYTHON WRAPPER" to update your C++ module.
+
+DATA TYPE MAPPING LINK: https://docs.python.org/2/c-api/arg.html

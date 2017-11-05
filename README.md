@@ -1,7 +1,4 @@
-# SolarCarProject
-Solar Car Project
-
-## Documentation
+## Solar Car Data Acquisition and Display Project
 
 ### Doxygen Helpful Links
 http://www-numi.fnal.gov/offline_software/srt_public_context/WebDocs/doxygen-howto.html
@@ -9,57 +6,13 @@ http://www-numi.fnal.gov/offline_software/srt_public_context/WebDocs/doxygen-how
 ### Running display.sh
 In the shell,
 *	git clone https://github.com/christian7137/SolarCarProject.git
-    * Alternately, just load display.sh onto the RPi3.
-*	source ./SolarCarProject/Display/display.sh
+*	cd SolarCarProject/Display
+* source display.sh
 
-At this point, InfluxDB and Grafana should be installed and running upon boot. Next, configure InfluxDB settings. To do this, skip to <b>Setting up an InfluxDB Database</b>. If you are not using the script, follow the instructions below.
-
-### Manually installing InfluxDB on the Raspberry Pi 2 or 3
-These steps will install InfluxDB and Grafana on a Raspberry Pi 2 or 3. Please note that the older Raspberry Pi 1 is not suited for this due to its ARMv6 architecture.
-The following instructions expect a Debian/Raspbian based OS, and all boxed text should be entered into the shell.
-
-Before we can start, it's necessary to install an apt extension for https-capable repositories:
-
-`sudo apt-get update && sudo apt-get install apt-transport-https`
-
-
-#### InfluxDB
-InfluxDB can be installed through the official repository. Add the key to your system, then add the repository as an apt source, then install InfluxDB using the following shell entries:
-
-```
-wget -O - https://repos.influxdata.com/influxdb.key | sudo apt-key add -
-echo "deb https://repos.influxdata.com/debian jessie stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
-sudo apt-get update && sudo apt-get install influxdb
-```
-
-After the installation was successful, you can enable and start InfluxDB as any other program:
-
-```
-sudo systemctl daemon-reload
-sudo systemctl enable influxdb.service
-sudo systemctl start influxdb.service
-```
-
-#### Grafana
-Grafana does not officially support the ARM architecture, but binaries have been provided to fix this issue.
-Install Grafana using the following shell entries:
-
-```
-echo "deb https://dl.bintray.com/fg2it/deb jessie main" | sudo tee /etc/apt/sources.list.d/grafana-fg2it.list 
-sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 379CE192D401AB61
-sudo apt-get update && sudo apt-get install grafana
-```
-
-Again, enable and start the program through systemctl:
-
-```
-sudo systemctl daemon-reload
-sudo systemctl enable grafana-server.service
-sudo systemctl start grafana-server.service
-```
+At this point, InfluxDB and Grafana should be installed and running upon boot. Next, configure InfluxDB settings. To do this, proceed on to <b>Setting up an InfluxDB Database</b>. 
 
 ### Setting up an InfluxDB database
-After successful installation of InfluxDB, connect to the InfluxDB command line interface and create users and databases for our needs. You may alternatively also use the web frontend to do so. The following steps will create one database `my_db` and an `admin` user as well as a `grafana` user. The grafana user will only be allowed to read data from `my_db`. Be sure to store your selected passwords.
+After successful installation of InfluxDB, connect to the InfluxDB command line interface and create users and databases for our needs. The following steps will create one database `my_db` and an `admin` user as well as a `grafana` user. The grafana user will only be allowed to read data from `my_db`. Be sure to store your selected passwords.
 
 ```
 $ influx

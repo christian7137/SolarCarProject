@@ -28,7 +28,7 @@ typedef struct{
 #define PKT_TYPE_2 2
 
 typedef struct{
-    int  sensor1Data;
+    int16_t  sensor1Data;
 }canPktType3;
 #define PKT_SIZE_3 sizeof(int)
 #define PKT_TYPE_3 3

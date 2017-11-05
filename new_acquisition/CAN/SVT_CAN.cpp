@@ -18,7 +18,9 @@
 #include "SVT_CAN.h"
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include "json_message.h"
+#include "server.h"
+#include "can_structs.h"
+#include "SVT_stmBuffer.h"
 #include <time.h>
 #include <chrono>
 #include "/usr/include/linux/can/error.h"
@@ -33,14 +35,20 @@
 #endif
 
 fstream outFile;
+fstream *stmFile;
 fstream configFile;
-ifstream logCheck;
 
 int *msgname;
 int msgnamec = 0;
-string *sensors;
-string *ids;
-int tokc = 0;
+string *fileNames;
+int stms = 0;
+int NUM_STM = 0;
+string **sensors;
+string **ids;
+int* tokc;
+STMBuffers stmbufs;
+
+
 
 std::chrono::milliseconds uptime(0u);
 int uptime_seconds;
@@ -56,7 +64,7 @@ SVT_CAN::SVT_CAN(){
      msg_ready = false;
 }
 
-class Server {
+/*class Server {
 	private:
 		int sock, possError,port; 
         unsigned int length;
@@ -92,7 +100,7 @@ class Server {
         void closeSocket(void){
             close(sock);
         }
-};
+};*/
 
 /**************************************************
 -
@@ -105,8 +113,9 @@ SVT_CAN::~SVT_CAN(){
 
 int SVT_CAN::init_log(){
 
-	
+	int i;	
 	int MAX_SENSE = 0;
+	int STM_BUF_SIZE = 0;
 	string line;
 	char *token, *subtoken, *saveptr1, *saveptr2;
 
@@ -115,14 +124,15 @@ int SVT_CAN::init_log(){
 		char *dup = strdup(line.c_str());
 		token = strtok_r(dup, "'", &saveptr1);
 
-		if(!strcmp(token, "MAX_CONCURRENT_MSGS:")){
-		
+		if(!strcmp(token, "NUM_STM_IN_SYS:")){
+
 			token = strtok_r(NULL, "'", &saveptr1);
-			int MAX_CONCURRENT_MSGS = atoi(token);
-			msgname = new int [MAX_CONCURRENT_MSGS];
-			for(int i=0; i<MAX_CONCURRENT_MSGS; i++){
-				msgname[i] = 0;
-			}
+			NUM_STM = atoi(token);
+
+		} else if(!strcmp(token, "STM_BUFFER_SIZE:")){
+
+			token = strtok_r(NULL, "'", &saveptr1);
+			STM_BUF_SIZE = atoi(token);
 
 		} else if(!strcmp(token, "MAX_NUMBER_SENSORS:")){
 
@@ -131,24 +141,77 @@ int SVT_CAN::init_log(){
 
 		} else if(!strcmp(token,"SENSORS:")){
 			
-			sensors = new string [MAX_SENSE];
-			ids = new string [MAX_SENSE];
+			tokc = new int [NUM_STM];
+			fileNames = new string [NUM_STM];	
 			token = strtok_r(NULL, "'", &saveptr1);
+			for(i=0; i<NUM_STM; i++){
+				tokc[i] = 0;
+			}
+			sensors = new string* [NUM_STM];
+			ids = new string* [NUM_STM];
+			for(i=0; i<NUM_STM; i++){
+				sensors[i] = new string [MAX_SENSE];
+				ids[i] = new string [MAX_SENSE];	
+			}
 			while(token != NULL){
 	
 				if(strcmp(token, ",")){
 					subtoken = strtok_r(token, "=", &saveptr2);
 					if(subtoken != NULL){
-						sensors[tokc] = subtoken;
-						subtoken = strtok_r(NULL, "=", &saveptr2); 
-						ids[tokc] = subtoken; 
-						tokc++;
+						i = 0;
+						char *temp = new char[strlen(subtoken) + 1];
+						strcpy(temp, subtoken);
+						strcat(temp, ".csv");
+						if(stms == 0){
+							fileNames[stms] = temp;
+							stms++;
+						} else {
+							for(i=0; i<stms; i++){
+								if(!strcmp(temp, fileNames[i].c_str())){
+									break;
+								}
+							}
+							if(stms == i){
+								if(stms != NUM_STM){
+									fileNames[stms] = temp;
+								} else {
+									cout << "ERROR: Provided more STM file names than a lotted. Increase NUM_STM_IN_SYS" << endl;
+								}
+							}
+						}
+						delete []temp;
+						subtoken = strtok_r(NULL, "=", &saveptr2);
+						if(subtoken != NULL){
+							sensors[i][tokc[i]] = subtoken;
+							subtoken = strtok_r(NULL, "=", &saveptr2); 
+							ids[i][tokc[i]] = subtoken; 
+							tokc[i] += 1;
+						} else {
+							cout << "ERROR: wrong format for config.txt SENSORS: \'stm=name=id\'" << endl;
+						}
 					} else {
-						cout << "ERROR: wrong format for config.txt SENSORS: \'name=id\'" << endl;
+						cout << "ERROR: wrong format for config.txt SENSORS: \'stm=name=id\'" << endl;
 					}
 				}
 				token = strtok_r(NULL, "'", &saveptr1);
 
+			}
+			stmbufs.make_buffer(NUM_STM, STM_BUF_SIZE, sensors, ids, tokc);
+			stmFile = new fstream [NUM_STM];
+			for(i=0; i<NUM_STM; i++){
+				if(std::ifstream(fileNames[i])){
+					stmFile[i].open(fileNames[i], ios::out | ios::app);
+				} else {
+					stmFile[i].open(fileNames[i], ios::out | ios::app);
+					for(int j=0; j<stmbufs.stm[i].sensorNum; j++){
+						if(j == 0){
+							stmFile[i] << "Timestamp " << stmbufs.stm[i].sensors[j] << " ";
+						} else {
+							stmFile[i] << stmbufs.stm[i].sensors[j] << " ";
+						}
+					}
+					stmFile[i] << endl;
+				}
 			}
 
 		}
@@ -174,7 +237,7 @@ int SVT_CAN::init(){
 
    // setup for socket can
    system("sudo ifconfig can0 down");
-   system("sudo ip link set can0 type can bitrate 100000 triple-sampling off restart-ms 100");
+   system("sudo ip link set can0 type can bitrate 1000000 triple-sampling off restart-ms 100");
    system("sudo ifconfig can0 up");
 
 	// setup socket
@@ -255,7 +318,7 @@ int SVT_CAN::init(){
    TxMsg.msg_control = &ctrlmsg;
 
    configFile.open("config.txt", ios::in);
-   if(std::ifstream("output.txt")){
+   /*if(std::ifstream("output.txt")){
 	outFile.open("output.txt", ios::out | ios::app);
 	init_log();
    } else {
@@ -265,9 +328,11 @@ int SVT_CAN::init(){
 		outFile << sensors[i] << " ";
 	}
 	outFile << endl;
-   }
+   }*/
+
+   init_log();
    
-   cout << "output file made\n"; 
+   cout << "output file(s) made\n";   
 
    return 0;
 }
@@ -561,15 +626,27 @@ int SVT_CAN::readmsg(struct can_frame& frame){
 
 /**************************************************
    -
-   - parse_canframe
+   - parse_canframe_struct
    -
  *************************************************/
+void SVT_CAN::parse_canframe_struct(uint8_t * pData, stringstream& buf){
 
-int SVT_CAN::parse_canframe(struct can_frame& cf, int sensor, stringstream& buf, int idx){
+	CAN_MSG * pParsed;
+	pParsed = (CAN_MSG * )pData;
+	switch(pParsed->payload.type)
+	{
+		case(3):{
+			buf << pParsed->payload.data.type3.sensor1Data; 
+			server.json_message.setLumSensor(time(0), pParsed->payload.type, pParsed->payload.data.type3.sensor1Data);
+			server.json_message.printJson();
+			server.sendPacket();
+		}break;
+	}
+}
+/*int SVT_CAN::parse_canframe(struct can_frame& cf, int sensor, stringstream& buf, int idx){
 
 	int value;
 	int i;
-	/* NEED TO MAKE THIS AUTO */
 	string LIGHT = "LIGHT";
 	string ORIEN = "ORIENTATION";
 	string GPS = "GPS";
@@ -596,10 +673,11 @@ int SVT_CAN::parse_canframe(struct can_frame& cf, int sensor, stringstream& buf,
 		buf << int(cf.data[idx]);
 	}
 
-	UDP_send(uptime.count(), sensor, value);
+	//UDP_send(uptime.count(), sensor, value);
+	UDP_send(time(0), sensor, value);
 	return idx;
 
-}
+}*/
 
 /**************************************************
    -
@@ -611,13 +689,13 @@ void SVT_CAN::store_canframe(struct can_frame& cf){
 	int dlc = (cf.can_dlc > 8)? 8 : cf.can_dlc;
 	int type;
 
-	if(std::ifstream("/proc/uptime", std::ios::in) >> uptime_seconds){
+	/*if(std::ifstream("/proc/uptime", std::ios::in) >> uptime_seconds){
 
 		uptime = std::chrono::milliseconds(
 			static_cast<unsigned long long>(uptime_seconds)*1000ULL
 			);
 
-	}
+	}*/
 
 	//buf << header;
 
@@ -630,23 +708,39 @@ void SVT_CAN::store_canframe(struct can_frame& cf){
 	}
 	buf << " ";*/
 
-	if(cf.can_id & CAN_RTR_FLAG) /* there are no ERR frames with RTR */
+	if(cf.can_id & CAN_RTR_FLAG) { /* there are no ERR frames with RTR */
 		buf << "R";
-	else
+	} else {
 		type = int(cf.data[0]);
 		buf << uptime.count();
 		buf << " ";
 		buf << type;
 		buf << " ";
-		for(int i = 1; i < dlc; i++) {
-			if(!cf.data[i])
-				break;
-			
-			i = parse_canframe(cf, type, buf, i);
-			
-		}
+		parse_canframe_struct(cf.data,buf);
+	}
 
 	buf << endl;
+	int i, j;
+	for(i=0; i<NUM_STM; i++){
+
+		for(j=0; j<stmbufs.stm[i].sensorNum; j++){
+
+			if(atoi(stmbufs.stm[i].ids[j].c_str()) == type){
+				for(int k=0; k<8; k++){
+					stmbufs.stm[i].msgData[stmbufs.stm[i].bufIdx][k] = int(cf.data[k]);
+				}
+				stmbufs.stm[i].bufIdx += 1;
+				if(stmbufs.stm[i].bufIdx == stmbufs.stm[i].size){
+					stmbufs.stm[i].bufIdx = 0;
+					//store_canBuffer();
+				}
+				i = NUM_STM + 1;
+				break;
+			}
+
+		}
+
+	}
     	outFile << buf.str();
     	outFile.flush();
 
@@ -656,10 +750,9 @@ void SVT_CAN::store_canframe(struct can_frame& cf){
 
 void SVT_CAN::UDP_send(int time, int ID, int val){
 
-	server.json_message.setTimestamp(time);
-	server.json_message.setLumData(val);
-	server.json_message.setLumID(ID);
+	server.json_message.setLumSensor(time, ID, val);
 	server.json_message.printJson();
+	cout << "send UDP packet" << endl;
 	server.sendPacket();
 
 }

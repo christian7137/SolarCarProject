@@ -1,0 +1,18 @@
+[3;J[H[2JCONFIG: 
+CLOCK : 50.000 MHz
+CORE  : 400 MHz, turbo=0
+DATA  : 512 MB, /root/test.dat
+
+HDPARM:
+======
+
+WRITE:
+=====
+
+READ:
+====
+
+RESULT (AVG):
+============
+Overlay config                      core_freq   turbo   overclock_50    WRITE        READ        HDPARM
+                                       400        0      50.000 MHz    5.49 MB/s   19.67 MB/s   15.03 MB/s

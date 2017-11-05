@@ -268,7 +268,7 @@ class Json_Message{
 };
 
 /*//delete everything after this
-			/*struct StateOfCharge stateOfCharge1;
+			struct StateOfCharge stateOfCharge1;
 			struct Orientation orientation1;
 			struct Luminosity luminosity1;
 			struct GPS gps1;

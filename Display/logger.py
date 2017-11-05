@@ -14,10 +14,10 @@ import UDPclient # C++ module
 # Simulated - GPS Longitude, Range of ??
 
 sensorID = {
-                0 : ["LUX"], 
-                1 : ["ORI0", "ORI1", "ACC0", "ACC1", "ACC2", "MAG0", "MAG1", "MAG2"],
-                2 : ["SOC"],
-                3 : ["LAT", "LONG"]
+		1 : ["SOC0", "SOC1", "SOC2", "SOC3"],
+                2 : ["ANG0", "ANG1", "ORI0", "ORI1", "ORI2",  "ACC0", "ACC1", "ACC2", "MAG0", "MAG1", "MAG2"],
+                3 : ["LUX"],
+                4 : ["LAT", "LONG"]
             }
 
 class UDP_Packet:
@@ -26,12 +26,12 @@ class UDP_Packet:
 
     def __init__(self, sensorData):
         assert isinstance(sensorData, list)
-        for i in range(0, len(sensorData)):
+	for i in range(0, len(sensorData)):
             if sensorData[i] == "None":
-                self.SensorData[i] = "None"
+                self.sensorData.append("None")
                 continue
             else:
-                self.sensorData[i] = sensorData[i].split(',')
+                self.sensorData.append(sensorData[i].split(','))
 
     def writeToCSV(self):   # modify for new json message format
         WRITE_PATH = "test.csv"
@@ -61,34 +61,38 @@ class UDP_Packet:
             if (self.sensorData[i] == "None"):
                 continue
             else:
+		print "TIMESTAMP: "
+		print self.sensorData[i][0]
                 sensorLog = {}
                 for j in range(2, len(self.sensorData[i])):
-                    sensorLog[sensorID[self.sensorData[i][1]][j - 2]] = self.sensorData[i][j]
-                json_body = [
+                    sensorLog[sensorID.get(int(self.sensorData[i][1]))[j - 2]] = self.sensorData[i][j]
+		json_body = [
                     {
                         "measurement": session,
                         "tags": {
                             "run": runNo,
                         },
-                        "time": self.sensorData[i][0],
+                        "time": time.ctime(float(self.sensorData[i][0])),
                         "fields": sensorLog
                     }
                 ]
                 # Write JSON to InfluxDB
                 client.write_points(json_body)
+		print("LOGGED TO INFLUXDB\n")	
 
     def clearData(self):
-        self.sensorData[:] = [] # clear sensorData
+        print("CLEARED UDP PACKET\n")
+	self.sensorData[:] = [] # clear sensorData
 
 def setUpInfluxDB():
     # Set these variables, influxDB should be localhost on Pi
     host = "localhost"
     port = 8086
-    user = "root"
-    password = "root"
+    user = "admin"
+    password = "password123"
 
     # The database we created
-    dbname = "testDB"
+    dbname = "my_db"
     # Sample period (s)
     interval = 5
     # Allow user to set session and runno via args otherwise auto-generate
@@ -114,7 +118,6 @@ def main():
     # Set up InfluxDB Server
     client, session, runNo, interval = setUpInfluxDB()
     print "SUCCESSFULLY SET UP INFLUXDB CLIENT\n"
-
     # Set up UDP Client
     if (not UDPclient.setUpUDPclient()):
         print "FAILED TO SET UP UDP CLIENT\n"
@@ -124,8 +127,8 @@ def main():
             print "WAITING FOR PACKET"
             packet = UDP_Packet(UDPclient.pollUDPclient())
             #packet.writeToCSV()
-            packet.log(client, session, runNo, interval)    # write to CSV
-            packet.clearData()     # log on InfluxDB
+            packet.log(client, session, runNo, interval)    # log to InfluxDB
+	    packet.clearData()     # log on InfluxDB
         UDPclient.closeUDPclient()
 
 if __name__ == "__main__":

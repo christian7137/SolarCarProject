@@ -43,6 +43,11 @@ if [ "" == "$PKG_OK" ]; then
 	echo "Done!"
 fi
 
+echo "Beginning C++ wrapping . . ."
+sudo chmod +x ./wrap.sh
+sudo ./wrap.sh &> /dev/null
+echo ". . . done!"
+
 # It's supposed to be something like this, but it doesn't work. I'll play with it later since it's not a high priority.
 #influx
 #expect ">"

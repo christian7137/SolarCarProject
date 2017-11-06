@@ -205,9 +205,9 @@ int SVT_CAN::init_log(){
 					stmFile[i].open(fileNames[i], ios::out | ios::app);
 					for(int j=0; j<stmbufs.stm[i].sensorNum; j++){
 						if(j == 0){
-							stmFile[i] << "Timestamp " << stmbufs.stm[i].sensors[j] << " ";
+							stmFile[i] << "Timestamp,\t" << stmbufs.stm[i].sensors[j] << ",\t";
 						} else {
-							stmFile[i] << stmbufs.stm[i].sensors[j] << " ";
+							stmFile[i] << stmbufs.stm[i].sensors[j] << ",\t";
 						}
 					}
 					stmFile[i] << endl;
@@ -237,7 +237,7 @@ int SVT_CAN::init(){
 
    // setup for socket can
    system("sudo ifconfig can0 down");
-   system("sudo ip link set can0 type can bitrate 1000000 triple-sampling off restart-ms 100");
+   system("sudo ip link set can0 type can bitrate 100000 triple-sampling off restart-ms 100");
    system("sudo ifconfig can0 up");
 
 	// setup socket
@@ -325,7 +325,7 @@ int SVT_CAN::init(){
 	outFile.open("output.txt", ios::out | ios::app);
 	init_log();
 	for(int i=0; i<tokc; i++){
-		outFile << sensors[i] << " ";
+		outFile << sensors[i] << ",\t";
 	}
 	outFile << endl;
    }*/
@@ -630,17 +630,25 @@ int SVT_CAN::readmsg(struct can_frame& frame){
    -
  *************************************************/
 void SVT_CAN::parse_canframe_struct(uint8_t * pData, stringstream& buf){
-
+	//HOW DO I TELL NUMS ARE CERTAIN TYPES OF SENSORS?
 	CAN_MSG * pParsed;
 	pParsed = (CAN_MSG * )pData;
+	
 	switch(pParsed->payload.type)
 	{
 		case(3):{
 			buf << pParsed->payload.data.type3.sensor1Data; 
-			server.json_message.setLumSensor(time(0), pParsed->payload.type, pParsed->payload.data.type3.sensor1Data);
+			server.json_message.setLumSensor((time(0) + 65536), pParsed->payload.type, pParsed->payload.data.type3.sensor1Data);
 			server.json_message.printJson();
 			server.sendPacket();
 		}break;
+		/*case(1):{
+			
+			setOriSensor(int ts, int id, int inputAngle[2], int16_t inputAcc[3], int16_t inputGyr[3], int16_t inputMag[3]){
+			server.json_message.setOriSensor((time(0) + 65536), pParsed->payload.type, [0,0], [pParsed->payload.data.type1.sensor1Data);
+			server.json_message.printJson();
+			server.sendPacket();
+		}break;*/
 	}
 }
 /*int SVT_CAN::parse_canframe(struct can_frame& cf, int sensor, stringstream& buf, int idx){
@@ -686,36 +694,17 @@ void SVT_CAN::parse_canframe_struct(uint8_t * pData, stringstream& buf){
  *************************************************/
 void SVT_CAN::store_canframe(struct can_frame& cf){
 	stringstream buf;
-	int dlc = (cf.can_dlc > 8)? 8 : cf.can_dlc;
+	//int dlc = (cf.can_dlc > 8)? 8 : cf.can_dlc;
 	int type;
-
-	/*if(std::ifstream("/proc/uptime", std::ios::in) >> uptime_seconds){
-
-		uptime = std::chrono::milliseconds(
-			static_cast<unsigned long long>(uptime_seconds)*1000ULL
-			);
-
-	}*/
-
-	//buf << header;
-
-	/*if(cf.can_id & CAN_ERR_FLAG) {
-		buf <<  hex << int(cf.can_id & (CAN_ERR_MASK|CAN_ERR_FLAG));
-	} else if (cf.can_id & CAN_EFF_FLAG) {
-		buf << hex << int(cf.can_id & CAN_EFF_MASK);
-	} else {
-		buf << hex <<  int(cf.can_id & CAN_SFF_MASK);
-	}
-	buf << " ";*/
 
 	if(cf.can_id & CAN_RTR_FLAG) { /* there are no ERR frames with RTR */
 		buf << "R";
 	} else {
 		type = int(cf.data[0]);
 		buf << uptime.count();
-		buf << " ";
+		buf << ",\t";
 		buf << type;
-		buf << " ";
+		buf << ",\t";
 		parse_canframe_struct(cf.data,buf);
 	}
 
@@ -732,7 +721,8 @@ void SVT_CAN::store_canframe(struct can_frame& cf){
 				stmbufs.stm[i].bufIdx += 1;
 				if(stmbufs.stm[i].bufIdx == stmbufs.stm[i].size){
 					stmbufs.stm[i].bufIdx = 0;
-					//store_canBuffer();
+					//DO I WANT TO DO THE PARSED STRING INSTEAD?
+					//store_canBuffer(stmbufs.stm[i].msgData);
 				}
 				i = NUM_STM + 1;
 				break;

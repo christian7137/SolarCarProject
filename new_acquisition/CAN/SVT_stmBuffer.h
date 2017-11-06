@@ -36,7 +36,6 @@ class STM {
 		int bufIdx;
 		int size;
 		int sensorNum;
-		//fstream stmFile;
 		string *sensors;
 		string *ids;
 		
@@ -54,7 +53,7 @@ void STM::make_space(int bufsize, int numSensors, string* Sense, string* ID){
 	sensorNum = numSensors;
 	msgData.resize(bufsize);
 	for(i=0; i<bufsize; i++){
-		msgData.resize(8);
+		msgData[i].resize(8);
 	}
 
 }

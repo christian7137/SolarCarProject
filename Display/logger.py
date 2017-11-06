@@ -14,8 +14,8 @@ import UDPclient # C++ module
 # Simulated - GPS Longitude, Range of ??
 
 sensorID = {
-		1 : ["SOC0", "SOC1", "SOC2", "SOC3"],
-                2 : ["ANG0", "ANG1", "ORI0", "ORI1", "ORI2",  "ACC0", "ACC1", "ACC2", "MAG0", "MAG1", "MAG2"],
+                1 : ["SOC0", "SOC1", "SOC2", "SOC3"],
+                2 : ["ANG0", "ANG1", "ACC0", "ACC1", "ACC2",  "GYR0", "GYR1", "GYR2", "MAG0", "MAG1", "MAG2"],
                 3 : ["LUX"],
                 4 : ["LAT", "LONG"]
             }
@@ -61,24 +61,24 @@ class UDP_Packet:
             if (self.sensorData[i] == "None"):
                 continue
             else:
-		print "TIMESTAMP: "
-		print self.sensorData[i][0]
-                sensorLog = {}
-                for j in range(2, len(self.sensorData[i])):
-                    sensorLog[sensorID.get(int(self.sensorData[i][1]))[j - 2]] = self.sensorData[i][j]
-		json_body = [
-                    {
-                        "measurement": session,
-                        "tags": {
-                            "run": runNo,
-                        },
-                        "time": time.ctime(float(self.sensorData[i][0])),
-                        "fields": sensorLog
-                    }
-                ]
-                # Write JSON to InfluxDB
-                client.write_points(json_body)
-		print("LOGGED TO INFLUXDB\n")	
+        		print "TIMESTAMP: "
+        		print self.sensorData[i][0]
+                        sensorLog = {}
+                        for j in range(2, len(self.sensorData[i])):
+                            sensorLog[sensorID.get(int(self.sensorData[i][1]))[j - 2]] = self.sensorData[i][j]
+        		json_body = [
+                            {
+                                "measurement": session,
+                                "tags": {
+                                    "run": runNo,
+                                },
+                                "time": time.ctime(float(self.sensorData[i][0])),
+                                "fields": sensorLog
+                            }
+                        ]
+                        # Write JSON to InfluxDB
+                        client.write_points(json_body)
+        		print("LOGGED TO INFLUXDB\n")	
 
     def clearData(self):
         print("CLEARED UDP PACKET\n")

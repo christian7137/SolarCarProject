@@ -132,10 +132,8 @@ class Json_Message{
 	/****************************************************************************************************************
 	* Set Methods
 	****************************************************************************************************************/
-	//LOOK IF THE USER INPUTS NULL!@!@!##!@@#!@$!@$&$^!&@$%!@^&$%!@^&$*@$@!$@!^$*@*^@
 	void set_ts_json(int ts){
 		all_json.topTimestamp = (ts&0xFFFF0000)>>16;
-		//std::cout << "Top timestamp is: " << all_json.topTimestamp << std::endl;
 	}
 	
 	void setLumSensor(int ts, int id, int tempData){
@@ -206,7 +204,7 @@ class Json_Message{
 			sstm << all_json.stateOfCharge.data[2] << "," << all_json.stateOfCharge.data[3];
 			std::string socString = sstm.str();
 			std::cout << socString << std::endl;
-			return socString;//return null if not valid
+			return socString;
 		}
 		else//not valid
 			return "None";
@@ -221,7 +219,7 @@ class Json_Message{
 			
 			std::string lumString = sstm.str();
 			std::cout << lumString << std::endl;
-			return lumString;//return null if not valid
+			return lumString;
 		}
 		else
 			return "None";//not valid
@@ -245,7 +243,7 @@ class Json_Message{
 			
 			std::string oriString = sstm.str();
 			std::cout << oriString << std::endl;
-			return oriString;//return null if not valid
+			return oriString;
 		}
 		else
 			return "None";//not valid
@@ -260,317 +258,9 @@ class Json_Message{
 			
 			std::string gpsString = sstm.str();
 			std::cout << gpsString << std::endl;
-			return gpsString;//return null if not valid
+			return gpsString;
 		}
 		else
 			return "None";//not valid
 	}
 };
-
-/*//delete everything after this
-			struct StateOfCharge stateOfCharge1;
-			struct Orientation orientation1;
-			struct Luminosity luminosity1;
-			struct GPS gps1;
-			struct StateOfCharge stateOfCharge2;
-			struct Orientation orientation2;
-			struct Luminosity luminosity2;
-			struct GPS gps2;
-			struct StateOfCharge stateOfCharge3;
-			struct Orientation orientation3;
-			struct Luminosity luminosity3;
-			struct GPS gps3;
-			struct StateOfCharge stateOfCharge4;
-			struct Orientation orientation4;
-			struct Luminosity luminosity4;
-			struct GPS gps4;
-			struct StateOfCharge stateOfCharge5;
-			struct Orientation orientation5;
-			struct Luminosity luminosity5;
-			struct GPS gps5;
-			struct StateOfCharge stateOfCharge6;
-			struct Orientation orientation6;
-			struct Luminosity luminosity6;
-			struct GPS gps6;
-			struct StateOfCharge stateOfCharge7;
-			struct Orientation orientation7;
-			struct Luminosity luminosity7;
-			struct GPS gps7;
-			struct StateOfCharge stateOfCharge8;
-			struct Orientation orientation8;
-			struct Luminosity luminosity8;
-			struct GPS gps8;
-			struct StateOfCharge stateOfCharge9;
-			struct Orientation orientation9;
-			struct Luminosity luminosity9;
-			struct GPS gps9;*/
-			
-/*//REMOVE THE STRUCTS AFTER THIS COMMENT. THIS IS FOR TESTING ONLY
-		struct StateOfCharge1{
-			bool valid;
-			int timestamp;//each one is 4 bytes -> atleast for ints
-			int sensor_id;
-			int data[4];
-		};
-		
-		struct Orientation1{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int angle[2];//int angle (dir, pitch)
-			int16_t accel[3];//acceleration x,y,z int16
-			int16_t gyr[3];//gyr x,y,z, int 16
-			int16_t mag[3];//mag x,y,z int 16
-		};
-		
-		struct Luminosity1{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int data;			
-		};
-		
-		struct GPS1{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			float location[2];//float lat and long
-		};
-		struct StateOfCharge2{
-			bool valid;
-			int timestamp;//each one is 4 bytes -> atleast for ints
-			int sensor_id;
-			int data[4];
-		};
-		
-		struct Orientation2{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int angle[2];//int angle (dir, pitch)
-			int16_t accel[3];//acceleration x,y,z int16
-			int16_t gyr[3];//gyr x,y,z, int 16
-			int16_t mag[3];//mag x,y,z int 16
-		};
-		
-		struct Luminosity2{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int data;			
-		};
-		
-		struct GPS2{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			float location[2];//float lat and long
-		};
-		struct StateOfCharge3{
-			bool valid;
-			int timestamp;//each one is 4 bytes -> atleast for ints
-			int sensor_id;
-			int data[4];
-		};
-		
-		struct Orientation3{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int angle[2];//int angle (dir, pitch)
-			int16_t accel[3];//acceleration x,y,z int16
-			int16_t gyr[3];//gyr x,y,z, int 16
-			int16_t mag[3];//mag x,y,z int 16
-		};
-		
-		struct Luminosity3{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int data;			
-		};
-		
-		struct GPS3{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			float location[2];//float lat and long
-		};struct StateOfCharge4{
-			bool valid;
-			int timestamp;//each one is 4 bytes -> atleast for ints
-			int sensor_id;
-			int data[4];
-		};
-		
-		struct Orientation4{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int angle[2];//int angle (dir, pitch)
-			int16_t accel[3];//acceleration x,y,z int16
-			int16_t gyr[3];//gyr x,y,z, int 16
-			int16_t mag[3];//mag x,y,z int 16
-		};
-		
-		struct Luminosity4{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int data;			
-		};
-		
-		struct GPS4{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			float location[2];//float lat and long
-		};
-		struct StateOfCharge5{
-			bool valid;
-			int timestamp;//each one is 4 bytes -> atleast for ints
-			int sensor_id;
-			int data[4];
-		};
-		
-		struct Orientation5{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int angle[2];//int angle (dir, pitch)
-			int16_t accel[3];//acceleration x,y,z int16
-			int16_t gyr[3];//gyr x,y,z, int 16
-			int16_t mag[3];//mag x,y,z int 16
-		};
-		
-		struct Luminosity5{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int data;			
-		};
-		
-		struct GPS5{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			float location[2];//float lat and long
-		};
-		struct StateOfCharge6{
-			bool valid;
-			int timestamp;//each one is 4 bytes -> atleast for ints
-			int sensor_id;
-			int data[4];
-		};
-		
-		struct Orientation6{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int angle[2];//int angle (dir, pitch)
-			int16_t accel[3];//acceleration x,y,z int16
-			int16_t gyr[3];//gyr x,y,z, int 16
-			int16_t mag[3];//mag x,y,z int 16
-		};
-		
-		struct Luminosity6{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int data;			
-		};
-		
-		struct GPS6{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			float location[2];//float lat and long
-		};struct StateOfCharge7{
-			bool valid;
-			int timestamp;//each one is 4 bytes -> atleast for ints
-			int sensor_id;
-			int data[4];
-		};
-		
-		struct Orientation7{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int angle[2];//int angle (dir, pitch)
-			int16_t accel[3];//acceleration x,y,z int16
-			int16_t gyr[3];//gyr x,y,z, int 16
-			int16_t mag[3];//mag x,y,z int 16
-		};
-		
-		struct Luminosity7{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int data;			
-		};
-		
-		struct GPS7{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			float location[2];//float lat and long
-		};
-		struct StateOfCharge8{
-			bool valid;
-			int timestamp;//each one is 4 bytes -> atleast for ints
-			int sensor_id;
-			int data[4];
-		};
-		
-		struct Orientation8{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int angle[2];//int angle (dir, pitch)
-			int16_t accel[3];//acceleration x,y,z int16
-			int16_t gyr[3];//gyr x,y,z, int 16
-			int16_t mag[3];//mag x,y,z int 16
-		};
-		
-		struct Luminosity8{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int data;			
-		};
-		
-		struct GPS8{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			float location[2];//float lat and long
-		};
-		struct StateOfCharge9{
-			bool valid;
-			int timestamp;//each one is 4 bytes -> atleast for ints
-			int sensor_id;
-			int data[4];
-		};
-		
-		struct Orientation9{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int angle[2];//int angle (dir, pitch)
-			int16_t accel[3];//acceleration x,y,z int16
-			int16_t gyr[3];//gyr x,y,z, int 16
-			int16_t mag[3];//mag x,y,z int 16
-		};
-		
-		struct Luminosity9{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int data;			
-		};
-		
-		struct GPS9{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			float location[2];//float lat and long
-		};*/

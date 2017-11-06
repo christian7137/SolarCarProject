@@ -127,9 +127,6 @@ def main():
     else:
         print "SUCCESSFULLY SET UP UDP CLIENT\n"
         today = datetime.datetime.now().strftime("%Y_%m_%d")
-        example = UDP_Packet(["None", "1234567890,2,360,360,270,270,270,180,180,180,90,90,90", "None", "None"])
-        example.writeToCSV(today)
-        return
         while (1):
             print "WAITING FOR PACKET"
             packet = UDP_Packet(UDPclient.pollUDPclient())

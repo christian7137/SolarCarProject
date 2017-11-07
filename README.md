@@ -7,7 +7,8 @@ http://www-numi.fnal.gov/offline_software/srt_public_context/WebDocs/doxygen-how
 In the shell,
 *	git clone https://github.com/christian7137/SolarCarProject.git
 *	cd SolarCarProject/Display
-* source display.sh
+* chmod +x display.sh
+* ./display.sh
 
 At this point, InfluxDB and Grafana should be installed and running upon boot. Next, configure InfluxDB settings. To do this, proceed on to <b>Setting up an InfluxDB Database</b>. 
 

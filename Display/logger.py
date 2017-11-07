@@ -15,7 +15,7 @@ import UDPclient # C++ module
 
 sensorID = {
 		1 : ["SOC0", "SOC1", "SOC2", "SOC3"],
-                2 : ["ANG0", "ANG1", "ORI0", "ORI1", "ORI2",  "ACC0", "ACC1", "ACC2", "MAG0", "MAG1", "MAG2"],
+                2 : ["ANG0", "ANG1", "ACC0", "ACC1", "ACC2",  "GYR0", "GYR1", "GYR2", "MAG0", "MAG1", "MAG2"],
                 3 : ["LUX"],
                 4 : ["LAT", "LONG"]
             }

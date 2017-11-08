@@ -17,6 +17,7 @@ if [ "" == "$PKG_OK" ]; then
 	wget -O - https://repos.influxdata.com/influxdb.key | sudo apt-key add -
 	echo "deb https://repos.influxdata.com/debian jessie stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
 	sudo apt-get update && sudo apt-get install influxdb
+	sudo apt-get install python-influxdb	
 	
 	# enable run at boot?
 	echo "Enabling InfluxDB at Boot . . ."

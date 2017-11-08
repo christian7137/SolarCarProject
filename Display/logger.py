@@ -4,19 +4,7 @@ import datetime
 from influxdb import InfluxDBClient
 import UDPclient # C++ module
 
-# SENSOR LIST:
-# 1 : Simulated BPS  - State of Charge
-# 2 : BNO055 - Orientation Sensor
-# 3 : TSL2561T - Luminosity Sensor
-# 4 : Simulated - GPS
-
-# value labels for each sensor
-sensorID = {
-                1 : ["SOC0", "SOC1", "SOC2", "SOC3"],
-                2 : ["ANG0", "ANG1", "ACC0", "ACC1", "ACC2",  "GYR0", "GYR1", "GYR2", "MAG0", "MAG1", "MAG2"],
-                3 : ["LUX"],
-                4 : ["LAT", "LONG"]
-            }
+sensorDict = {}
 
 class UDP_Packet:
     
@@ -43,7 +31,7 @@ class UDP_Packet:
                 except IOError: # if file does not exist, create file and add header row
                     CSV = open(WRITE_PATH, 'w')
                     header = "TIMESTAMP, "
-                    sensorLabels = sensorID.get(int(self.sensorData[i][1]))
+                    sensorLabels = sensorDict.get(self.sensorData[i][1])
                     for j in range(0, len(sensorLabels)):
                         header += sensorLabels[j] + ", "
                     header+= "\n"
@@ -68,7 +56,7 @@ class UDP_Packet:
         		print self.sensorData[i][0]
                         sensorLog = {}
                         for j in range(2, len(self.sensorData[i])):
-                            sensorLog[sensorID.get(int(self.sensorData[i][1]))[j - 2]] = self.sensorData[i][j]
+                            sensorLog[sensorDict.get(self.sensorData[i][1])[j - 2]] = self.sensorData[i][j]
         		json_body = [
                             {
                                 "measurement": session,
@@ -86,6 +74,19 @@ class UDP_Packet:
     def clearData(self):
         print("CLEARED UDP PACKET\n")
 	self.sensorData[:] = [] # clear sensorData
+
+def setUpSensorDict():
+    READ_FILE = "config_pit.txt"
+    f = open(READ_FILE, 'r')
+    for line in f:
+        if line == "\n" or line[0] == "#":    # empty or commented line
+            continue
+        else:
+            sensor = line.rstrip().split('\t')
+            sensor = filter(None, sensor)
+            sensorDict[sensor[0]] = sensor[1:]
+    f.close()
+    return sensorDict
 
 def setUpInfluxDB():
     # Set these variables, influxDB should be localhost on Pi
@@ -118,6 +119,13 @@ def setUpInfluxDB():
     return client, session, runNo, interval
 
 def main():
+    # Config Dictionary
+    setUpSensorDict()
+    packet = UDP_Packet(["None", "100,2,0,1,2,3,4,5,6,7,8,9,10", "None", "None"])
+    today = datetime.datetime.now().strftime("%Y_%m_%d")
+    packet.writeToCSV(today)
+    return
+    print "SUCCESSFULLY SET UP SENSOR DICTIONARY\n"
     # Set up InfluxDB Server
     client, session, runNo, interval = setUpInfluxDB()
     print "SUCCESSFULLY SET UP INFLUXDB CLIENT\n"

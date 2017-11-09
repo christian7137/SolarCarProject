@@ -37,6 +37,7 @@ class SVT_CAN: public SV_Thread {
 		int parse_canframe(struct can_frame& cf, int sensor, stringstream& buf, int idx);
 		void parse_canframe_struct(uint8_t * pData, stringstream& buf);
 		void store_canframe(struct can_frame& cf);
+		void store_canBuffer(int stmNum, int size, vector<vector<uint8_t>> Msg);
 		void print_canframe(string header, struct can_frame& cf);
 		void InternalThreadEntry();
 		void UDP_send(int time, int ID, int val);

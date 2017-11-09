@@ -1,0 +1,43 @@
+#!/bin/bash
+#
+#    Script to initialize the Raspberry Pis used in the UTSVT Solar Vehicle Data Acquistion and Display System.
+#    USAGE: TBD
+#
+## VARIABLES ##
+CURDIR="$PWD"  
+CDPATH=:$HOME/SolarCarProject
+
+## DISPLAY FUNCTION ##
+display() {
+	echo "Running Pit RPI scripts . . ."
+	cd Display
+	chmod +x ./display.sh
+	./display.sh
+	#echo "$PWD"
+	cd "$CURDIR"
+}
+
+## IN-CAR FUNCTION ##
+incar() {
+	echo "Running Car RPI scripts . . ."
+	# TODO: Car scripts
+}
+
+## HANDLE ARGUMENTS ##
+case "$1" in
+	# Run display scripts
+	pit)
+		display
+		;;
+	# Run in-car scripts
+	car)
+		incar
+		;;
+	# Show usage
+	*)
+		echo "Usage: $0 {pit|car}" >&2
+		exit 1	
+	;;
+esac
+
+## END ##

@@ -6,7 +6,7 @@ echo Checking for apt-transport-https: $PKG_OK
 if [ "" == "$PKG_OK" ]; then
 	echo "apt-transport-https is not installed. Installing . . ."
 	sudo apt-get install apt-transport-https
-	echo "Done!"
+	#echo "Done!"
 fi
 
 # install InfluxDB
@@ -24,7 +24,7 @@ if [ "" == "$PKG_OK" ]; then
 	sudo systemctl daemon-reload
 	sudo systemctl enable influxdb.service
 	sudo systemctl start influxdb.service
-	echo "Done!"
+	#echo "Done!"
 fi
 
 # install Grafana
@@ -41,13 +41,16 @@ if [ "" == "$PKG_OK" ]; then
 	sudo systemctl daemon-reload
 	sudo systemctl enable grafana-server.service
 	sudo systemctl start grafana-server.service
-	echo "Done!"
+	#echo "Done!"
 fi
 
 echo "Beginning C++ wrapping . . ."
 sudo chmod +x ./wrap.sh
 sudo ./wrap.sh &> /dev/null
-echo ". . . done!"
+
+echo "Making IP static . . ."
+sudo chmod +x ./static.sh
+sudo ./static.sh
 
 # It's supposed to be something like this, but it doesn't work. I'll play with it later since it's not a high priority.
 #influx

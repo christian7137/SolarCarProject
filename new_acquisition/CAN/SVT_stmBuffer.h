@@ -33,6 +33,7 @@ class STM {
 	public:
 
 		vector<vector<uint8_t>> msgData;
+		vector<int> ts;
 		int bufIdx;
 		int size;
 		int sensorNum;
@@ -52,6 +53,7 @@ void STM::make_space(int bufsize, int numSensors, string* Sense, string* ID){
 	ids = ID;
 	sensorNum = numSensors;
 	msgData.resize(bufsize);
+	ts.resize(bufsize);
 	for(i=0; i<bufsize; i++){
 		msgData[i].resize(8);
 	}

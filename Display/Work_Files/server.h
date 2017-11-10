@@ -40,7 +40,7 @@ class Server {
         Server(){
             port = 1500;    
             serverAddr.sin_family = AF_INET;
-            serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");//127.0.0.1, 192.168.0.255, 169.254.255.255 <- this one computer to RPi
+            serverAddr.sin_addr.s_addr = inet_addr("192.168.0.111");//127.0.0.1, 192.168.0.255, 169.254.255.255 <- this one computer to RPi
             serverAddr.sin_port = htons(port);//atoi(argv[2])
             length=sizeof(struct sockaddr_in);
 			connectSock();

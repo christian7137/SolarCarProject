@@ -347,8 +347,8 @@ try:
 				  # "vsense297" : vsense + 15,
 				  # "vsense298" : vsense + 16,
 				  # "vsense299" : vsense + 17
-				  "latitude_test" : 3007.8704,
-				  "longitude_test" : 9738.2324
+				  "metric" : "distinct",
+				  "geohash" : "9v6g04443"
              }
           }
         ]

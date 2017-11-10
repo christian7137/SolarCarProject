@@ -3,14 +3,14 @@
 ### Doxygen Helpful Links
 http://www-numi.fnal.gov/offline_software/srt_public_context/WebDocs/doxygen-howto.html
 
-### Running display.sh
-In the shell,
+### Configuring a Raspberry Pi
+In the Raspberry Pi terminal,
 *	git clone https://github.com/christian7137/SolarCarProject.git
-*	cd SolarCarProject/Display
-* chmod +x display.sh
-* ./display.sh
+*	cd SolarCarProject
+* chmod +x sysinit
+* ./sysinit {pit|car}
 
-At this point, InfluxDB and Grafana should be installed and running upon boot. Next, configure InfluxDB settings. To do this, proceed on to <b>Setting up an InfluxDB Database</b>. 
+If the 'pit' argument is used, InfluxDB and Grafana should be installed and running upon boot. Next, configure InfluxDB settings. To do this, proceed on to <b>Setting up an InfluxDB Database</b>. 
 
 ### Setting up an InfluxDB database
 After successful installation of InfluxDB, connect to the InfluxDB command line interface and create users and databases for our needs. The following steps will create one database `my_db` and an `admin` user as well as a `grafana` user. The grafana user will only be allowed to read data from `my_db`. Be sure to store your selected passwords.

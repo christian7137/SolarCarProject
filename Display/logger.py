@@ -1,4 +1,5 @@
 import sys
+import os
 import time
 import datetime
 from influxdb import InfluxDBClient
@@ -56,7 +57,10 @@ class UDP_Packet:
         		print self.sensorData[i][0]
                         sensorLog = {}
                         for j in range(2, len(self.sensorData[i])):
-                            sensorLog[sensorDict.get(self.sensorData[i][1])[j - 2]] = self.sensorData[i][j]
+                            if (self.sensorData[i][j] == ""):
+                                continue
+                            else:
+                                sensorLog[sensorDict.get(self.sensorData[i][1])[j - 2]] = self.sensorData[i][j]
         		json_body = [
                             {
                                 "measurement": session,
@@ -123,8 +127,11 @@ def main():
     setUpSensorDict()
     packet = UDP_Packet(["None", "100,2,0,1,2,3,4,5,6,7,8,9,10", "None", "None"])
     today = datetime.datetime.now().strftime("%Y_%m_%d")
+    # Make sure CSV directory exists
+    if not os.path.exists("CSV"):
+        os.makedirs("CSV")
+        print "CREATED CSV DIRECTORY\n"
     packet.writeToCSV(today)
-    return
     print "SUCCESSFULLY SET UP SENSOR DICTIONARY\n"
     # Set up InfluxDB Server
     client, session, runNo, interval = setUpInfluxDB()

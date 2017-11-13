@@ -1,4 +1,5 @@
 import sys
+import os
 import time
 import datetime
 from influxdb import InfluxDBClient
@@ -126,6 +127,10 @@ def main():
     setUpSensorDict()
     packet = UDP_Packet(["None", "100,2,0,1,2,3,4,5,6,7,8,9,10", "None", "None"])
     today = datetime.datetime.now().strftime("%Y_%m_%d")
+    # Make sure CSV directory exists
+    if not os.path.exists("CSV"):
+        os.makedirs("CSV")
+        print "CREATED CSV DIRECTORY\n"
     packet.writeToCSV(today)
     print "SUCCESSFULLY SET UP SENSOR DICTIONARY\n"
     # Set up InfluxDB Server

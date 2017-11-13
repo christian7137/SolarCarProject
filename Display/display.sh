@@ -52,6 +52,8 @@ echo "Making IP static . . ."
 sudo chmod +x ./static.sh
 sudo ./static.sh
 
+mkdir CSV
+
 # It's supposed to be something like this, but it doesn't work. I'll play with it later since it's not a high priority.
 #influx
 #expect ">"

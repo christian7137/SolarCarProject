@@ -57,10 +57,10 @@ class UDP_Packet:
         		print self.sensorData[i][0]
                         sensorLog = {}
                         for j in range(2, len(self.sensorData[i])):
-                            if (self.sensorData[i][j] == ""):
-                                continue
-                            else:
-                                sensorLog[sensorDict.get(self.sensorData[i][1])[j - 2]] = self.sensorData[i][j]
+                        	if (self.sensorData[i][j] == ""):
+					continue
+				else:
+					sensorLog[sensorDict.get(self.sensorData[i][1])[j - 2]] = self.sensorData[i][j]
         		json_body = [
                             {
                                 "measurement": session,

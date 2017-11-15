@@ -5,24 +5,27 @@ import datetime
 from influxdb import InfluxDBClient
 import UDPclient # C++ module
 
+# Sensor labe dictionary generated using setUpSensorDict() and config_pit.txt
 sensorDict = {}
 
 class UDP_Packet:
     
     sensorData = []
 
+    # Constructor
     def __init__(self, sensorData):
         assert isinstance(sensorData, list)
-	for i in range(0, len(sensorData)):
+        for i in range(0, len(sensorData)):
             if sensorData[i] == "None":
                 self.sensorData.append("None")
                 continue
             else:
                 self.sensorData.append(sensorData[i].split(','))
 
-    def writeToCSV(self, today):   # modify for new json message format
+	# Writes data to sensor-specific CSV files
+    def writeToCSV(self, today):
         for i in range(0, len(self.sensorData)):
-            if self.sensorData[i] == "None":
+            if self.sensorData[i] == "None":	# skip if sensor has no data
                 continue
             else:
                 WRITE_PATH = "CSV/" + today + "_SID" + self.sensorData[i][1] + ".csv"
@@ -48,19 +51,20 @@ class UDP_Packet:
                 print("WROTE TO " + WRITE_PATH + "\n")
                 CSV.close()
 
+    # Sends data to InfluxDB
     def log(self, client, session, runNo, interval):    # edit for JSON class
         for i in range(0, len(self.sensorData)):
-            if (self.sensorData[i] == "None"):
+            if (self.sensorData[i] == "None"):	# skip if sensor has no data
                 continue
             else:
         		print "TIMESTAMP: "
         		print self.sensorData[i][0]
-                        sensorLog = {}
-                        for j in range(2, len(self.sensorData[i])):
-                        	if (self.sensorData[i][j] == ""):
-					continue
+        		sensorLog = {}
+        		for j in range(2, len(self.sensorData[i])):
+        			if (self.sensorData[i][j] == ""):	# skip if sensor value is empty
+						continue
 				else:
-					sensorLog[sensorDict.get(self.sensorData[i][1])[j - 2]] = self.sensorData[i][j]
+					sensorLog[sensorDict.get(self.sensorData[i][1])[j - 2]] = self.sensorData[i][j]	# create dictionary for JSON body
         		json_body = [
                             {
                                 "measurement": session,
@@ -75,19 +79,21 @@ class UDP_Packet:
                         client.write_points(json_body)
         		print("LOGGED TO INFLUXDB\n")	
 
+    # Clears sensorData list for reuse
     def clearData(self):
         print("CLEARED UDP PACKET\n")
-	self.sensorData[:] = [] # clear sensorData
+        self.sensorData[:] = [] # empty list
 
+# Creates sensor label dictionary
 def setUpSensorDict():
     READ_FILE = "config_pit.txt"
     f = open(READ_FILE, 'r')
     for line in f:
-        if line == "\n" or line[0] == "#":    # empty or commented line
+        if line == "\n" or line[0] == "#":    # skips empty or commented lines
             continue
         else:
-            sensor = line.rstrip().split('\t')
-            sensor = filter(None, sensor)
+            sensor = line.rstrip().split('\t')	# remove trailing whitespace and splits by tab character
+            sensor = filter(None, sensor)	# remove all empty entries in list
             sensorDict[sensor[0]] = sensor[1:]
     f.close()
     return sensorDict

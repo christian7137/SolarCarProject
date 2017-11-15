@@ -13,10 +13,12 @@
 
 Client client;
 
+// Ensures that wrapper functions and initializes global variables
 bool setUpUDPclient() {
 	return true;
 }
 
+// Closes UDP client 
 bool closeUDPclient() {
 	try {
 		client.closeSocket();
@@ -27,23 +29,25 @@ bool closeUDPclient() {
 	
 }
 
+// Wrapper function for setUpUDPclient()
 static PyObject* UDPclient_setUpUDPclient(PyObject *self, PyObject *args) {	
 	return Py_BuildValue("b", setUpUDPclient());
 }
 
+// Wrapper function used to receive packets from UDP client
 static PyObject* UDPclient_pollUDPclient(PyObject *self, PyObject *args) {
-	// receive packet
-	// get timestamp
-	// get sensor value
 	client.receiveMessage();
 	client.json_message.printJson();
+	// return sensor values as a list of strings
 	return Py_BuildValue("[s, s, s, s]", client.json_message.getSOCValue().c_str(), client.json_message.getOriValue().c_str(), client.json_message.getLumValue().c_str(), client.json_message.getGPSValue().c_str());
 }
 
+// Wrapper function for closeUDPclient()
 static PyObject* UDPclient_closeUDPclient(PyObject *self, PyObject *args) {	
 	return Py_BuildValue("b", closeUDPclient());
 }
 
+// Function list for Python wrapper
 static PyMethodDef UDPclientMethods[] = {	// FUNCTION LIST
 	{"setUpUDPclient", (PyCFunction) UDPclient_setUpUDPclient},
 	{"pollUDPclient", (PyCFunction) UDPclient_pollUDPclient},
@@ -51,6 +55,7 @@ static PyMethodDef UDPclientMethods[] = {	// FUNCTION LIST
 	{NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC initUDPclient() {	// INITIALIZE MODULE
+// Initializes Python library
+PyMODINIT_FUNC initUDPclient() {
 	Py_InitModule("UDPclient", UDPclientMethods);
 }

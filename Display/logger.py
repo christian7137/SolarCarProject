@@ -25,7 +25,7 @@ class UDP_Packet:
             if self.sensorData[i] == "None":
                 continue
             else:
-                WRITE_PATH = "CSV/" + today + "_SID" + self.sensorData[i][1]
+                WRITE_PATH = "CSV/" + today + "_SID" + self.sensorData[i][1] + ".csv"
                 try:
                     CSV = open(WRITE_PATH, 'r')
                     CSV.close()

@@ -1,7 +1,8 @@
 # setUpSensorDict() used to convert following table into Python dictionary
 # cells delimited by tabs ('\t')
 # pound represents commented line
-# sensor ID followed by data labels used for InfluxDB and Grafana
+# sensor ID followed by data labels used for CSV files, InfluxDB, and Grafana
+# sensor index is <sensorID> - 1 in sensorData list
 
 # Simulated BPS  - State of Charge
 1	SOC0	SOC1	SOC2	SOC3

@@ -1,4 +1,4 @@
-# setUpSensorDict() used to convert following table into dictionary
+# setUpSensorDict() used to convert following table into Python dictionary
 # cells delimited by tabs ('\t')
 # pound represents commented line
 # sensor ID followed by data labels used for InfluxDB and Grafana

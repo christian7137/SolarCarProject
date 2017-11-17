@@ -23,6 +23,23 @@ display() {
 incar() {
 	echo "Running Car RPI scripts . . ."
 	# TODO: Car scripts
+	# James wants an overall update/upgrade
+	# install can-utils package
+	# purge fake-hwclock package
+	# append to /boot/config.txt
+		## utsvt RPi3 config
+		## for RTC
+		# dtparam=i2c_arm=on
+		# dtoverlay=i2c-rtc,ds3231
+		##can bus
+		# dtoverlay=mcp2515-can0
+		# dtparam=oscillator=16000000
+		# dtparam=interrupt=13
+		# dtparam=spimaxfrequency=100000
+		##to use serial port /dev/ttyAMM0 for BN055
+		# dtoverlay=pi3-disable-bt
+		# enable_uart=1
+	# Reboot.
 	cd "$DAQ"
 	echo "$PWD"
 	cd "$CURDIR"

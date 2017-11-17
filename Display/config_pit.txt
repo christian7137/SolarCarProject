@@ -14,4 +14,4 @@
 3	LUX
 
 # Simulated - GPS
-4	LAT	LONG
+4	LAT(N)	LONG(W)

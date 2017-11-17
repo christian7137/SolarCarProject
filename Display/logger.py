@@ -63,7 +63,11 @@ class UDP_Packet:
 				tags = {"run": runNo}
 				fields = {}
 				if i == 3: # special insertion for GPS data
-					tags["geohash"] = str(geohash.encode(float(self.sensorData[i][2]) / 100, float(self.sensorData[i][3]) / 100))
+					latitude = float(self.sensorData[i][2]) / 100	# assuming value is North of equator
+					longitude = -1 * float(self.sensorData[i][3]) / 100	# assuming value is West of Prime Meridian (hence -1 multiplication)
+					geohashValue = str(geohash.encode(latitude, longitude))
+					print geohashValue
+					tags["geohash"] = geohashValue
 					fields["metric"] = 1
 				else:
 					for j in range(2, len(self.sensorData[i])):
@@ -151,10 +155,12 @@ def main():
 		today = datetime.datetime.now().strftime("%Y_%m_%d")
 		while (1):
 			print "WAITING FOR PACKET"
-			packet = UDP_Packet(UDPclient.pollUDPclient())
+			#packet = UDP_Packet(UDPclient.pollUDPclient())
+			packet = UDP_Packet(["None", "None", "None", "12345,4,3007.83,9738.2133"])
 			packet.writeToCSV(today)
 			packet.log(client, session, runNo, interval)    # log to InfluxDB
 			packet.clearData()     # log on InfluxDB
+			return
 		UDPclient.closeUDPclient()
 
 if __name__ == "__main__":

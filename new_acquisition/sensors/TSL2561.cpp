@@ -1,6 +1,5 @@
 
 #include "TSL2561.h"
-#include "mbed.h"
 
 Serial DEBUG(SERIAL_TX, SERIAL_RX);
 
@@ -9,7 +8,7 @@ Serial DEBUG(SERIAL_TX, SERIAL_RX);
 #define DEBUG_PRINTXY(z,x, y)         if(z==1) DEBUG.printf(x, y);
 #define DEBUG_PRINTLNXY(z,x, y)       if(z==1) {DEBUG.printf(x, y);     DEBUG.printf("\r\n");}
 
-TSL2561::TSL2561():i2c(I2C_SDA,I2C_SCL){
+TSL2561::TSL2561(int sensorID, int periodMs, pinName sda, PinName scl):i2c(sda,scl){
     i2c.frequency (300);
     _addr = TSL2561_ADDR_FLOAT;
     _initialized = false;
@@ -17,7 +16,7 @@ TSL2561::TSL2561():i2c(I2C_SDA,I2C_SCL){
     _gain = TSL2561_GAIN_16X;    
 }
 
-TSL2561::TSL2561(uint8_t addr):i2c(I2C_SDA,I2C_SCL) {
+TSL2561::TSL2561(int sensorID, uint8_t addr, int periodMs, pinName sda, PinName scl):i2c(sda,scl) {
 
   _addr = addr;
   _initialized = false;
@@ -43,6 +42,7 @@ TSL2561::TSL2561(PinName sda, PinName scl, uint8_t addr):i2c(sda, scl) {
   _gain = TSL2561_GAIN_16X;
   // we cant do wire initialization till later, because we havent loaded Wire yet
 }
+TSL2561::~TSL2561(){}
 
 uint16_t TSL2561::getLuminosity (uint8_t channel) {
 
@@ -105,7 +105,9 @@ uint32_t TSL2561::getFullLuminosity (void)
   return x;
 }
 
-
+void TSL2561::init(){
+	begin();
+}
 bool TSL2561::begin(void) {
 
     DEBUG.printf(0," Test");
@@ -134,6 +136,15 @@ bool TSL2561::begin(void) {
     return true;
  }
  
+ void TSL2561::read(timeout_state* pToState, char * pData){
+ 	bool res;
+ 	uint16_t lumons = getLuminosity(0);
+	uint16_t * pLoc = pData;
+	*pLoc = lumons;
+		
+	*pToState = finished;
+	
+ }
  uint16_t TSL2561::read16(uint8_t reg)
 {
     uint16_t x; 

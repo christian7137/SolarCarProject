@@ -3,12 +3,12 @@
 #define _TSL2561_H_
 
 #include "mbed.h"
+#include "svtSensor.h"
 
-#define TSL2561_I2C_PINNAME_SDA p28
-#define TSL2561_I2C_PINNAME_SCL p27
+extern Serial pc;
 
-#define TSL2561_VISIBLE         2                   // channel 0 - channel 1
-#define TSL2561_INFRARED        1                  // channel 1
+#define TSL2561_VISIBLE         2              // channel 0 - channel 1
+#define TSL2561_INFRARED        1              // channel 1
 #define TSL2561_FULLSPECTRUM    0              // channel 0
 
 // 3 i2c address options!
@@ -120,15 +120,20 @@ typedef enum
 }
 tsl2561Gain_t;
 
-class TSL2561 {
+typedef union{
+	char data[2];
+	struct{
+		uint16_t lumens;
+	}fields;
+}TSL2561_DATA;
 
-public:        
+class TSL2561 : public svtSensor{
+
+	public:        
         //---CLASS CONSTRUCTOR---//
-        TSL2561();       
-        TSL2561(uint8_t addr);
-        TSL2561(PinName sda, PinName scl);
-        TSL2561(PinName sda, PinName scl, uint8_t addr);
+		TSL2561(int sensorID, uint8_t addr, int periodMs, pinName sda, PinName scl):i2c(sda,scl)
         
+	private:
         bool begin(void);
         void enable(void);
         void disable(void);
@@ -141,7 +146,7 @@ public:
         uint16_t getLuminosity (uint8_t channel);
         uint32_t getFullLuminosity ();
 
- private:
+	private:
         I2C i2c;
         int8_t _addr;
         tsl2561IntegrationTime_t _integration;

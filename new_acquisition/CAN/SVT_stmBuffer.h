@@ -33,10 +33,10 @@ class STM {
 	public:
 
 		vector<vector<uint8_t>> msgData;
+		vector<int> ts;
 		int bufIdx;
 		int size;
 		int sensorNum;
-		//fstream stmFile;
 		string *sensors;
 		string *ids;
 		
@@ -53,8 +53,9 @@ void STM::make_space(int bufsize, int numSensors, string* Sense, string* ID){
 	ids = ID;
 	sensorNum = numSensors;
 	msgData.resize(bufsize);
+	ts.resize(bufsize);
 	for(i=0; i<bufsize; i++){
-		msgData.resize(8);
+		msgData[i].resize(8);
 	}
 
 }

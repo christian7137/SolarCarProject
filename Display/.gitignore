@@ -1,0 +1,4 @@
+#log files
+*.out
+build/
+CSV/

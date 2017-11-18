@@ -10,10 +10,10 @@ echo Checking for python-dev: $PKG_OK
 if [ "" == "$PKG_OK" ]; then
 	echo "python-dev is not installed. Installing . . ."
 	sudo apt-get install python dev
-	echo "Done!"
+	echo ". . . installation done!"
 fi
 
-sudo python setup.py build
-sudo python setup.py install
+sudo python setup.py build 
+sudo python setup.py install 
 
-echo "Script is done!"
+echo ". . . wrapping done!"

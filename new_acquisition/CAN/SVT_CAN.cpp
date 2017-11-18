@@ -45,6 +45,7 @@ int stms = 0;
 int NUM_STM = 0;
 string **sensors;
 string **ids;
+string ***format;
 int* tokc;
 STMBuffers stmbufs;
 
@@ -113,111 +114,176 @@ SVT_CAN::~SVT_CAN(){
 
 int SVT_CAN::init_log(){
 
-	int i;	
+	int i, j, countIdx,countIdxSense, countIdxID, initial;	
 	int MAX_SENSE = 0;
 	int STM_BUF_SIZE = 0;
+	bool senseFlag = false;
+	bool newSensor = false;
 	string line;
 	char *token, *subtoken, *saveptr1, *saveptr2;
 
 	while(getline(configFile, line)){
 
 		char *dup = strdup(line.c_str());
-		token = strtok_r(dup, "'", &saveptr1);
+		token = strtok_r(dup, "[", &saveptr1);
 
 		if(!strcmp(token, "NUM_STM_IN_SYS:")){
 
-			token = strtok_r(NULL, "'", &saveptr1);
+			token = strtok_r(NULL, "]", &saveptr1);
 			NUM_STM = atoi(token);
 
 		} else if(!strcmp(token, "STM_BUFFER_SIZE:")){
 
-			token = strtok_r(NULL, "'", &saveptr1);
+			token = strtok_r(NULL, "]", &saveptr1);
 			STM_BUF_SIZE = atoi(token);
 
 		} else if(!strcmp(token, "MAX_NUMBER_SENSORS:")){
 
-			token = strtok_r(NULL, "'", &saveptr1);
+			token = strtok_r(NULL, "]", &saveptr1);
 			MAX_SENSE = atoi(token);				
 
-		} else if(!strcmp(token,"SENSORS:")){
+		} else if(!strcmp(token,"SENSORS")){
 			
+			senseFlag = true;
 			tokc = new int [NUM_STM];
-			fileNames = new string [NUM_STM];	
-			token = strtok_r(NULL, "'", &saveptr1);
+			fileNames = new string [NUM_STM];
 			for(i=0; i<NUM_STM; i++){
 				tokc[i] = 0;
 			}
 			sensors = new string* [NUM_STM];
 			ids = new string* [NUM_STM];
+			format = new string** [NUM_STM];
 			for(i=0; i<NUM_STM; i++){
 				sensors[i] = new string [MAX_SENSE];
-				ids[i] = new string [MAX_SENSE];	
-			}
-			while(token != NULL){
-	
-				if(strcmp(token, ",")){
-					subtoken = strtok_r(token, "=", &saveptr2);
-					if(subtoken != NULL){
-						i = 0;
-						char *temp = new char[strlen(subtoken) + 1];
-						strcpy(temp, subtoken);
-						strcat(temp, ".csv");
-						if(stms == 0){
-							fileNames[stms] = temp;
-							stms++;
-						} else {
-							for(i=0; i<stms; i++){
-								if(!strcmp(temp, fileNames[i].c_str())){
-									break;
-								}
-							}
-							if(stms == i){
-								if(stms != NUM_STM){
-									fileNames[stms] = temp;
-								} else {
-									cout << "ERROR: Provided more STM file names than a lotted. Increase NUM_STM_IN_SYS" << endl;
-								}
-							}
-						}
-						delete []temp;
-						subtoken = strtok_r(NULL, "=", &saveptr2);
-						if(subtoken != NULL){
-							sensors[i][tokc[i]] = subtoken;
-							subtoken = strtok_r(NULL, "=", &saveptr2); 
-							ids[i][tokc[i]] = subtoken; 
-							tokc[i] += 1;
-						} else {
-							cout << "ERROR: wrong format for config.txt SENSORS: \'stm=name=id\'" << endl;
-						}
-					} else {
-						cout << "ERROR: wrong format for config.txt SENSORS: \'stm=name=id\'" << endl;
-					}
+				ids[i] = new string [MAX_SENSE];
+				format[i] = new string* [MAX_SENSE];
+				for(j=0; j<MAX_SENSE; j++){
+					format[i][j] = new string [9];
 				}
-				token = strtok_r(NULL, "'", &saveptr1);
-
 			}
-			stmbufs.make_buffer(NUM_STM, STM_BUF_SIZE, sensors, ids, tokc);
-			stmFile = new fstream [NUM_STM];
-			for(i=0; i<NUM_STM; i++){
-				if(std::ifstream(fileNames[i])){
-					stmFile[i].open(fileNames[i], ios::out | ios::app);
+		
+		} else if(senseFlag && (!strcmp(token,"{"))){
+
+			newSensor = true;
+
+		} else if(newSensor && (!strcmp(token,"}"))){
+
+			newSensor = false;
+
+		} else if(newSensor){
+		
+			if(!strcmp(token,"FILE=")){
+
+				token = strtok_r(NULL, "]", &saveptr1);	
+				char *temp = new char[strlen(token) + 1];
+				strcpy(temp, token);
+				strcat(temp, ".csv");
+				if(stms == 0){
+					fileNames[stms] = temp;
+					countIdx = 0;
+					stms++;
 				} else {
-					stmFile[i].open(fileNames[i], ios::out | ios::app);
-					for(int j=0; j<stmbufs.stm[i].sensorNum; j++){
-						if(j == 0){
-							stmFile[i] << "Timestamp " << stmbufs.stm[i].sensors[j] << " ";
-						} else {
-							stmFile[i] << stmbufs.stm[i].sensors[j] << " ";
+					for(countIdx=0; countIdx<stms; countIdx++){
+						if(!strcmp(temp, fileNames[countIdx].c_str())){
+							break;
 						}
 					}
-					stmFile[i] << endl;
+					if(stms == countIdx){
+						if(stms != NUM_STM){
+							fileNames[stms] = temp;
+						} else {
+							cout << "ERROR: Provided more STM file names than a lotted. Increase NUM_STM_IN_SYS" << endl;
+						}
+					}
 				}
-			}
+				delete []temp;
 
+			} else if(!strcmp(token,"NAME=")){
+
+				token = strtok_r(NULL, "]", &saveptr1);
+				if(token != NULL){
+					subtoken = strtok_r(token, ",", &saveptr2);
+					countIdxSense = countIdx;
+					initial = tokc[countIdxSense];
+					while(subtoken != NULL){
+						sensors[countIdxSense][tokc[countIdxSense]] = subtoken;
+						tokc[countIdxSense]++;
+						subtoken = strtok_r(NULL, ",", &saveptr2);
+					}
+				} else {
+					cout << "ERROR: Sensor does not have a name and will be ignored. This will cause errors in data." << endl;
+				}
+
+			} else if(!strcmp(token,"ID=")){
+	
+				token = strtok_r(NULL, "]", &saveptr1);
+				countIdxID = tokc[countIdxSense];
+				for(i=countIdx; initial<countIdxID; initial++){
+					ids[i][initial] = token;
+				}	
+			
+			} else if(!strcmp(token,"MSGFORMAT=")){
+	
+				while(token != NULL){
+					token = strtok_r(NULL, "]", &saveptr1);
+					subtoken = strtok_r(token, ",", &saveptr2);
+					while(subtoken != NULL){
+				
+						for(i=0; i<tokc[countIdx]; i++){
+							
+							if(!strcmp(subtoken,sensors[countIdx][i].c_str())){
+								break;
+							}
+
+						}
+						subtoken = strtok_r(NULL, ",", &saveptr2);
+						//grab the format data type
+						if(subtoken != NULL){
+						
+							int dataIdx = 0;
+							format[countIdx][i][dataIdx] = subtoken;
+							dataIdx += 1;
+							subtoken = strtok_r(NULL, ",", &saveptr2);
+							//grab where the data is coming from
+							while(subtoken != NULL){
+							
+								format[countIdx][i][dataIdx] = subtoken;
+								dataIdx += 1;
+								subtoken = strtok_r(NULL, ",", &saveptr2);
+							
+							}
+						
+						
+						} else {
+							cout << "ERROR: " << endl;
+						}
+						subtoken = strtok_r(NULL, ",", &saveptr2);
+
+					}
+					token = strtok_r(NULL, "[", &saveptr1);
+				}
+
+			} 
 		}
 		free(dup);
-		
 
+	}
+	stmbufs.make_buffer(NUM_STM, STM_BUF_SIZE, sensors, ids, tokc);
+	stmFile = new fstream [NUM_STM];
+	for(i=0; i<NUM_STM; i++){
+		if(std::ifstream(fileNames[i])){
+			stmFile[i].open(fileNames[i], ios::out | ios::app);
+		} else {
+			stmFile[i].open(fileNames[i], ios::out | ios::app);
+			for(int j=0; j<stmbufs.stm[i].sensorNum; j++){
+				if(j == 0){
+					stmFile[i] << "Timestamp,\t" << stmbufs.stm[i].sensors[j] << ",\t";
+				} else {
+					stmFile[i] << stmbufs.stm[i].sensors[j] << ",\t";
+				}
+			}
+			stmFile[i] << endl;
+		}
 	}
 	configFile.close();
 
@@ -237,7 +303,7 @@ int SVT_CAN::init(){
 
    // setup for socket can
    system("sudo ifconfig can0 down");
-   system("sudo ip link set can0 type can bitrate 1000000 triple-sampling off restart-ms 100");
+   system("sudo ip link set can0 type can bitrate 100000 triple-sampling off restart-ms 100");
    system("sudo ifconfig can0 up");
 
 	// setup socket
@@ -325,7 +391,7 @@ int SVT_CAN::init(){
 	outFile.open("output.txt", ios::out | ios::app);
 	init_log();
 	for(int i=0; i<tokc; i++){
-		outFile << sensors[i] << " ";
+		outFile << sensors[i] << ",\t";
 	}
 	outFile << endl;
    }*/
@@ -630,14 +696,27 @@ int SVT_CAN::readmsg(struct can_frame& frame){
    -
  *************************************************/
 void SVT_CAN::parse_canframe_struct(uint8_t * pData, stringstream& buf){
-
+	//HOW DO I TELL NUMS ARE CERTAIN TYPES OF SENSORS?
 	CAN_MSG * pParsed;
 	pParsed = (CAN_MSG * )pData;
+	
 	switch(pParsed->payload.type)
 	{
+		
 		case(3):{
 			buf << pParsed->payload.data.type3.sensor1Data; 
-			server.json_message.setLumSensor(time(0), pParsed->payload.type, pParsed->payload.data.type3.sensor1Data);
+			server.json_message.setLumSensor((time(0) + 21600), pParsed->payload.type, pParsed->payload.data.type3.sensor1Data);
+			server.json_message.printJson();
+			server.sendPacket();
+		}break;
+		case(2):{
+			buf << pParsed->payload.data.type2.accX << " " << pParsed->payload.data.type2.accY << " " << pParsed->payload.data.type2.accZ;
+			//setOriSensor(int ts, int id, int inputAngle[2], int16_t inputAcc[3], int16_t inputGyr[3], int16_t inputMag[3]){
+			int oriAng[2] = {0,0};
+			int16_t inAcc[3] = {pParsed->payload.data.type2.accX, pParsed->payload.data.type2.accY, pParsed->payload.data.type2.accZ};
+			int16_t inGyr[3] = {0,0,0};
+			int16_t inMag[3] = {0,0,0};  
+			server.json_message.setOriSensor((time(0) + 21600), pParsed->payload.type, oriAng, inAcc, inGyr, inMag);
 			server.json_message.printJson();
 			server.sendPacket();
 		}break;
@@ -686,36 +765,17 @@ void SVT_CAN::parse_canframe_struct(uint8_t * pData, stringstream& buf){
  *************************************************/
 void SVT_CAN::store_canframe(struct can_frame& cf){
 	stringstream buf;
-	int dlc = (cf.can_dlc > 8)? 8 : cf.can_dlc;
+	//int dlc = (cf.can_dlc > 8)? 8 : cf.can_dlc;
 	int type;
-
-	/*if(std::ifstream("/proc/uptime", std::ios::in) >> uptime_seconds){
-
-		uptime = std::chrono::milliseconds(
-			static_cast<unsigned long long>(uptime_seconds)*1000ULL
-			);
-
-	}*/
-
-	//buf << header;
-
-	/*if(cf.can_id & CAN_ERR_FLAG) {
-		buf <<  hex << int(cf.can_id & (CAN_ERR_MASK|CAN_ERR_FLAG));
-	} else if (cf.can_id & CAN_EFF_FLAG) {
-		buf << hex << int(cf.can_id & CAN_EFF_MASK);
-	} else {
-		buf << hex <<  int(cf.can_id & CAN_SFF_MASK);
-	}
-	buf << " ";*/
 
 	if(cf.can_id & CAN_RTR_FLAG) { /* there are no ERR frames with RTR */
 		buf << "R";
 	} else {
 		type = int(cf.data[0]);
 		buf << uptime.count();
-		buf << " ";
+		buf << ",\t";
 		buf << type;
-		buf << " ";
+		buf << ",\t";
 		parse_canframe_struct(cf.data,buf);
 	}
 
@@ -726,13 +786,15 @@ void SVT_CAN::store_canframe(struct can_frame& cf){
 		for(j=0; j<stmbufs.stm[i].sensorNum; j++){
 
 			if(atoi(stmbufs.stm[i].ids[j].c_str()) == type){
+				stmbufs.stm[i].ts[stmbufs.stm[i].bufIdx] = (time(0));
 				for(int k=0; k<8; k++){
 					stmbufs.stm[i].msgData[stmbufs.stm[i].bufIdx][k] = int(cf.data[k]);
 				}
 				stmbufs.stm[i].bufIdx += 1;
 				if(stmbufs.stm[i].bufIdx == stmbufs.stm[i].size){
 					stmbufs.stm[i].bufIdx = 0;
-					//store_canBuffer();
+					//DO I WANT TO DO THE PARSED STRING INSTEAD?
+					store_canBuffer(i, stmbufs.stm[i].size, stmbufs.stm[i].msgData);
 				}
 				i = NUM_STM + 1;
 				break;
@@ -746,6 +808,167 @@ void SVT_CAN::store_canframe(struct can_frame& cf){
 
 }
 
+/*****************************************************
+ *
+ *  store_canBuffer
+ *
+ *****************************************************/
+
+void SVT_CAN::store_canBuffer(int stmNum, int size, vector<vector<uint8_t>> Msg){
+
+	vector<vector<int>> data;
+	data.resize(size);
+	int i, j, k, m, n;
+	int oldts = stmbufs.stm[stmNum].ts[0];
+	int type = 0;
+	for(k=0; k<size; k++){
+		data[k].resize(1);
+		data[k][0] = NULL;
+	}
+
+	for(i=0; i<size; i++){	
+		type = Msg[i][0];
+		for(n=0; n<tokc[stmNum]; n++){
+			if(type == atoi(ids[stmNum][n].c_str())){
+				break;
+			}
+		}
+		if(!strcmp(format[stmNum][n][0].c_str(),"int8_t")){
+			
+			for(k=0; k<tokc[stmNum]; k++){
+				if(type == atoi(stmbufs.stm[stmNum].ids[k].c_str())){
+					break;
+				}
+			}
+			while(type == atoi(stmbufs.stm[stmNum].ids[k].c_str())){
+				int8_t temp;
+				data[k].resize(2);
+				data[k][0] = 1;
+				temp = Msg[i][atoi(format[stmNum][n][1].c_str())];
+				data[k][1] = (int) temp;
+				k++;
+				n++;
+			}
+	
+		} else if(!strcmp(format[stmNum][n][0].c_str(),"uint8_t")){
+
+			for(k=0; k<tokc[stmNum]; k++){
+				if(type == atoi(stmbufs.stm[stmNum].ids[k].c_str())){
+					break;
+				}
+			}
+			while(type == atoi(stmbufs.stm[stmNum].ids[k].c_str())){
+				uint8_t temp;
+				data[k].resize(2);
+				data[k][0] = 1;
+				temp = Msg[i][atoi(format[stmNum][n][1].c_str())];
+				data[k][1] = (unsigned int) temp;
+				k++;
+				n++;
+			}
+				
+		} else if(!strcmp(format[stmNum][n][0].c_str(),"int16_t")){
+			
+			for(k=0; k<tokc[stmNum]; k++){
+				if(type == atoi(stmbufs.stm[stmNum].ids[k].c_str())){
+					break;
+				}
+			}
+			while(type == atoi(stmbufs.stm[stmNum].ids[k].c_str())){
+				int16_t temp;
+				data[k].resize(2);
+				data[k][0] = 1;
+				temp = Msg[i][atoi(format[stmNum][n][1].c_str())];
+				temp += Msg[i][atoi(format[stmNum][n][2].c_str())] << 8;
+				data[k][1] = (int) temp;
+				k++;
+				n++;			
+			}
+
+		} else if(!strcmp(format[stmNum][n][0].c_str(),"uint16_t")){
+			
+			for(k=0; k<tokc[stmNum]; k++){
+				if(type == atoi(stmbufs.stm[stmNum].ids[k].c_str())){
+					break;
+				}
+			}	
+			while(type == atoi(stmbufs.stm[stmNum].ids[k].c_str())){
+				uint16_t temp;
+				data[k].resize(2);
+				data[k][0] = 1;
+				temp = Msg[i][atoi(format[stmNum][n][1].c_str())];
+				temp += Msg[i][atoi(format[stmNum][n][2].c_str())] << 8;
+				data[k][1] = (unsigned int) temp;
+				k++;
+				n++;			
+			}
+				
+		} else if(!strcmp(format[stmNum][n][0].c_str(),"int32_t")){
+				
+			for(k=0; k<tokc[stmNum]; k++){
+				if(type == atoi(stmbufs.stm[stmNum].ids[k].c_str())){
+					break;
+				}
+			}
+			while(type == atoi(stmbufs.stm[stmNum].ids[k].c_str())){
+				int32_t temp;
+				data[k].resize(2);
+				data[k][0] = 1;
+				temp = Msg[i][atoi(format[stmNum][n][1].c_str())];
+				temp += Msg[i][atoi(format[stmNum][n][2].c_str())] << 8;
+				temp += Msg[i][atoi(format[stmNum][n][3].c_str())] << 16;
+				temp += Msg[i][atoi(format[stmNum][n][4].c_str())] << 24;
+				data[k][1] = (int) temp;
+				k++;
+				n++;			
+			}
+		
+		} else if(!strcmp(format[stmNum][n][0].c_str(),"uint32_t")){
+			
+			for(k=0; k<tokc[stmNum]; k++){
+				if(type == atoi(stmbufs.stm[stmNum].ids[k].c_str())){
+					break;
+				}
+			}
+			while(type == atoi(stmbufs.stm[stmNum].ids[k].c_str())){
+				uint32_t temp;
+				data[k].resize(2);
+				data[k][0] = 1;
+				temp = Msg[i][atoi(format[stmNum][n][1].c_str())];
+				temp += Msg[i][atoi(format[stmNum][n][2].c_str())] << 8;
+				temp += Msg[i][atoi(format[stmNum][n][3].c_str())] << 16;
+				temp += Msg[i][atoi(format[stmNum][n][4].c_str())] << 24;
+				data[k][1] = (unsigned int) temp;
+				k++;
+				n++;			
+			}			
+	
+		}
+		if(oldts == stmbufs.stm[stmNum].ts[i]){
+			oldts = stmbufs.stm[stmNum].ts[i];
+		} else {
+			stmFile[stmNum] << oldts << ",\t";
+			for(j=0; j<tokc[stmNum]; j++){
+				if(data[j][0] != NULL){
+					for(m=0; m<data[j][0]; m++){
+						stmFile[stmNum] << data[j][m+1] << " ";
+					}
+				}
+				stmFile[stmNum] << ",\t";
+			}
+			oldts = stmbufs.stm[stmNum].ts[i];
+			stmFile[stmNum] << endl;
+			stmFile[stmNum].flush();
+			for(k=0; k<size; k++){
+				data[k].resize(1);
+				data[k][0] = NULL;
+			}
+		}
+		
+
+	}	
+
+}
 
 
 void SVT_CAN::UDP_send(int time, int ID, int val){

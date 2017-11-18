@@ -1,21 +1,72 @@
-//this is the json message format that will be sent between the pit and car RPi
-//Note: Cannot use strings. When a string is created, it is a pointer to the string, not the string value.
-//Thus, the value associated with the string will be pointer, which will cause a seg. fault
 #include <string.h>
 #include <sstream>
-//sizeof returns the size in bytes
+#include <limits.h>
+
+
+/*
+* This is the json message format that will be sent between the Pit RPi and Solar Car RPi
+*
+* Note: When adding new sensors (new structs), add the struct in the All_Json Struct. Then add getter
+* and setter method. Additionally, a new print method could be created, but this is just for testing purposes.
+*
+* Note: When adding new data to an existing struct, update the struct and update the getter and setter methods.
+* This will need to be communicated to the python wrapper and the function that calls these methods needs to be updated
+*/
+		
+		
+/*
+* The following is what bits in the 32 bit validValues correlate to. MSB is bit 31, LSB is 0
+* Bit 0 - State of charge data
+* Bit 1 - Orientation Angle
+* Bit 2 - Orientation Accel
+* Bit 3 - Orientation Gyr
+* Bit 4 - Orientation Mag
+* Bit 5 - Luminosity Data
+* Bit 6 - GPS Location
+* Bit 7 - Reserved from and and down to bit 31
+* Bit 8
+* Bit 9
+* Bit 10
+* Bit 11
+* Bit 12
+* Bit 13
+* Bit 14
+* Bit 15
+* Bit 16
+* Bit 17
+* Bit 18
+* Bit 19
+* Bit 20
+* Bit 21
+* Bit 22
+* Bit 23
+* Bit 24
+* Bit 25
+* Bit 26
+* Bit 27
+* Bit 28
+* Bit 29
+* Bit 30
+* Bit 31
+* Bit 32
+*/
+			
 class Json_Message{
 	private:
-		int OFFSET;
+		int TS_OFFSET;
+		int INVALID_VALUE;//if this value is inputted, the value is NULL
+		
+		int STATE_OF_CHARGE_DATA, ORIENTATION_ANGLE, ORIENTATION_ACCEL, ORIENTATION_GYR, ORIENTATION_MAG, LUMINOSITY_DATA, GPS_LOCATION;
+		
 		struct StateOfCharge{
-			bool valid;
+			//bool valid;
 			int16_t timestamp;//each one is 4 bytes -> atleast for ints
 			int sensor_id;
 			int data[4];
 		};
 		
 		struct Orientation{
-			bool valid;
+			//bool valid;
 			int16_t timestamp;
 			int sensor_id;
 			int angle[2];//int angle (dir, pitch)
@@ -25,20 +76,21 @@ class Json_Message{
 		};
 		
 		struct Luminosity{
-			bool valid;
+			//bool valid;
 			int16_t timestamp;
 			int sensor_id;
 			int data;			
 		};
 		
 		struct GPS{
-			bool valid;
+			//bool valid;
 			int16_t timestamp;
 			int sensor_id;
 			float location[2];//float lat and long
 		};
 		
 		struct All_Json{
+			int validValues;//notes on which bits are for what are in the top of this file
 			int16_t topTimestamp;
 			struct StateOfCharge stateOfCharge;
 			struct Orientation orientation;
@@ -46,21 +98,52 @@ class Json_Message{
 			struct GPS gps;
 		};
 		
+		
+		//combine the ts in the total json message with the ts in the sensor data
+		int getTotalTS(int sensorTS){
+			return ((all_json.topTimestamp << 16) + sensorTS);
+		} 
+		
+		
+		
+		/*
+		* This see's if the value is valid by inputting the bit location.
+		* This bitwise AND with the all_json valid bit with the bit location.
+		* If the value is not zero, then the data is valid. Else the value is not valid.
+		*/
+		bool isSensorValid(int offsetAmount){
+			if(offsetAmount & all_json.validValues)//valid
+				return true;
+			else
+				return false;
+		}
+	
+	
+	
 	public:
 	All_Json all_json;
 	
 	
 	Json_Message(){
-		OFFSET = 0x0000FFFF;
+		TS_OFFSET = 0x0000FFFF;
+		INVALID_VALUE = -100;
+		STATE_OF_CHARGE_DATA = 0x01;
+		ORIENTATION_ANGLE = 0x02;
+		ORIENTATION_ACCEL = 0x04;
+		ORIENTATION_GYR = 0x08;
+		ORIENTATION_MAG = 0x10;
+		LUMINOSITY_DATA = 0x20;
+		GPS_LOCATION = 0x40;
 		resetJson();
 	}
 	
 	//makes all the json messages invalid
 	void resetJson(){
-		all_json.stateOfCharge.valid = false;
-		all_json.orientation.valid = false;
-		all_json.luminosity.valid = false;
-		all_json.gps.valid = false;
+		all_json.validValues = 0;
+		//all_json.stateOfCharge.valid = false;
+		//all_json.orientation.valid = false;
+		//all_json.luminosity.valid = false;
+		//all_json.gps.valid = false;
 	}
 	
 	/****************************************************************************************************************
@@ -74,82 +157,133 @@ class Json_Message{
 		std::cout << "----------------------------------END OF MESSAGE----------------------------------" << std::endl;
 	}
 	
-	//combine the ts in the total json message with the ts in the sensor data
-	int getTotalTS(int sensorTS){
-		return ((all_json.topTimestamp << 16) + sensorTS);
-	}
 	
 	void printSOC(){
 		std::cout << "State of Charge: " << std::endl;
 
-		std::cout << "Is this sensor valid? " << all_json.stateOfCharge.valid << std::endl;
+		//std::cout << "Is this sensor valid? " << isSensorValid(STATE_OF_CHARGE_DATA) << std::endl;
 		
 		std::cout << "Timestamp: " << getTotalTS(all_json.stateOfCharge.timestamp) << " Sensor ID: ";
 		std::cout << all_json.stateOfCharge.sensor_id << std::endl;
 		
-		std::cout << "Values: " << all_json.stateOfCharge.data[0] << " " << all_json.stateOfCharge.data[1] << " ";
-		std::cout << all_json.stateOfCharge.data[2] << " " << all_json.stateOfCharge.data[3] << std::endl << std::endl;
+		
+		
+		std::cout << "Values: ";
+		if(isSensorValid(STATE_OF_CHARGE_DATA)){//<< std::endl;
+			std::cout << all_json.stateOfCharge.data[0] << " " << all_json.stateOfCharge.data[1] << " ";
+			std::cout << all_json.stateOfCharge.data[2] << " " << all_json.stateOfCharge.data[3];
+		}
+		else{
+			std::cout << "INVALID DATA";
+		}
+		std:: cout << std::endl << std::endl;
 	}
+	
 	
 	void printOrientation(){
 		std::cout << "Orientation: " << std::endl;
-		std::cout << "Is this sensor valid? " << all_json.orientation.valid << std::endl;
 		
 		std::cout << "Timestamp: " << getTotalTS(all_json.orientation.timestamp) << " Sensor ID: ";
 		std::cout << all_json.orientation.sensor_id << std::endl;
 		
-		std::cout << "Angle Values: " << all_json.orientation.angle[0] << " ";
-		std::cout << all_json.orientation.angle[1] << std::endl;
-	
-		std::cout << "Acceleration Values: " << all_json.orientation.accel[0] << " ";
-		std::cout << all_json.orientation.accel[1] << " " << all_json.orientation.accel[2] << std::endl;
-			
-		std::cout << "Gyr Values: " << all_json.orientation.gyr[0] << " ";
-		std::cout << all_json.orientation.gyr[1] << " " << all_json.orientation.gyr[2] << std::endl;
 		
-		std::cout << "Mag Values: " << all_json.orientation.mag[0] << " ";
-		std::cout << all_json.orientation.mag[1] << " " << all_json.orientation.mag[2] << std::endl << std::endl;
+		std::cout << "Angle Values: ";
+		if(isSensorValid(ORIENTATION_ANGLE)){//<< std::endl;
+			std::cout << all_json.orientation.angle[0] << " " << all_json.orientation.angle[1];
+		}
+		else{
+			std::cout << "INVALID DATA";
+		}
+		std::cout << std::endl;
+		
+		
+		std::cout << "Acceleration Values: ";
+		if(isSensorValid(ORIENTATION_ACCEL)){//<< std::endl;
+			std::cout << all_json.orientation.accel[0] << " ";
+			std::cout << all_json.orientation.accel[1] << " " << all_json.orientation.accel[2];
+		}	
+		else{
+			std::cout << "INVALID DATA";
+		}
+		std::cout << std::endl;
+			
+		
+		std::cout << "Gyr Values: ";
+		if(isSensorValid(ORIENTATION_GYR)){//<< std::endl;
+			std::cout << all_json.orientation.gyr[0] << " ";
+			std::cout << all_json.orientation.gyr[1] << " " << all_json.orientation.gyr[2]; 
+		}	
+		else{
+			std::cout << "INVALID DATA";
+		}
+		std::cout << std::endl;
+	
+		
+		
+		
+		std::cout << "Mag Values: ";
+		if(isSensorValid(ORIENTATION_MAG)){
+			std::cout << all_json.orientation.mag[0] << " ";
+			std::cout << all_json.orientation.mag[1] << " " << all_json.orientation.mag[2];
+		}	
+		else{
+			std::cout << "INVALID DATA";
+		}
+		std::cout << std::endl << std::endl;
 	}
 	
 	void printLuminosity(){
 		std::cout << "Luminosity: " << std::endl;
-		std::cout << "Is this sensor valid? " << all_json.luminosity.valid << std::endl;
-		
+
 		std::cout << "Timestamp: " << getTotalTS(all_json.luminosity.timestamp) << " Sensor ID: ";
 		std::cout << all_json.luminosity.sensor_id << std::endl;
 		
-		std::cout << "Data: " << all_json.luminosity.data << std::endl << std::endl;
+		std::cout << "Data: ";
+		if(isSensorValid(LUMINOSITY_DATA)){//<< std::endl;
+			std::cout << all_json.luminosity.data; 
+		}	
+		else{
+			std::cout << "INVALID DATA";
+		}
+		std::cout << std::endl << std::endl;
 	}
+	
 	
 	void printGPS(){
 		std::cout << "GPS: " << std::endl;
-		std::cout << "Is this sensor valid? " << all_json.gps.valid << std::endl;
 		std::cout << "Timestamp: " << getTotalTS(all_json.gps.timestamp) << " Sensor ID: " << all_json.gps.sensor_id << std::endl;
-		std::cout << "Location: " << all_json.gps.location[0] << " " << all_json.gps.location[1] << std::endl << std::endl;
+		
+		
+		std::cout << "Location: ";
+		if(isSensorValid(LUMINOSITY_DATA)){//<< std::endl;
+			std::cout << all_json.gps.location[0] << " " << all_json.gps.location[1]; 
+		}	
+		else{
+			std::cout << "INVALID DATA";
+		}
+		std::cout << std::endl << std::endl;
 	}
 	
 	
 	/****************************************************************************************************************
 	* Set Methods
 	****************************************************************************************************************/
-	//LOOK IF THE USER INPUTS NULL!@!@!##!@@#!@$!@$&$^!&@$%!@^&$%!@^&$*@$@!$@!^$*@*^@
 	void set_ts_json(int ts){
 		all_json.topTimestamp = (ts&0xFFFF0000)>>16;
-		//std::cout << "Top timestamp is: " << all_json.topTimestamp << std::endl;
 	}
 	
 	void setLumSensor(int ts, int id, int tempData){
-		all_json.luminosity.valid = true;
+		all_json.validValues |= LUMINOSITY_DATA;//make lum sensor value valid
 		set_ts_json(ts);
-		all_json.luminosity.timestamp = (ts&OFFSET);
+		all_json.luminosity.timestamp = (ts&TS_OFFSET);
 		all_json.luminosity.sensor_id = id;
 		all_json.luminosity.data = tempData;
 	}
 	
 	void setSOCSensor(int ts, int id, int inputData[4]){
-		all_json.stateOfCharge.valid = true;
+		all_json.validValues |= STATE_OF_CHARGE_DATA;
 		set_ts_json(ts);
-		all_json.stateOfCharge.timestamp = (ts&OFFSET);
+		all_json.stateOfCharge.timestamp = (ts&TS_OFFSET);
 		all_json.stateOfCharge.sensor_id = id;
 		
 		all_json.stateOfCharge.data[0] = inputData[0];
@@ -159,31 +293,40 @@ class Json_Message{
 	}
 			
 	void setOriSensor(int ts, int id, int inputAngle[2], int16_t inputAcc[3], int16_t inputGyr[3], int16_t inputMag[3]){
-		all_json.orientation.valid = true;
 		set_ts_json(ts);
-		all_json.orientation.timestamp = (ts&OFFSET);
+		all_json.orientation.timestamp = (ts&TS_OFFSET);
 		all_json.orientation.sensor_id = id;
 		
-		all_json.orientation.angle[0] = inputAngle[0];
-		all_json.orientation.angle[1] = inputAngle[1];
-		
-		all_json.orientation.accel[0] = inputAcc[0];
-		all_json.orientation.accel[1] = inputAcc[1];
-		all_json.orientation.accel[2] = inputAcc[2];
-		
-		all_json.orientation.gyr[0] = inputGyr[0];
-		all_json.orientation.gyr[1] = inputGyr[1];
-		all_json.orientation.gyr[2] = inputGyr[2];
-		
-		all_json.orientation.mag[0] = inputMag[0];
-		all_json.orientation.mag[1] = inputMag[1];
-		all_json.orientation.mag[2] = inputMag[2];
+		//if the program goes through any of these if statements that means that part of the message is valid
+		if(inputAngle[0] != INT_MAX){
+			all_json.validValues |= ORIENTATION_ANGLE;
+			all_json.orientation.angle[0] = inputAngle[0];
+			all_json.orientation.angle[1] = inputAngle[1];			
+		}
+		if(inputAcc[0] != SHRT_MAX){
+			all_json.validValues |= ORIENTATION_ACCEL;
+			all_json.orientation.accel[0] = inputAcc[0];
+			all_json.orientation.accel[1] = inputAcc[1];
+			all_json.orientation.accel[2] = inputAcc[2];			
+		}
+		if(inputGyr[0] != SHRT_MAX){
+			all_json.validValues |= ORIENTATION_GYR;
+			all_json.orientation.gyr[0] = inputGyr[0];
+			all_json.orientation.gyr[1] = inputGyr[1];
+			all_json.orientation.gyr[2] = inputGyr[2];
+		}
+		if(inputMag[0] != SHRT_MAX){
+			all_json.validValues |= ORIENTATION_MAG;
+			all_json.orientation.mag[0] = inputMag[0];
+			all_json.orientation.mag[1] = inputMag[1];
+			all_json.orientation.mag[2] = inputMag[2];
+		}	
 	}
 	
 	void setGPSSensor(int ts, int id, float inputLoc[2]){
-		all_json.gps.valid = true;
+		all_json.validValues |= GPS_LOCATION;
 		set_ts_json(ts);
-		all_json.gps.timestamp = (ts&OFFSET);
+		all_json.gps.timestamp = (ts&TS_OFFSET);
 		all_json.gps.sensor_id = id;
 		
 		all_json.gps.location[0] = inputLoc[0];
@@ -196,9 +339,9 @@ class Json_Message{
 	* The receiver of the function call will need to know which value corresponds to what value.
 	* Each value is seperated by a ','
 	****************************************************************************************************************/
-	
+	//blank if the value is invalid
 	std::string getSOCValue(){
-		if(all_json.stateOfCharge.valid == true){
+		if(isSensorValid(STATE_OF_CHARGE_DATA)){//all_json.stateOfCharge.valid == true){
 			std::stringstream sstm;
 			sstm << getTotalTS(all_json.stateOfCharge.timestamp) << "," << all_json.stateOfCharge.sensor_id << ",";
 			
@@ -206,53 +349,75 @@ class Json_Message{
 			sstm << all_json.stateOfCharge.data[2] << "," << all_json.stateOfCharge.data[3];
 			std::string socString = sstm.str();
 			std::cout << socString << std::endl;
-			return socString;//return null if not valid
+			return socString;
 		}
 		else//not valid
 			return "None";
-
 	}
 			
 	std::string getLumValue(){
-		if(all_json.luminosity.valid == true){
+		if(isSensorValid(LUMINOSITY_DATA)){//all_json.luminosity.valid == true){
 			std::stringstream sstm;
 			sstm << getTotalTS(all_json.luminosity.timestamp) << "," << all_json.luminosity.sensor_id << ",";
 			sstm << all_json.luminosity.data;
 			
 			std::string lumString = sstm.str();
 			std::cout << lumString << std::endl;
-			return lumString;//return null if not valid
+			return lumString;
 		}
 		else
 			return "None";//not valid
 	}
 	
 	std::string getOriValue(){
-		if(all_json.orientation.valid == true){
+		//at least one sensor is valid
+		if(isSensorValid(ORIENTATION_ACCEL | ORIENTATION_ANGLE | ORIENTATION_GYR | ORIENTATION_MAG)){//all_json.orientation.valid == true){
 			std::stringstream sstm;
 			sstm << getTotalTS(all_json.orientation.timestamp) << "," << all_json.orientation.sensor_id << ",";
 			
-			sstm << all_json.orientation.angle[0] << "," << all_json.orientation.angle[1] << ",";
+			if(isSensorValid(ORIENTATION_ANGLE)){
+				sstm << all_json.orientation.angle[0] << "," << all_json.orientation.angle[1] << ",";
+			}
+			else{
+				sstm << ",,";
+			}
 			
-			sstm << all_json.orientation.accel[0] << "," << all_json.orientation.accel[1] << ",";
-			sstm << all_json.orientation.accel[2] << ",";
+			if(isSensorValid(ORIENTATION_ACCEL)){
+				sstm << all_json.orientation.accel[0] << "," << all_json.orientation.accel[1] << ",";
+				sstm << all_json.orientation.accel[2] << ",";
+			}
+			else{
+				sstm << ",,,";
+			}
 			
-			sstm << all_json.orientation.gyr[0] << "," << all_json.orientation.gyr[1] << ",";
-			sstm << all_json.orientation.gyr[2] << ",";
 			
-			sstm << all_json.orientation.mag[0] << "," << all_json.orientation.mag[1] << ",";
-			sstm << all_json.orientation.mag[2];
+			if(isSensorValid(ORIENTATION_GYR)){
+				sstm << all_json.orientation.gyr[0] << "," << all_json.orientation.gyr[1] << ",";
+				sstm << all_json.orientation.gyr[2] << ",";
+			}
+			else{
+				sstm << ",,,";
+			}
+			
+			
+			if(isSensorValid(ORIENTATION_MAG)){
+				sstm << all_json.orientation.mag[0] << "," << all_json.orientation.mag[1] << ",";
+				sstm << all_json.orientation.mag[2];					
+			}
+			else{
+				sstm << ",,";
+			}
 			
 			std::string oriString = sstm.str();
 			std::cout << oriString << std::endl;
-			return oriString;//return null if not valid
+			return oriString;
 		}
 		else
 			return "None";//not valid
 	}
 	
 	std::string getGPSValue(){
-		if(all_json.gps.valid == true){
+		if(isSensorValid(GPS_LOCATION)){//all_json.gps.valid == true){
 			std::stringstream sstm;
 			sstm << getTotalTS(all_json.gps.timestamp) << "," << all_json.gps.sensor_id << ",";
 			
@@ -260,317 +425,9 @@ class Json_Message{
 			
 			std::string gpsString = sstm.str();
 			std::cout << gpsString << std::endl;
-			return gpsString;//return null if not valid
+			return gpsString;
 		}
 		else
 			return "None";//not valid
 	}
 };
-
-/*//delete everything after this
-			struct StateOfCharge stateOfCharge1;
-			struct Orientation orientation1;
-			struct Luminosity luminosity1;
-			struct GPS gps1;
-			struct StateOfCharge stateOfCharge2;
-			struct Orientation orientation2;
-			struct Luminosity luminosity2;
-			struct GPS gps2;
-			struct StateOfCharge stateOfCharge3;
-			struct Orientation orientation3;
-			struct Luminosity luminosity3;
-			struct GPS gps3;
-			struct StateOfCharge stateOfCharge4;
-			struct Orientation orientation4;
-			struct Luminosity luminosity4;
-			struct GPS gps4;
-			struct StateOfCharge stateOfCharge5;
-			struct Orientation orientation5;
-			struct Luminosity luminosity5;
-			struct GPS gps5;
-			struct StateOfCharge stateOfCharge6;
-			struct Orientation orientation6;
-			struct Luminosity luminosity6;
-			struct GPS gps6;
-			struct StateOfCharge stateOfCharge7;
-			struct Orientation orientation7;
-			struct Luminosity luminosity7;
-			struct GPS gps7;
-			struct StateOfCharge stateOfCharge8;
-			struct Orientation orientation8;
-			struct Luminosity luminosity8;
-			struct GPS gps8;
-			struct StateOfCharge stateOfCharge9;
-			struct Orientation orientation9;
-			struct Luminosity luminosity9;
-			struct GPS gps9;*/
-			
-/*//REMOVE THE STRUCTS AFTER THIS COMMENT. THIS IS FOR TESTING ONLY
-		struct StateOfCharge1{
-			bool valid;
-			int timestamp;//each one is 4 bytes -> atleast for ints
-			int sensor_id;
-			int data[4];
-		};
-		
-		struct Orientation1{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int angle[2];//int angle (dir, pitch)
-			int16_t accel[3];//acceleration x,y,z int16
-			int16_t gyr[3];//gyr x,y,z, int 16
-			int16_t mag[3];//mag x,y,z int 16
-		};
-		
-		struct Luminosity1{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int data;			
-		};
-		
-		struct GPS1{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			float location[2];//float lat and long
-		};
-		struct StateOfCharge2{
-			bool valid;
-			int timestamp;//each one is 4 bytes -> atleast for ints
-			int sensor_id;
-			int data[4];
-		};
-		
-		struct Orientation2{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int angle[2];//int angle (dir, pitch)
-			int16_t accel[3];//acceleration x,y,z int16
-			int16_t gyr[3];//gyr x,y,z, int 16
-			int16_t mag[3];//mag x,y,z int 16
-		};
-		
-		struct Luminosity2{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int data;			
-		};
-		
-		struct GPS2{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			float location[2];//float lat and long
-		};
-		struct StateOfCharge3{
-			bool valid;
-			int timestamp;//each one is 4 bytes -> atleast for ints
-			int sensor_id;
-			int data[4];
-		};
-		
-		struct Orientation3{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int angle[2];//int angle (dir, pitch)
-			int16_t accel[3];//acceleration x,y,z int16
-			int16_t gyr[3];//gyr x,y,z, int 16
-			int16_t mag[3];//mag x,y,z int 16
-		};
-		
-		struct Luminosity3{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int data;			
-		};
-		
-		struct GPS3{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			float location[2];//float lat and long
-		};struct StateOfCharge4{
-			bool valid;
-			int timestamp;//each one is 4 bytes -> atleast for ints
-			int sensor_id;
-			int data[4];
-		};
-		
-		struct Orientation4{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int angle[2];//int angle (dir, pitch)
-			int16_t accel[3];//acceleration x,y,z int16
-			int16_t gyr[3];//gyr x,y,z, int 16
-			int16_t mag[3];//mag x,y,z int 16
-		};
-		
-		struct Luminosity4{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int data;			
-		};
-		
-		struct GPS4{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			float location[2];//float lat and long
-		};
-		struct StateOfCharge5{
-			bool valid;
-			int timestamp;//each one is 4 bytes -> atleast for ints
-			int sensor_id;
-			int data[4];
-		};
-		
-		struct Orientation5{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int angle[2];//int angle (dir, pitch)
-			int16_t accel[3];//acceleration x,y,z int16
-			int16_t gyr[3];//gyr x,y,z, int 16
-			int16_t mag[3];//mag x,y,z int 16
-		};
-		
-		struct Luminosity5{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int data;			
-		};
-		
-		struct GPS5{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			float location[2];//float lat and long
-		};
-		struct StateOfCharge6{
-			bool valid;
-			int timestamp;//each one is 4 bytes -> atleast for ints
-			int sensor_id;
-			int data[4];
-		};
-		
-		struct Orientation6{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int angle[2];//int angle (dir, pitch)
-			int16_t accel[3];//acceleration x,y,z int16
-			int16_t gyr[3];//gyr x,y,z, int 16
-			int16_t mag[3];//mag x,y,z int 16
-		};
-		
-		struct Luminosity6{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int data;			
-		};
-		
-		struct GPS6{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			float location[2];//float lat and long
-		};struct StateOfCharge7{
-			bool valid;
-			int timestamp;//each one is 4 bytes -> atleast for ints
-			int sensor_id;
-			int data[4];
-		};
-		
-		struct Orientation7{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int angle[2];//int angle (dir, pitch)
-			int16_t accel[3];//acceleration x,y,z int16
-			int16_t gyr[3];//gyr x,y,z, int 16
-			int16_t mag[3];//mag x,y,z int 16
-		};
-		
-		struct Luminosity7{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int data;			
-		};
-		
-		struct GPS7{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			float location[2];//float lat and long
-		};
-		struct StateOfCharge8{
-			bool valid;
-			int timestamp;//each one is 4 bytes -> atleast for ints
-			int sensor_id;
-			int data[4];
-		};
-		
-		struct Orientation8{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int angle[2];//int angle (dir, pitch)
-			int16_t accel[3];//acceleration x,y,z int16
-			int16_t gyr[3];//gyr x,y,z, int 16
-			int16_t mag[3];//mag x,y,z int 16
-		};
-		
-		struct Luminosity8{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int data;			
-		};
-		
-		struct GPS8{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			float location[2];//float lat and long
-		};
-		struct StateOfCharge9{
-			bool valid;
-			int timestamp;//each one is 4 bytes -> atleast for ints
-			int sensor_id;
-			int data[4];
-		};
-		
-		struct Orientation9{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int angle[2];//int angle (dir, pitch)
-			int16_t accel[3];//acceleration x,y,z int16
-			int16_t gyr[3];//gyr x,y,z, int 16
-			int16_t mag[3];//mag x,y,z int 16
-		};
-		
-		struct Luminosity9{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			int data;			
-		};
-		
-		struct GPS9{
-			bool valid;
-			int timestamp;
-			int sensor_id;
-			float location[2];//float lat and long
-		};*/

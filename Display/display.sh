@@ -6,7 +6,7 @@ echo Checking for apt-transport-https: $PKG_OK
 if [ "" == "$PKG_OK" ]; then
 	echo "apt-transport-https is not installed. Installing . . ."
 	sudo apt-get install apt-transport-https
-	echo "Done!"
+	#echo "Done!"
 fi
 
 # install InfluxDB
@@ -17,13 +17,14 @@ if [ "" == "$PKG_OK" ]; then
 	wget -O - https://repos.influxdata.com/influxdb.key | sudo apt-key add -
 	echo "deb https://repos.influxdata.com/debian jessie stable" | sudo tee /etc/apt/sources.list.d/influxdb.list
 	sudo apt-get update && sudo apt-get install influxdb
+	sudo apt-get install python-influxdb	
 	
 	# enable run at boot?
 	echo "Enabling InfluxDB at Boot . . ."
 	sudo systemctl daemon-reload
 	sudo systemctl enable influxdb.service
 	sudo systemctl start influxdb.service
-	echo "Done!"
+	#echo "Done!"
 fi
 
 # install Grafana
@@ -40,13 +41,18 @@ if [ "" == "$PKG_OK" ]; then
 	sudo systemctl daemon-reload
 	sudo systemctl enable grafana-server.service
 	sudo systemctl start grafana-server.service
-	echo "Done!"
+	#echo "Done!"
 fi
 
 echo "Beginning C++ wrapping . . ."
 sudo chmod +x ./wrap.sh
-sudo ./wrap.sh
-echo ". . . done!"
+sudo ./wrap.sh &> /dev/null
+
+echo "Making IP static . . ."
+sudo chmod +x ./static.sh
+sudo ./static.sh
+
+mkdir CSV
 
 # It's supposed to be something like this, but it doesn't work. I'll play with it later since it's not a high priority.
 #influx

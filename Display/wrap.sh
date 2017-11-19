@@ -13,6 +13,7 @@ if [ "" == "$PKG_OK" ]; then
 	echo ". . . installation done!"
 fi
 
+sudo rm -rf build
 sudo python setup.py build 
 sudo python setup.py install 
 

@@ -72,7 +72,7 @@ class UDP_Packet:
 					geohashValue = str(geohash.encode(latitude, longitude))
 					print geohashValue
 					tags["geohash"] = geohashValue
-					fields["metric"] = 1
+					fields["metric"] = int(self.sensorData[i][0])
 				else:
 					for j in range(2, len(self.sensorData[i])):
 						if (self.sensorData[i][j] == ""):	# skip if sensor value is empty

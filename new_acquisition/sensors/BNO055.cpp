@@ -30,10 +30,11 @@
     @brief  Instantiates a new Adafruit_BNO055 class
 */
 /**************************************************************************/
-Adafruit_BNO055::Adafruit_BNO055( int sensorID, uint8_t address, int periodMs, PinName sda, PinName scl) : svtSensor(sensorID, periodMs), i2c(sda,scl)
+Adafruit_BNO055::Adafruit_BNO055( int sensorID, uint8_t address, int periodMs, PinName sda, PinName scl) : svtSensor(sensorID, periodMs, 1.0), i2c(sda,scl)
 {
 		_address = address;
 }
+Adafruit_BNO055::~Adafruit_BNO055(){}
 /***************************************************************************
  PUBLIC FUNCTIONS
  ***************************************************************************/
@@ -49,8 +50,38 @@ Adafruit_BNO055::Adafruit_BNO055( int sensorID, uint8_t address, int periodMs, P
  		int16_t z;
  	}fields;
  }accelData;
+
+//same read sensor function but this can handle timeouts
+void Adafruit_BNO055::readSensor(timeout_state* pToState, char* pData){
+ 	bool res;
+ 	//we are going to read just the accelerometer data... currently in acc only mode, no fusion, must read from these consecutive register locations
+	res = readLen(BNO055_ACCEL_DATA_X_LSB_ADDR, pData, 6);
+	if(res != true)
+		return;
+		
+	*pToState = finished;
+		
+	//calibrate data if not done by sensor fusion
+	if(_mode == OPERATION_MODE_ACCONLY){
+		/* Calibration Offsets */
+  		int16_t xOff,yOff,zOff;
+ 		xOff=-20;
+  		yOff=0;
+  		zOff=3;
+  	
+  		accelData * pAcc;
+  		pAcc = (accelData *)pData;
+  		pAcc->fields.x -= xOff;
+  		pAcc->fields.y -= yOff;
+  		pAcc->fields.z -= zOff;
+  		
+  		for(int a=0; a<6; a++){
+  			pData[a] = pAcc->raw[a];
+  		}
+  	}
+}
  
- void Adafruit_BNO055::readSensor(char* pData){
+void Adafruit_BNO055::readSensor(char* pData){	
  	//we are going to read just the accelerometer data... currently in acc only mode, no fusion, must read from these consecutive register locations
 	readLen(BNO055_ACCEL_DATA_X_LSB_ADDR, pData, 6);
 	
@@ -58,9 +89,9 @@ Adafruit_BNO055::Adafruit_BNO055( int sensorID, uint8_t address, int periodMs, P
 	if(_mode == OPERATION_MODE_ACCONLY){
 		/* Calibration Offsets */
   		int16_t xOff,yOff,zOff;
- 		xOff=-30;
-  		yOff=4;
-  		zOff=-10;
+ 		xOff=-20;
+  		yOff=0;
+  		zOff=3;
   	
   		accelData * pAcc;
   		pAcc = (accelData *)pData;
@@ -558,10 +589,14 @@ char Adafruit_BNO055::read8(adafruit_bno055_reg_t reg )
 {
 	int res;
 	char value = 0;
-
+	int retries = I2C_NUM_TX_RETRIES;
 	do{
 		res = i2c.write(_address, (char *)&reg, 1, true);
-	}while(res != 0);
+		retries--;
+	}while((res != 0) && (retries > 0));
+	if(retries == 0)
+		return false;
+	
 	
 	i2c.read(_address, &value, 1);
 	
@@ -576,12 +611,30 @@ char Adafruit_BNO055::read8(adafruit_bno055_reg_t reg )
 bool Adafruit_BNO055::readLen(adafruit_bno055_reg_t reg, char * buffer, uint8_t len)
 {
 	int res;
-	
+	int retries = I2C_NUM_TX_RETRIES;
 	do{
+		
 		res = i2c.write(_address, (char *)&reg, 1, true);
-	}while(res != 0);
+		retries--;
+	}while((res != 0) && (retries > 0));
+	if(retries == 0)
+		return false;
+		
 	i2c.read(_address, buffer, len);
 	return true;
 }
 
-
+/*!
+ * \brief Continues to sample the sensor and print the data
+ */
+void Adafruit_BNO055::selftest(){
+	while(1){
+		BNO055_VECTOR_DATA data;
+		
+        readSensor(data.data);	
+        pc.printf("x:%d ", data.fields.x);
+        pc.printf("y:%d ", data.fields.y);
+        pc.printf("z:%d\r\n", data.fields.z);
+        wait(0.2);
+	}	
+}

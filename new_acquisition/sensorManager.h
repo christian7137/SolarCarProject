@@ -34,7 +34,8 @@ class sensorManager
         ~sensorManager();
     
 	public: 
-	
+
+		void resetTimer();
 		void startTimer();
         bool addSensor( unsigned int sensorId, unsigned int numBytes);
         void updateSensorData( unsigned int sensorIdx, char * pDataNew );
@@ -51,4 +52,5 @@ class sensorManager
 };
 
 #endif
+
 

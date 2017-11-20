@@ -296,8 +296,11 @@ class Adafruit_BNO055 : public svtSensor
 	
   public:
 	virtual void init();
+	virtual void readSensor(timeout_state* pToState, char * pData);
 	virtual void readSensor(char * pData);
 	virtual int getSizeOfData();
+	
+	void selftest();
 	
   private:
     bool  begin               ( adafruit_bno055_opmode_t mode = OPERATION_MODE_NDOF );
@@ -329,4 +332,5 @@ class Adafruit_BNO055 : public svtSensor
 };
 
 #endif
+
 

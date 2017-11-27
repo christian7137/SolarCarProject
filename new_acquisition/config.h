@@ -10,11 +10,11 @@
 //CONFIGURATIONS
                                 //Collects data from what sensors
                                 //-------------------------------
-#define CONFIG_1                //Accelerometer - BNO055, Lumen Flux - TSL
+//#define CONFIG_1                //Accelerometer - BNO055, Lumen Flux - TSL
 #define CONFIG_2                //Simulated GPS - Uart commanded by GPIO
 
 //------------------------------------------------------------------------------------------
-#define EN_PRINTF
+//#define EN_PRINTF
 
 //SENSOR_IDS
 #define SENSOR_ID_ACC       2   //no reason we started on 2...

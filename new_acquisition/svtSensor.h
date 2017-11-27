@@ -11,11 +11,19 @@
 #include "mbed.h"
 #include "sensorManager.h"
 
+typedef enum{
+	started=0,
+	finished=1,
+	stalled=2
+}timeout_state;
+void read_timeout_handler();
+
+#define I2C_NUM_TX_RETRIES	8
 class svtSensor{
 public:
     /** svtSensor - Constructor
      */
-    svtSensor(int32_t sensorID, int periodMs);
+    svtSensor(int32_t sensorID, int periodMs, float timeoutDur);
 
     /** svtSensor - Destructor
      */
@@ -25,11 +33,11 @@ public:
      */
     virtual void init();
     
-
     /*! readSensor \brief read this sensor's data
      *  @return error code
      */
     virtual void readSensor(char* pData);
+    virtual void readSensor(timeout_state* pToState, char* pData);
     
     virtual int getSizeOfData();
     
@@ -40,6 +48,8 @@ public:
 	/*! timeToSample \brief compares the current time with the last time we sampled, if greater than threshold, return true 
 	*/
 	bool timeToSample();
+	void bullshit();
+	
 	
     /*! getPeriod - 
 	@return samplePeriodMs -  in ms
@@ -47,11 +57,14 @@ public:
     int getPeriod(){return samplePeriodMs;}
    
    	int32_t getId(){ return _sensorID; }
+   	
+   public:
+   	int samplePeriodMs;
 private:
 	int32_t _sensorID;
-    int samplePeriodMs; 	// ms - update sensor at this rate, may be same as report rate or sample rate.
+     	// ms - update sensor at this rate, may be same as report rate or sample rate.
 	float lastSampleTimestamp;
+	float timeout_durationS;
 };   
 
 #endif
-

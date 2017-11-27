@@ -8,6 +8,7 @@
 //Simulated gps/bps data via uart connector
 #define HAT_UART_RX     PD_6
 #define HAT_UART_INT    PD_7
+#define HAT_UNUSED      PD_5            //attached to uart tx pin that we will be ignoring, has to be tied to the same hardware as rx pd_6 & pd_5
 
 //tsl5556
 #define HAT_TSL_ADDR   0x29

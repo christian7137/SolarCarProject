@@ -1,4 +1,6 @@
-## Solar Car Data Acquisition and Display Project
+# Solar Car Data Acquisition and Display Project
+
+## Display System Documentation
 
 ### Configuring a Raspberry Pi
 In the Raspberry Pi terminal,

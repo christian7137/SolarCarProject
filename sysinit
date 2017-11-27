@@ -33,7 +33,7 @@ incar() {
 
 ## VALIDATE ARGUMENTS ##
 if [ $# -ne 1 ]; then
-	echo "Usage: $0 {pit|car}" >&2
+	echo "Usage: $0 {pit|car|run|quit}" >&2
 	exit 1
 fi
 
@@ -49,9 +49,17 @@ case "$1" in
 		incar
 		exit 0
 		;;
+	run)
+		echo "TODO"
+		exit 0
+		;;
+	quit)
+		echo "TODO"
+		exit 0
+		;;
 	# Show usage
 	*)
-		echo "Usage: $0 {pit|car}" >&2
+		echo "Usage: $0 {pit|car|run|quit}" >&2
 		exit 1	
 	;;
 esac

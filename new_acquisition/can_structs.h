@@ -13,25 +13,22 @@
 
 /* USER CAN PAYLOAD PACKING TYPES */
 typedef struct{
-    signed int      sensor1Data;
-    signed char     sensor2Data;
-    unsigned short  sensor3Data;
-}canPktType1;
-#define PKT_SIZE_1 7
-#define PKT_TYPE_1 1
-
-typedef struct{
     int16_t  accX;
     int16_t  accY;
     int16_t  accZ;
-}canPktType2;
-#define PKT_TYPE_2 2
+}canPkt_acc;
 
 typedef struct{
-    int16_t  sensor1Data;
-}canPktType3;
-#define PKT_SIZE_3 sizeof(int)
-#define PKT_TYPE_3 3
+    uint16_t  lumens;
+}canPkt_light;
+
+typedef struct{
+    float lat;
+}canPkt_Gps_lat;
+
+typedef struct{
+    float lon;
+}canPkt_Gps_lon;
 
 /* CAN PAYLOAD STRUCT */
 #define MAX_CAN_MSG_LEN 8
@@ -42,9 +39,10 @@ typedef struct{
             char type;
             union{
                 unsigned char pData[MAX_CAN_MSG_LEN - 1 ];
-                canPktType1 type1;
-                canPktType2 type2;
-                canPktType3 type3;
+                canPkt_acc      acc;
+                canPkt_light    light;
+                canPkt_Gps_lat  lat;
+                canPkt_Gps_lon  lon;
             }data;
         }payload;
     };

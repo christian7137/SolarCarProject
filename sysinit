@@ -7,7 +7,7 @@
 CURDIR="$PWD"  
 CDPATH=:$HOME/SolarCarProject		# Directory to git repository
 DISPLAY="Display"			# Name of display side directory (in git repo)
-DAQ="new_acquisition"			# Name of pit side directory (in git repo)
+DAQ="Acquisition"			# Name of pit side directory (in git repo)
 
 ## DISPLAY FUNCTION ##
 display() {
@@ -22,32 +22,18 @@ display() {
 ## IN-CAR FUNCTION ##
 incar() {
 	echo "Running Car RPI scripts . . ."
-	# TODO: Car scripts
-	# James wants an overall update/upgrade
-	# install can-utils package
-	# purge fake-hwclock package
-	# append to /boot/config.txt
-		## utsvt RPi3 config
-		## for RTC
-		# dtparam=i2c_arm=on
-		# dtoverlay=i2c-rtc,ds3231
-		##can bus
-		# dtoverlay=mcp2515-can0
-		# dtparam=oscillator=16000000
-		# dtparam=interrupt=13
-		# dtparam=spimaxfrequency=100000
-		##to use serial port /dev/ttyAMM0 for BN055
-		# dtoverlay=pi3-disable-bt
-		# enable_uart=1
-	# Reboot.
+	# James wants upgrade/update here.
+	# TODO: Actually test this after open house.
 	cd "$DAQ"
-	echo "$PWD"
+	chmod +x ./can.sh
+	./can.sh
+	#echo "$PWD"
 	cd "$CURDIR"
 }
 
 ## VALIDATE ARGUMENTS ##
 if [ $# -ne 1 ]; then
-	echo "Usage: $0 {pit|car}" >&2
+	echo "Usage: $0 {pit|car|run|quit}" >&2
 	exit 1
 fi
 
@@ -63,9 +49,17 @@ case "$1" in
 		incar
 		exit 0
 		;;
+	run)
+		echo "TODO"
+		exit 0
+		;;
+	quit)
+		echo "TODO"
+		exit 0
+		;;
 	# Show usage
 	*)
-		echo "Usage: $0 {pit|car}" >&2
+		echo "Usage: $0 {pit|car|run|quit}" >&2
 		exit 1	
 	;;
 esac

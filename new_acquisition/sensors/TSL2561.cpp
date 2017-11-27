@@ -1,49 +1,27 @@
 
 #include "TSL2561.h"
-#include "mbed.h"
+#include "config.h"
 
-Serial DEBUG(SERIAL_TX, SERIAL_RX);
+extern Serial pc;
 
-#define DEBUG_PRINTX(z,x)             if(z==1) DEBUG.printf(x);
-#define DEBUG_PRINTLNX(z,x)           if(z==1) {DEBUG.printf(x);        DEBUG.printf("\r\n");}
-#define DEBUG_PRINTXY(z,x, y)         if(z==1) DEBUG.printf(x, y);
-#define DEBUG_PRINTLNXY(z,x, y)       if(z==1) {DEBUG.printf(x, y);     DEBUG.printf("\r\n");}
+#define DEBUG_PRINTX(z,x)             if(z==1) pc.printf(x);
+#define DEBUG_PRINTLNX(z,x)           if(z==1) {pc.printf(x);        pc.printf("\r\n");}
+#define DEBUG_PRINTXY(z,x, y)         if(z==1) pc.printf(x, y);
+#define DEBUG_PRINTLNXY(z,x, y)       if(z==1) {pc.printf(x, y);     pc.printf("\r\n");}
 
-TSL2561::TSL2561():i2c(I2C_SDA,I2C_SCL){
-    i2c.frequency (300);
-    _addr = TSL2561_ADDR_FLOAT;
-    _initialized = false;
-    _integration = TSL2561_INTEGRATIONTIME_13MS;
-    _gain = TSL2561_GAIN_16X;    
-}
-
-TSL2561::TSL2561(uint8_t addr):i2c(I2C_SDA,I2C_SCL) {
+TSL2561::TSL2561(int sensorID, uint8_t addr, int periodMs, PinName sda, PinName scl):svtSensor(sensorID, periodMs, 1.0), i2c(sda,scl) {
 
   _addr = addr;
   _initialized = false;
   _integration = TSL2561_INTEGRATIONTIME_13MS;
   _gain = TSL2561_GAIN_16X;
-  // we cant do wire initialization till later, because we havent loaded Wire yet
 }
 
-TSL2561::TSL2561(PinName sda, PinName scl):i2c(sda, scl) {
+TSL2561::~TSL2561(){}
 
-  _addr = TSL2561_ADDR_LOW;
-  _initialized = false;
-  _integration = TSL2561_INTEGRATIONTIME_13MS;
-  _gain = TSL2561_GAIN_16X;
-  // we cant do wire initialization till later, because we havent loaded Wire yet
+int TSL2561::getSizeOfData(){
+    return (sizeof(uint16_t));
 }
-
-TSL2561::TSL2561(PinName sda, PinName scl, uint8_t addr):i2c(sda, scl) {
-
-  _addr = addr;
-  _initialized = false;
-  _integration = TSL2561_INTEGRATIONTIME_13MS;
-  _gain = TSL2561_GAIN_16X;
-  // we cant do wire initialization till later, because we havent loaded Wire yet
-}
-
 uint16_t TSL2561::getLuminosity (uint8_t channel) {
 
   uint32_t x = getFullLuminosity();
@@ -105,20 +83,22 @@ uint32_t TSL2561::getFullLuminosity (void)
   return x;
 }
 
-
+void TSL2561::init(){
+    pc.printf("init\r\n");
+    enable();
+}
 bool TSL2561::begin(void) {
-
-    DEBUG.printf(0," Test");
+    pc.printf("begin\r\n");
     char  reg[1];
     reg[0] = TSL2561_REGISTER_ID;
     char receivedata[1];
-    char read;    
+    char read;
     i2c.write(_addr<<1, reg, 1);
     i2c.read(_addr<<1, receivedata, 1);
     read=receivedata[0];
             
   if (read & 0x0A ) {
-    //DEBUG.printf("Read 0x%x => Found TSL2561\r\n",read);
+    pc.printf("Read 0x%x => Found TSL2561\r\n",read);
   } else {
     return false;
   } 
@@ -134,6 +114,19 @@ bool TSL2561::begin(void) {
     return true;
  }
  
+ void TSL2561::readSensor(timeout_state* pToState, char * pData){
+    uint16_t lumons;
+    lumons = getLuminosity(0);
+    pData[1] = (lumons>>8) & 0xff;
+    pData[0] = lumons & 0xff;
+    
+    *pToState = finished;
+    
+ }
+ 
+void TSL2561::readSensor(char * pData){
+
+}
  uint16_t TSL2561::read16(uint8_t reg)
 {
     uint16_t x; 
@@ -150,15 +143,15 @@ bool TSL2561::begin(void) {
     _t=receivedata[0];
     _x=receivedata[1];
     
-    //DEBUG.printf("_t:=0x%x\r\n",_t);
-    //DEBUG.printf("_x:=0x%x\r\n",_x);      
+    //pc.printf("_t:=0x%x\r\n",_t);
+    //pc.printf("_x:=0x%x\r\n",_x);      
    
     t=(uint16_t)_t;
     x=(uint16_t)_x;
     x <<= 8;
     x |= t;
     
-    DEBUG.printf("x:= %d\r\n",x);      
+    //pc.printf("x:= %d\r\n",x);      
     
     return x;
 }
@@ -176,21 +169,21 @@ void TSL2561::setTiming(tsl2561IntegrationTime_t integration){
 
 if (!_initialized) begin();
 
-else DEBUG.printf("--------------Set Timing---------\r\n");
+else pc.printf("--------------Set Timing---------\r\n");
 
   enable();
   
   _integration = integration;
   
-  //DEBUG.printf("Integration: 0x%x\n",_integration);
-  //DEBUG.printf("Gain: 0x%x\n",_gain);
-  //DEBUG.printf("Integration | Gain: 0x%x\n",_integration | _gain);
+  //pc.printf("Integration: 0x%x\n",_integration);
+  //pc.printf("Gain: 0x%x\n",_gain);
+  //pc.printf("Integration | Gain: 0x%x\n",_integration | _gain);
   
   write8(TSL2561_COMMAND_BIT | TSL2561_REGISTER_TIMING, _integration | _gain);  
   
   disable();
   
-  DEBUG.printf("--------------Complete Set Timing-------------\r\n");
+  pc.printf("--------------Complete Set Timing-------------\r\n");
   
   //wait(1);
 
@@ -199,21 +192,21 @@ else DEBUG.printf("--------------Set Timing---------\r\n");
 void TSL2561::setGain(tsl2561Gain_t gain) {
 
 if (!_initialized) begin();
-else    DEBUG.printf("-------------Set Gain--------------\r\n");
+else    pc.printf("-------------Set Gain--------------\r\n");
 
 
   enable();
   
-  //DEBUG.printf("Intergration: 0x%x\r\n",_integration);
-  //DEBUG.printf("Gain: 0x%x\n",_gain);
-  //DEBUG.printf("Intergration | Gain: 0x%x\r\n",_integration | _gain);
+  //pc.printf("Intergration: 0x%x\r\n",_integration);
+  //pc.printf("Gain: 0x%x\n",_gain);
+  //pc.printf("Intergration | Gain: 0x%x\r\n",_integration | _gain);
   
   _gain = gain;
   write8(TSL2561_COMMAND_BIT | TSL2561_REGISTER_TIMING, _integration | _gain);  
   //write8(TSL2561_COMMAND_BIT | TSL2561_REGISTER_TIMING,  _gain);  
   disable();
   
-  DEBUG.printf("---------------Complete Set Gain----------------\r\n");
+  pc.printf("---------------Complete Set Gain----------------\r\n");
   //wait(1);
   
 }
@@ -221,10 +214,11 @@ else    DEBUG.printf("-------------Set Gain--------------\r\n");
 void TSL2561::enable(void)
 {
   
-  if (!_initialized) begin();
+  if (!_initialized) 
+    begin();
 
   // Enable the device by setting the control bit to 0x03
-  DEBUG.printf("Power On\r\n");
+  //pc.printf("Power On\r\n");
   write8(TSL2561_COMMAND_BIT | TSL2561_REGISTER_CONTROL, TSL2561_CONTROL_POWERON);
 }
 
@@ -233,6 +227,19 @@ void TSL2561::disable(void)
   if (!_initialized) begin();
 
   // Disable the device by setting the control bit to 0x03
-  DEBUG.printf("Power Off\r\n");
+  //pc.printf("Power Off\r\n");
   write8(TSL2561_COMMAND_BIT | TSL2561_REGISTER_CONTROL, TSL2561_CONTROL_POWEROFF);
+}
+
+
+void TSL2561::selftest(){
+    while(1){
+        char data[8];
+        timeout_state a;
+        readSensor(&a, data);
+        int16_t * pInt;
+        pInt = (int16_t *) data;
+        pc.printf("%d\r\n", *pInt);
+        wait(1);
+    }
 }

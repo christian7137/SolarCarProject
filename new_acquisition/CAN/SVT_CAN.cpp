@@ -49,6 +49,11 @@ string ***format;
 int* tokc;
 STMBuffers stmbufs;
 
+//GPS
+int gathered = 0;
+float Latitude;
+float Longitude;
+
 
 
 std::chrono::milliseconds uptime(0u);
@@ -65,44 +70,6 @@ SVT_CAN::SVT_CAN(){
      msg_ready = false;
 }
 
-/*class Server {
-	private:
-		int sock, possError,port; 
-        unsigned int length;
-        struct sockaddr_in serverAddr; 
-    
-		void error(const char *msg){
-			perror(msg);
-			exit(0);
-		}
-
-        void connectSock(void){
-            if((sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0){
-                 error("socket");
-            }
-        }
-		
-	public: 
-		Json_Message json_message;
-		
-        Server(){
-            port = 1500;    
-            serverAddr.sin_family = AF_INET;
-            serverAddr.sin_addr.s_addr = inet_addr("192.168.0.101");//127.0.0.1, 192.168.0.255, 169.254.255.255 <- this one computer to RPi
-            serverAddr.sin_port = htons(port);//atoi(argv[2])
-            length=sizeof(struct sockaddr_in);
-			connectSock();
-		}  
-        
-        void sendPacket(){
-			possError = sendto(sock,(struct Json_Message*)&json_message.all_json, sizeof(json_message.all_json),0,(const struct sockaddr *)&serverAddr,length);
-        }
-        
-        void closeSocket(void){
-            close(sock);
-        }
-};*/
-
 /**************************************************
 -
 - Destructor
@@ -111,6 +78,14 @@ SVT_CAN::SVT_CAN(){
 SVT_CAN::~SVT_CAN(){
 
 }
+
+/***********************************************************
+ *
+ * init_log
+ *
+ * purpose: grab format from config.txt and initialze memory
+ *
+ ***********************************************************/
 
 int SVT_CAN::init_log(){
 
@@ -124,25 +99,30 @@ int SVT_CAN::init_log(){
 
 	while(getline(configFile, line)){
 
+	if(strcmp(line.c_str(),"")){
 		char *dup = strdup(line.c_str());
 		token = strtok_r(dup, "[", &saveptr1);
 
 		if(!strcmp(token, "NUM_STM_IN_SYS:")){
+		/* This will allocate this number of files for the number of STMs in the system */
 
 			token = strtok_r(NULL, "]", &saveptr1);
 			NUM_STM = atoi(token);
 
 		} else if(!strcmp(token, "STM_BUFFER_SIZE:")){
+		/* This will allocate this number of bytes in the buffers before they are emptied and logged */
 
 			token = strtok_r(NULL, "]", &saveptr1);
 			STM_BUF_SIZE = atoi(token);
 
 		} else if(!strcmp(token, "MAX_NUMBER_SENSORS:")){
+		/* This dictates the maximum number of total sensors */
 
 			token = strtok_r(NULL, "]", &saveptr1);
 			MAX_SENSE = atoi(token);				
 
 		} else if(!strcmp(token,"SENSORS")){
+		/* This will log all of the sensor information */
 			
 			senseFlag = true;
 			tokc = new int [NUM_STM];
@@ -172,6 +152,7 @@ int SVT_CAN::init_log(){
 
 		} else if(newSensor){
 		
+			/* save all the FILE names */
 			if(!strcmp(token,"FILE=")){
 
 				token = strtok_r(NULL, "]", &saveptr1);	
@@ -198,6 +179,7 @@ int SVT_CAN::init_log(){
 				}
 				delete []temp;
 
+			/* save all the sensor names */
 			} else if(!strcmp(token,"NAME=")){
 
 				token = strtok_r(NULL, "]", &saveptr1);
@@ -214,6 +196,7 @@ int SVT_CAN::init_log(){
 					cout << "ERROR: Sensor does not have a name and will be ignored. This will cause errors in data." << endl;
 				}
 
+			/* save all the sensor IDs */
 			} else if(!strcmp(token,"ID=")){
 	
 				token = strtok_r(NULL, "]", &saveptr1);
@@ -222,6 +205,7 @@ int SVT_CAN::init_log(){
 					ids[i][initial] = token;
 				}	
 			
+			/* save the message format for the can messages */
 			} else if(!strcmp(token,"MSGFORMAT=")){
 	
 				while(token != NULL){
@@ -255,7 +239,7 @@ int SVT_CAN::init_log(){
 						
 						
 						} else {
-							cout << "ERROR: " << endl;
+							cout << "ERROR: config file structure not followed." << endl;
 						}
 						subtoken = strtok_r(NULL, ",", &saveptr2);
 
@@ -266,8 +250,9 @@ int SVT_CAN::init_log(){
 			} 
 		}
 		free(dup);
-
 	}
+	}
+	/* Initialize the logging files */
 	stmbufs.make_buffer(NUM_STM, STM_BUF_SIZE, sensors, ids, tokc);
 	stmFile = new fstream [NUM_STM];
 	for(i=0; i<NUM_STM; i++){
@@ -384,17 +369,6 @@ int SVT_CAN::init(){
    TxMsg.msg_control = &ctrlmsg;
 
    configFile.open("config.txt", ios::in);
-   /*if(std::ifstream("output.txt")){
-	outFile.open("output.txt", ios::out | ios::app);
-	init_log();
-   } else {
-	outFile.open("output.txt", ios::out | ios::app);
-	init_log();
-	for(int i=0; i<tokc; i++){
-		outFile << sensors[i] << ",\t";
-	}
-	outFile << endl;
-   }*/
 
    init_log();
    
@@ -699,21 +673,55 @@ void SVT_CAN::parse_canframe_struct(uint8_t * pData, stringstream& buf){
 	//HOW DO I TELL NUMS ARE CERTAIN TYPES OF SENSORS?
 	CAN_MSG * pParsed;
 	pParsed = (CAN_MSG * )pData;
+	float Location[2];
 	
 	switch(pParsed->payload.type)
 	{
-		
+	
+		case(5):{
+			if(gathered == 0){
+				gathered += 1;
+				Longitude = pParsed->payload.data.lon.lon;
+			} else if(gathered == 1){
+				Longitude = pParsed->payload.data.lon.lon;
+			} else if(gathered == 2){
+				Longitude = pParsed->payload.data.lon.lon;
+				gathered = 0;
+				Location[0] = Latitude;
+				Location[1] = Longitude;
+				server.json_message.setGPSSensor((time(0) + 21600), 4, Location);
+				server.json_message.printJson();
+				server.sendPacket();
+			}
+		} break;
+		case(4):{
+			if(gathered == 0){
+				gathered += 2;
+				Latitude = pParsed->payload.data.lat.lat;
+			} else if(gathered == 1){
+				Latitude = pParsed->payload.data.lat.lat;
+				gathered = 0;
+				Location[0] = Latitude;
+				Location[1] = Longitude;
+				server.json_message.setGPSSensor((time(0) + 21600), 4, Location);
+				server.json_message.printJson();
+				server.sendPacket();
+			} else if(gathered == 2){
+				Latitude = pParsed->payload.data.lat.lat;
+			}
+			
+		} break;
 		case(3):{
-			buf << pParsed->payload.data.type3.sensor1Data; 
-			server.json_message.setLumSensor((time(0) + 21600), pParsed->payload.type, pParsed->payload.data.type3.sensor1Data);
+			//buf << pParsed->payload.data.type3.sensor1Data; 
+			server.json_message.setLumSensor((time(0) + 21600), pParsed->payload.type, pParsed->payload.data.light.lumens);
 			server.json_message.printJson();
 			server.sendPacket();
 		}break;
 		case(2):{
-			buf << pParsed->payload.data.type2.accX << " " << pParsed->payload.data.type2.accY << " " << pParsed->payload.data.type2.accZ;
+			//buf << pParsed->payload.data.type2.accX << " " << pParsed->payload.data.type2.accY << " " << pParsed->payload.data.type2.accZ;
 			//setOriSensor(int ts, int id, int inputAngle[2], int16_t inputAcc[3], int16_t inputGyr[3], int16_t inputMag[3]){
 			int oriAng[2] = {0,0};
-			int16_t inAcc[3] = {pParsed->payload.data.type2.accX, pParsed->payload.data.type2.accY, pParsed->payload.data.type2.accZ};
+			int16_t inAcc[3] = {pParsed->payload.data.acc.accX, pParsed->payload.data.acc.accY, pParsed->payload.data.acc.accZ};
 			int16_t inGyr[3] = {0,0,0};
 			int16_t inMag[3] = {0,0,0};  
 			server.json_message.setOriSensor((time(0) + 21600), pParsed->payload.type, oriAng, inAcc, inGyr, inMag);
@@ -722,41 +730,6 @@ void SVT_CAN::parse_canframe_struct(uint8_t * pData, stringstream& buf){
 		}break;
 	}
 }
-/*int SVT_CAN::parse_canframe(struct can_frame& cf, int sensor, stringstream& buf, int idx){
-
-	int value;
-	int i;
-	string LIGHT = "LIGHT";
-	string ORIEN = "ORIENTATION";
-	string GPS = "GPS";
-	string CHARGE = "CHARGE";
-
-	for(i=0; i<tokc; i++){
-		if(sensor == atoi(ids[i].c_str())){
-			break;
-		}
-	}
-
-	int msgid = int(cf.data[idx]);
-	msgname[msgid]++;
-	
-	if(!sensors[i].compare(LIGHT)){
-		value = int(cf.data[idx]) * 256;
-		idx++;
-		value += int(cf.data[idx]);
-		buf << value;
-	} else if(!sensors[i].compare(ORIEN)){
-	} else if(!sensors[i].compare(GPS)){
-	} else if(!sensors[i].compare(CHARGE)){
-	} else {
-		buf << int(cf.data[idx]);
-	}
-
-	//UDP_send(uptime.count(), sensor, value);
-	UDP_send(time(0), sensor, value);
-	return idx;
-
-}*/
 
 /**************************************************
    -
@@ -812,20 +785,27 @@ void SVT_CAN::store_canframe(struct can_frame& cf){
  *
  *  store_canBuffer
  *
+ *  purpose: analyzes the canMsg and logs it based on format[][]
+ *
  *****************************************************/
 
 void SVT_CAN::store_canBuffer(int stmNum, int size, vector<vector<uint8_t>> Msg){
 
 	vector<vector<int>> data;
+	vector<vector<float>> GPS;
 	data.resize(size);
-	int i, j, k, m, n;
+	GPS.resize(size);
+	int i, j, k, n;
 	int oldts = stmbufs.stm[stmNum].ts[0];
 	int type = 0;
 	for(k=0; k<size; k++){
 		data[k].resize(1);
-		data[k][0] = NULL;
+		data[k][0] = (int) NULL;
+		GPS[k].resize(1);
+		GPS[k][0] = (int) NULL;
 	}
 
+	/* after the buffer is full log the saved messages */
 	for(i=0; i<size; i++){	
 		type = Msg[i][0];
 		for(n=0; n<tokc[stmNum]; n++){
@@ -878,8 +858,8 @@ void SVT_CAN::store_canBuffer(int stmNum, int size, vector<vector<uint8_t>> Msg)
 				int16_t temp;
 				data[k].resize(2);
 				data[k][0] = 1;
-				temp = Msg[i][atoi(format[stmNum][n][1].c_str())];
-				temp += Msg[i][atoi(format[stmNum][n][2].c_str())] << 8;
+				temp = Msg[i][atoi(format[stmNum][n][2].c_str())];
+				temp += Msg[i][atoi(format[stmNum][n][1].c_str())] << 8;
 				data[k][1] = (int) temp;
 				k++;
 				n++;			
@@ -896,8 +876,8 @@ void SVT_CAN::store_canBuffer(int stmNum, int size, vector<vector<uint8_t>> Msg)
 				uint16_t temp;
 				data[k].resize(2);
 				data[k][0] = 1;
-				temp = Msg[i][atoi(format[stmNum][n][1].c_str())];
-				temp += Msg[i][atoi(format[stmNum][n][2].c_str())] << 8;
+				temp = Msg[i][atoi(format[stmNum][n][2].c_str())];
+				temp += Msg[i][atoi(format[stmNum][n][1].c_str())] << 8;
 				data[k][1] = (unsigned int) temp;
 				k++;
 				n++;			
@@ -914,10 +894,10 @@ void SVT_CAN::store_canBuffer(int stmNum, int size, vector<vector<uint8_t>> Msg)
 				int32_t temp;
 				data[k].resize(2);
 				data[k][0] = 1;
-				temp = Msg[i][atoi(format[stmNum][n][1].c_str())];
-				temp += Msg[i][atoi(format[stmNum][n][2].c_str())] << 8;
-				temp += Msg[i][atoi(format[stmNum][n][3].c_str())] << 16;
-				temp += Msg[i][atoi(format[stmNum][n][4].c_str())] << 24;
+				temp = Msg[i][atoi(format[stmNum][n][4].c_str())];
+				temp += Msg[i][atoi(format[stmNum][n][3].c_str())] << 8;
+				temp += Msg[i][atoi(format[stmNum][n][2].c_str())] << 16;
+				temp += Msg[i][atoi(format[stmNum][n][1].c_str())] << 24;
 				data[k][1] = (int) temp;
 				k++;
 				n++;			
@@ -934,25 +914,48 @@ void SVT_CAN::store_canBuffer(int stmNum, int size, vector<vector<uint8_t>> Msg)
 				uint32_t temp;
 				data[k].resize(2);
 				data[k][0] = 1;
-				temp = Msg[i][atoi(format[stmNum][n][1].c_str())];
-				temp += Msg[i][atoi(format[stmNum][n][2].c_str())] << 8;
-				temp += Msg[i][atoi(format[stmNum][n][3].c_str())] << 16;
-				temp += Msg[i][atoi(format[stmNum][n][4].c_str())] << 24;
+				temp = Msg[i][atoi(format[stmNum][n][4].c_str())];
+				temp += Msg[i][atoi(format[stmNum][n][3].c_str())] << 8;
+				temp += Msg[i][atoi(format[stmNum][n][2].c_str())] << 16;
+				temp += Msg[i][atoi(format[stmNum][n][1].c_str())] << 24;
 				data[k][1] = (unsigned int) temp;
 				k++;
 				n++;			
 			}			
 	
+		} else if(!strcmp(format[stmNum][n][0].c_str(),"float")){
+
+			for(k=0; k<tokc[stmNum]; k++){
+				if(type == atoi(stmbufs.stm[stmNum].ids[k].c_str())){
+					break;
+				}
+			}
+			while(type == atoi(stmbufs.stm[stmNum].ids[k].c_str())){			
+				CAN_MSG * pParsed;
+				uint8_t pData[8];
+				for(int z=0; z<8; z++){
+					pData[z] = Msg[i][z];
+				}
+				pParsed = (CAN_MSG * )pData;
+				float temp = pParsed->payload.data.lat.lat;
+				data[k][0] = 2;
+				GPS[k].resize(2);
+				GPS[k][0] = 2;
+				GPS[k][1] = temp;
+				k++;
+				n++;			
+			}
+
 		}
 		if(oldts == stmbufs.stm[stmNum].ts[i]){
 			oldts = stmbufs.stm[stmNum].ts[i];
 		} else {
 			stmFile[stmNum] << oldts << ",\t";
 			for(j=0; j<tokc[stmNum]; j++){
-				if(data[j][0] != NULL){
-					for(m=0; m<data[j][0]; m++){
-						stmFile[stmNum] << data[j][m+1] << " ";
-					}
+				if(data[j][0] == 1){
+					stmFile[stmNum] << data[j][1];
+				} else if(data[j][0] == 2){
+					stmFile[stmNum] << GPS[j][1];
 				}
 				stmFile[stmNum] << ",\t";
 			}
@@ -961,22 +964,12 @@ void SVT_CAN::store_canBuffer(int stmNum, int size, vector<vector<uint8_t>> Msg)
 			stmFile[stmNum].flush();
 			for(k=0; k<size; k++){
 				data[k].resize(1);
-				data[k][0] = NULL;
+				data[k][0] = (int) NULL;
 			}
 		}
 		
 
 	}	
-
-}
-
-
-void SVT_CAN::UDP_send(int time, int ID, int val){
-
-	server.json_message.setLumSensor(time, ID, val);
-	server.json_message.printJson();
-	cout << "send UDP packet" << endl;
-	server.sendPacket();
 
 }
 

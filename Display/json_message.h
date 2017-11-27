@@ -53,21 +53,21 @@
 			
 class Json_Message{
 	private:
-		int TS_OFFSET;
+		uint32_t TS_OFFSET;
 		int INVALID_VALUE;//if this value is inputted, the value is NULL
 		
 		int STATE_OF_CHARGE_DATA, ORIENTATION_ANGLE, ORIENTATION_ACCEL, ORIENTATION_GYR, ORIENTATION_MAG, LUMINOSITY_DATA, GPS_LOCATION;
 		
 		struct StateOfCharge{
 			//bool valid;
-			int16_t timestamp;//each one is 4 bytes -> atleast for ints
+			uint16_t timestamp;//each one is 4 bytes -> atleast for ints
 			int sensor_id;
 			int data[4];
 		};
 		
 		struct Orientation{
 			//bool valid;
-			int16_t timestamp;
+			uint16_t timestamp;
 			int sensor_id;
 			int angle[2];//int angle (dir, pitch)
 			int16_t accel[3];//acceleration x,y,z int16
@@ -77,21 +77,21 @@ class Json_Message{
 		
 		struct Luminosity{
 			//bool valid;
-			int16_t timestamp;
+			uint16_t timestamp;
 			int sensor_id;
 			int data;			
 		};
 		
 		struct GPS{
 			//bool valid;
-			int16_t timestamp;
+			uint16_t timestamp;
 			int sensor_id;
 			float location[2];//float lat and long
 		};
 		
 		struct All_Json{
 			int validValues;//notes on which bits are for what are in the top of this file
-			int16_t topTimestamp;
+			uint16_t topTimestamp;
 			struct StateOfCharge stateOfCharge;
 			struct Orientation orientation;
 			struct Luminosity luminosity;
@@ -100,8 +100,8 @@ class Json_Message{
 		
 		
 		//combine the ts in the total json message with the ts in the sensor data
-		int getTotalTS(int sensorTS){
-			return ((all_json.topTimestamp << 16) + sensorTS);
+		uint32_t getTotalTS(uint32_t sensorTS){
+			return (uint32_t) ((all_json.topTimestamp << 16) + sensorTS);
 		} 
 		
 		
@@ -268,11 +268,11 @@ class Json_Message{
 	/****************************************************************************************************************
 	* Set Methods
 	****************************************************************************************************************/
-	void set_ts_json(int ts){
+	void set_ts_json(uint32_t ts){
 		all_json.topTimestamp = (ts&0xFFFF0000)>>16;
 	}
 	
-	void setLumSensor(int ts, int id, int tempData){
+	void setLumSensor(uint32_t ts, int id, int tempData){
 		all_json.validValues |= LUMINOSITY_DATA;//make lum sensor value valid
 		set_ts_json(ts);
 		all_json.luminosity.timestamp = (ts&TS_OFFSET);
@@ -280,7 +280,7 @@ class Json_Message{
 		all_json.luminosity.data = tempData;
 	}
 	
-	void setSOCSensor(int ts, int id, int inputData[4]){
+	void setSOCSensor(uint32_t ts, int id, int inputData[4]){
 		all_json.validValues |= STATE_OF_CHARGE_DATA;
 		set_ts_json(ts);
 		all_json.stateOfCharge.timestamp = (ts&TS_OFFSET);
@@ -292,7 +292,7 @@ class Json_Message{
 		all_json.stateOfCharge.data[3] = inputData[3];
 	}
 			
-	void setOriSensor(int ts, int id, int inputAngle[2], int16_t inputAcc[3], int16_t inputGyr[3], int16_t inputMag[3]){
+	void setOriSensor(uint32_t ts, int id, int inputAngle[2], int16_t inputAcc[3], int16_t inputGyr[3], int16_t inputMag[3]){
 		set_ts_json(ts);
 		all_json.orientation.timestamp = (ts&TS_OFFSET);
 		all_json.orientation.sensor_id = id;
@@ -323,7 +323,7 @@ class Json_Message{
 		}	
 	}
 	
-	void setGPSSensor(int ts, int id, float inputLoc[2]){
+	void setGPSSensor(uint32_t ts, int id, float inputLoc[2]){
 		all_json.validValues |= GPS_LOCATION;
 		set_ts_json(ts);
 		all_json.gps.timestamp = (ts&TS_OFFSET);
@@ -431,3 +431,4 @@ class Json_Message{
 			return "None";//not valid
 	}
 };
+

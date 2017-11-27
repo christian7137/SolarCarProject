@@ -67,7 +67,7 @@ After running the display side logger for the first time, the 'Display' director
 ### Grafana and InfluxDB documentation
 To read more about Grafana and InfluxDB, go to the official documentation for the software at:
 
-https://docs.influxdata.com/influxdb/v1.3/
+https://docs.influxdata.com/influxdb/v1.3/  
 http://docs.grafana.org/
 
 ### Doxygen Helpful Links

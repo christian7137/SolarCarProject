@@ -1,10 +1,21 @@
 /*!
- * \file thread_main.cpp
- * \author Beau Roland
- * \brief Thread software that begins the program.
- * \details This thread initializes the sensors, the threads, and any timers
- * needed to run the software.
+ * \file 		main.cpp
+ * \author 		Beau Roland
  *
+ * \brief 		The main software superloop that controls the data acquisition system.
+ *
+ * \details 	This program initializes a list of sensors, a system timer, and period timer, and a CAN fifo.
+ * It continues by looping through the sensors one by one, comparing the system timer against
+ * the last time the sensor was sampled + the sensor's sample period. It samples the sensor
+ * if it's time. Regardless, it moves on to the next sensor. After looking at all of the sensors,
+ * we look to see the period CAN create message timer flag has been raised ( is it time to create CAN messages
+ * that dictate the state of all of the sensors). If so, we create CAN messages for all of the data and push
+ * them onto the CAN fifo. Finally, at the end of the super loop, we send the next CAN message if it's not empty.
+ * <br>
+ * <br>
+ * A final note: config.h defines different configurations that dictate which sensors are compiled.
+ * Thus, by defining in a configuration, the software automatically compiles the sensor objects and supporting
+ * hardware.
  */
  
 #include "mbed.h"
@@ -25,29 +36,37 @@
 
 #define THREAD_TIME_INTERVAL_SEC    2
 
-extern Mutex mutex_sensor_states;
 extern sensorManager sensorMan;
 extern canQueue CQ;
-Serial pc(USBTX, USBRX); // tx, rx
-DigitalOut led1(LED1);
-DigitalOut led3(D5);
+
+Serial pc(USBTX, USBRX); 	///< \brief object used to print messages to the pc serial console. Configured for a faster baud rate, 921600. 
+DigitalOut led1(LED1);		///< \brief on board led used to dictate can message creation activity 
+DigitalOut led3(D5);		///< \brief on hat led used to dictate... not used
+
 int CANaddress = 1337;
-CAN MainCANbus(HAT_STM_CANRX, HAT_STM_CANTX);
+CAN MainCANbus(HAT_STM_CANRX, HAT_STM_CANTX);	///< \brief CAN bus connection between the nucleo and the RPi collection hub
 
-Ticker dataTimer;
-bool bTimerFlag = false;
-
-extern void thread_sensorManager_main(void);
-extern void thread_canager_main(void);
+bool bTimerFlag = false;	///< \brief global flag that dictates whether we need to create CAN messages
+							///< \details to keep the interrupt routine short, we allow the main foreground to handle the interrupt.
+							///< Therefore, the timer interrupt sets this flag. The main super loop acknowledges this flag by
+							///< clearing it and creates the can messages.
+Ticker canCreateTimer;		///< \brief timer that controls when we should create can messages
 
 /*!
- * \brief Main Thread's Timer Callback Function that set's a flag indicating that it is time to update our sample sensor data (a counter)
+ * \brief Main Timer Callback Function that set's a flag indicating that it is time create can messages
  */
 void timerCallback(void) {
     bTimerFlag = true;
 }
+
 /*!
- * \brief Thread function that makes use of the CPC (sensorManager class) to update our sample sensor data
+ * \brief Function that makes use of the sensorManager to update our sample sensor data.
+ * \details In this system, we populate some shared memory int he sensorManager for each sensor.
+ * Therefore, everytime we want to update a sensors data, we need to go through this object,
+ * find the location of memory reserved for the sensor (given by it's sensorId), and update the data.
+ *
+ * \param sensorIdx < unsigned int > sensor ID that was used in the initialization phase. can be accessed from the sensor object as well.
+ * \param pData < char * > pointer to the data that we wish to push into storage
  */
 void addDataToBuffer(unsigned int sensorIdx, char * pData){
        
@@ -80,7 +99,10 @@ void addDataToBuffer(unsigned int sensorIdx, char * pData){
     sensorMan.updateSensorData( sensorIdx, pData);  
 }
 
-void createCanMessagesAndSend(){
+/*!
+ * \brief Function that creates can messages and adds them to the tx CAN fifo
+ */
+void createSensorCanMessages(){
     std::list<CAN_MSG> canMsgs;
     
     bool bLock;
@@ -117,6 +139,9 @@ void createCanMessagesAndSend(){
 
 }
 
+/*!
+ * \brief Initialization function that sets up the tx CAN bus.
+ */
 #define freq_1MHZ   100000
 void setup_can_bus()
 {
@@ -124,6 +149,19 @@ void setup_can_bus()
     MainCANbus.reset();
 }
 
+/*!
+ * \brief helper function that determines whether a CAN message is empty.
+ * \details The function was introduced because at the start of running this program,
+ * the system will determine that it is immediately time to create a CAN message. In
+ * doing so, all of the data is zeroed out. This causes a problem on the visualization
+ * side. (aka, you probably are not at a GPS location of 0 degrees N, 0 degrees W. and
+ * experience 0 g's in all x,y,and z axis). To resolve this problem, for certain sensor
+ * ids, we check to see if the CAN payload portion of the can message is filled with 0's.
+ *
+ * \param msg <CAN_MSG> can message of 8 bytes that will be examined to see if it's
+ * payload is zeroed out.
+ * \return bool boolean that is true if it's an empty CAN message
+ */
 bool emptyPacket(CAN_MSG msg){
     bool bEmpty = true;
     for(int a=1; a<8; a++){
@@ -137,20 +175,23 @@ bool emptyPacket(CAN_MSG msg){
 
 /*!
  * \brief Main function of Data Aquisition Firmware
- * \details This function adds sensors to the list of sensors to create CAN Messages<br>
- * In addition, it starts the different threads.<br>
- * Finally, this main thread on a timely basis, increments a counter, updates our sample sensor data to be this counter, and sleeps till the next timer interrupt.
+ * \details Initializes a list of sensors, adds them to a sensorManager, sets up a CAN creation timer,
+ * and begins the super loop. In the super loop, we sample the sensors on a timely basis (based on the
+ * sensor's sample period), create can messages, and send can messages.
  */
 int main() {
     pc.baud(921600);
     
     //----------- Create Sensors -----------------
 #ifdef CONFIG_1
-    Adafruit_BNO055 s1(SENSOR_ID_ACC, (HAT_BNO_ADDR<<1), 1000, HAT_BNO_SDA, HAT_BNO_SCL);
-    TSL2561 s2(SENSOR_ID_LIGHT, HAT_TSL_ADDR , 1000, HAT_TSL_SDA, HAT_TSL_SCL);
+    Adafruit_BNO055 s1(SENSOR_ID_ACC, (HAT_BNO_ADDR<<1), 1000, HAT_BNO_SDA, HAT_BNO_SCL);	///< \brief 9 DOF sensor
+    TSL2561 s2(SENSOR_ID_LIGHT, HAT_TSL_ADDR , 1000, HAT_TSL_SDA, HAT_TSL_SCL);				///< \brief Light Flux sensor
 #endif
 #ifdef CONFIG_2
-    simGpsBps s3(SENSOR_ID_GPS, 1000, HAT_UART_RX, HAT_UART_INT);
+    simGpsBps s3(SENSOR_ID_GPS, 1000, HAT_UART_RX, HAT_UART_INT);							///< \brief Simulated GPS data via a serial rx and gpio request interface
+																							///< \details Data is requested by lowering the request signal, then the external
+																							///< board sends a serial message that is '\n' terminated. I.e. ####.#####,####.####\n
+																							///< (Latitude,Longitude Format)
 #endif
     //------------------- Init sensors -------------------------
 #ifdef CONFIG_1
@@ -171,14 +212,11 @@ int main() {
 #endif
     
     setup_can_bus();
-    
-    mutex_sensor_states.unlock();
     sensorMan.startTimer();
-    Ticker canCreateTimer;
     canCreateTimer.attach(&timerCallback, 1);
     pc.printf("begin acq loop\r\n");
-
     wait(1);
+	
     //------------------- main processing loop -------------------------
     while(1)
     {    
@@ -206,11 +244,10 @@ int main() {
 #endif
 
         //--------------------- create CAN messages and add to can fifo -----------------------
-        //TODO: change function name to correlate what it's actually doing
         if(bTimerFlag){
             led1 = !led1; 
             bTimerFlag = false;
-            createCanMessagesAndSend();
+            createSensorCanMessages();
         }
         
         //---------------------- send next CAN message ----------------------

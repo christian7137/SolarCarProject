@@ -1,8 +1,8 @@
 /*!
- * \file sensorManager.cpp
- * \class sensorManager
- *
- * \author Beau Roland
+	\file sensorManager.cpp
+	\class sensorManager
+
+	\author Beau Roland
 */
 #include "mbed.h"
 #include "sensorManager.h"
@@ -14,24 +14,32 @@
 #include "simGpsBps.h"
 
 sensorManager sensorMan;
-Mutex mutex_sensor_states;
+
+/// \brief external access to print messages to the pc terminal
 extern Serial pc;
 
 /* CLASS BEGIN */
-
+/// \brief constructor
 sensorManager::sensorManager()
 {
 	sysTime.reset();
 }
-//TODO: Consider deleting all of the dynamically created memory in the sensor list
+/// \brief destructor
+/// \warning Consider deleting all of the dynamically created memory in the sensorList
 sensorManager::~sensorManager()
 {
 }
 
+/*!
+	\brief function that resets the system timer
+ */
 void sensorManager::resetTimer(){
 	sysTime.reset();
 }
 
+/*!
+	\brief function that starts the system timer
+ */
 void sensorManager::startTimer(){
 	sysTime.start();	
 }

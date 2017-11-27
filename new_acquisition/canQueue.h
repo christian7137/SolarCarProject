@@ -1,70 +1,39 @@
 /*!*************************************************************
-   \file  svtSensor.h
-
-   \brief Base class for sensors
-   \author 	J. C. Wiley, Sept. 2014
-			Beau Roland, Oct. 2017
+	\file  classQueue.h
+	\class canQueue
+	
+	\brief Defines FIFO class that holds the outgoing CAN Messages.
+	We may extend this to incorporate more storage elements to handle incoming messages off
+	CAN Bus.
+	
+	\author Beau Roland, Oct. 2017
 ***************************************************************/
-#ifndef _SVTSENSOR_H_
-#define _SVTSENSOR_H_
+#ifndef CAN_QUEUE_HH
+#define CAN_QUEUE_HH
 
-#include "mbed.h"
-#include "sensorManager.h"
+#include <queue>
+#include "can_structs.h"
 
-typedef enum{
-	started=0,
-	finished=1,
-	stalled=2
-}timeout_state;
-void read_timeout_handler();
-
-#define I2C_NUM_TX_RETRIES	8
-class svtSensor{
-public:
-    /** svtSensor - Constructor
-     */
-    svtSensor(int32_t sensorID, int periodMs, float timeoutDur);
-
-    /** svtSensor - Destructor
-     */
-    ~svtSensor();
-
-    /** init - \brief initialize sensor if necessary
-     */
-    virtual void init();
+class canQueue
+{
+    public: /* public member objects */
     
-    /*! readSensor \brief read this sensor's data
-     *  @return error code
-     */
-    virtual void readSensor(char* pData);
-    virtual void readSensor(timeout_state* pToState, char* pData);
+    private:/* private member objects */
+    std::queue<CAN_MSG> fifo;	///< \brief can fifo queue that stores can messages to be sent
     
-    virtual int getSizeOfData();
-    
-    /*! \brief intermediate universal step to update the sample time step before proceeding to the specific read sensor function
-    */
-    void sampleSensor(char * pData);
+    public:
+		/// Constructor
+        canQueue();
+		/// Destructor
+        ~canQueue();
+        
+	public: /* public functions */
+		void push(CAN_MSG msg);			///< \brief function that pushes a can message onto the fifo stack
+		CAN_MSG getNextCanMsg(void);	///< \brief function that returns a list a can messages that dictate the current state
+		bool queueEmpty(void);			///< \brief helper function that returns whether the fifo queue is empty
+		
+    private: /* private functions */
 
-	/*! timeToSample \brief compares the current time with the last time we sampled, if greater than threshold, return true 
-	*/
-	bool timeToSample();
-	void bullshit();
-	
-	
-    /*! getPeriod - 
-	@return samplePeriodMs -  in ms
-    */
-    int getPeriod(){return samplePeriodMs;}
-   
-   	int32_t getId(){ return _sensorID; }
-   	
-   public:
-   	int samplePeriodMs;
-private:
-	int32_t _sensorID;
-     	// ms - update sensor at this rate, may be same as report rate or sample rate.
-	float lastSampleTimestamp;
-	float timeout_durationS;
-};   
+};
 
 #endif

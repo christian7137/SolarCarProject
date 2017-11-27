@@ -3,13 +3,19 @@
  * \class canQueue
  *
  * \author Beau Roland
+ *
+ * \brief Fifo queue that holds the can messages to be sent
 */
 
 #include "mbed.h"
 #include "canQueue.h"
 #include "can_structs.h"
 
+/// \warning The class file holds the instantiation of the global object. Other files access this via a global extern.
+/// \brief Global instantiation for the canQueue class.
 canQueue CQ;
+
+/// \brief external accessor to print log messages to the pc console
 extern Serial pc;
 
 canQueue::canQueue()

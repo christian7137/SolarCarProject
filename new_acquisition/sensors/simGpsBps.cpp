@@ -84,5 +84,3 @@ void simGpsBps::selftest(){
         wait(1);
     }  
 }
-
-

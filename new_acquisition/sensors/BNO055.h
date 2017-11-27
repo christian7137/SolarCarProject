@@ -332,5 +332,3 @@ class Adafruit_BNO055 : public svtSensor
 };
 
 #endif
-
-

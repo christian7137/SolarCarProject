@@ -157,5 +157,3 @@ std::list<CAN_MSG> sensorManager::createCanMessages(void)
     
     return can_messages;
 }
-
-

@@ -152,6 +152,7 @@ int SVT_CAN::init_log(){
 
 		} else if(newSensor){
 		
+			/* save all the FILE names */
 			if(!strcmp(token,"FILE=")){
 
 				token = strtok_r(NULL, "]", &saveptr1);	
@@ -178,6 +179,7 @@ int SVT_CAN::init_log(){
 				}
 				delete []temp;
 
+			/* save all the sensor names */
 			} else if(!strcmp(token,"NAME=")){
 
 				token = strtok_r(NULL, "]", &saveptr1);
@@ -194,6 +196,7 @@ int SVT_CAN::init_log(){
 					cout << "ERROR: Sensor does not have a name and will be ignored. This will cause errors in data." << endl;
 				}
 
+			/* save all the sensor IDs */
 			} else if(!strcmp(token,"ID=")){
 	
 				token = strtok_r(NULL, "]", &saveptr1);
@@ -202,6 +205,7 @@ int SVT_CAN::init_log(){
 					ids[i][initial] = token;
 				}	
 			
+			/* save the message format for the can messages */
 			} else if(!strcmp(token,"MSGFORMAT=")){
 	
 				while(token != NULL){
@@ -235,7 +239,7 @@ int SVT_CAN::init_log(){
 						
 						
 						} else {
-							cout << "ERROR: " << endl;
+							cout << "ERROR: config file structure not followed." << endl;
 						}
 						subtoken = strtok_r(NULL, ",", &saveptr2);
 
@@ -248,6 +252,7 @@ int SVT_CAN::init_log(){
 		free(dup);
 	}
 	}
+	/* Initialize the logging files */
 	stmbufs.make_buffer(NUM_STM, STM_BUF_SIZE, sensors, ids, tokc);
 	stmFile = new fstream [NUM_STM];
 	for(i=0; i<NUM_STM; i++){
@@ -800,6 +805,7 @@ void SVT_CAN::store_canBuffer(int stmNum, int size, vector<vector<uint8_t>> Msg)
 		GPS[k][0] = (int) NULL;
 	}
 
+	/* after the buffer is full log the saved messages */
 	for(i=0; i<size; i++){	
 		type = Msg[i][0];
 		for(n=0; n<tokc[stmNum]; n++){

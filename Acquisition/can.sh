@@ -23,5 +23,9 @@ sudo sh -c "echo 'dtparam=spimaxfrequency=100000' >> /boot/config.txt"
 sudo sh -c "echo 'dtoverlay=pi3-disable-bt' >> /boot/config.txt"
 sudo sh -c "echo 'enable_uart=1' >> /boot/config.txt"
 
+cd CAN
+make
+cd ..
+
 echo "Rebooting . . ."
 sudo reboot

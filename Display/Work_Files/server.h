@@ -11,7 +11,7 @@
 //#include <unistd.h> //for the time
 #include <iostream>
 //#include <thread>
-#include "json_message_travis.h"
+#include "json_message.h"
 
 class Server {
 	private:

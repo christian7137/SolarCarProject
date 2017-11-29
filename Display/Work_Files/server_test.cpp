@@ -22,10 +22,10 @@ int main(int argc, char *argv[])
 
 //int start_s=clock();
 	// the code you wish to time goes here
-		server.json_message.lum.setSensor(count,3,20-count);//int ts, int id, int tempData
-		server.json_message.ori.setSensor(count,5,two,three1,three2,three3);//int ts, int id, int inputAngle[2], int16_t inputAcc[3], int16_t inputGyr[3], int16_t inputMag[3]
-		server.json_message.soc.setSensor(count, 1, four);
-		server.json_message.gps.setSensor(count, 2, twoFloat);
+		server.json_message.all_json.lum.setSensor(count,3,20-count);//int ts, int id, int tempData
+		server.json_message.all_json.ori.setSensor(count,5,two,three1,three2,three3);//int ts, int id, int inputAngle[2], int16_t inputAcc[3], int16_t inputGyr[3], int16_t inputMag[3]
+		server.json_message.all_json.soc.setSensor(count, 1, four);
+		server.json_message.all_json.gps.setSensor(count, 2, twoFloat);
 	//int stop_s=clock();
 	//std::cout << "Start: " << start_s << " End: " << stop_s << std::endl;
 	//std::cout << "time: " << (stop_s-start_s)/double(CLOCKS_PER_SEC)*1000 << std::endl;

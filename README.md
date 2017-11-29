@@ -44,7 +44,7 @@ In HTTP Auth,
 *	Set User to "grafana".
 *	Set Password to "letmeread123".
 
-No other data source seetings are needed to successfully query InfluxDB.
+No other data source settings are needed to successfully query InfluxDB.
 
 ### Using the display side logger
 To actively look for UDP packets on the wireless network, you must run a script. In the 'Display' directory of this repository, run the shell script 'run.sh'. This script will search for and log UDP packets sent to the device's IP address.  
@@ -67,7 +67,7 @@ After running the display side logger for the first time, the 'Display' director
 ### Grafana and InfluxDB documentation
 To read more about Grafana and InfluxDB, go to the official documentation for the software at:
 
-https://docs.influxdata.com/influxdb/v1.3/
+https://docs.influxdata.com/influxdb/v1.3/  
 http://docs.grafana.org/
 
 ### Doxygen Helpful Links

@@ -1,9 +1,9 @@
 /*!
- * \file sensorManager.hh
- * \class sensorManager
- * \brief Defines the class holding, modifying, and using the sensor data captured by the nucleo board.
- *
- * \author Beau Roland
+	\file sensorManager.h
+	\class sensorManager
+	\brief Defines the class holding, modifying, and using the sensor data captured by the nucleo board.
+
+	\author Beau Roland
 */
 
 #ifndef CAN_PAYLOAD_CREATOR_HH
@@ -22,10 +22,10 @@ typedef struct{
 class sensorManager
 {
     public:
-		Timer sysTime;
+		Timer sysTime;	///< \brief System timer
 	
     private:
-		std::list<sensorDataListElem> sensorList;
+		std::list<sensorDataListElem> sensorList;	///< \brief list of sensors that memory has been allocated to store sensor data
     
     public:
 		/// \brief Constructor
@@ -34,16 +34,20 @@ class sensorManager
         ~sensorManager();
     
 	public: 
+
 	
-		void startTimer();
-        bool addSensor( unsigned int sensorId, unsigned int numBytes);
-        void updateSensorData( unsigned int sensorIdx, char * pDataNew );
-        void getSensorData(unsigned int sensorIdx);
-        std::list<CAN_MSG> createCanMessages(void);
+		void resetTimer();													///< \brief helper function that resets the system timer
+		void startTimer();													///< \brief helper function that starts the system timer
+        bool addSensor( unsigned int sensorId, unsigned int numBytes);		///< \brief function that adds a sensor to the sensorList
+        void updateSensorData( unsigned int sensorIdx, char * pDataNew );	///< \brief function that updates a sensor's data
+        std::list<CAN_MSG> createCanMessages(void);							///< \brief function that creaets can messages based on the data stored in the sensorList
 		
 		//Accessor Functions
+		/// \brief returns the system time in seconds (float)
 		float getTimeSec()	{ return sysTime.read(); };
+		/// \brief returns the system time in ms (int)
 		int getTimeMs()		{ return sysTime.read_ms(); };
+		/// \brief returns the system time in us (int)
 		int getTimeUs()		{ return sysTime.read_us(); };
 		
     private:
@@ -51,4 +55,3 @@ class sensorManager
 };
 
 #endif
-

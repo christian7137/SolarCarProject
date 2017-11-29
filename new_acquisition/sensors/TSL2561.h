@@ -121,19 +121,27 @@ typedef enum
 tsl2561Gain_t;
 
 typedef union{
-	char data[2];
-	struct{
-		uint16_t lumens;
-	}fields;
+    char data[2];
+    struct{
+        uint16_t lumens;
+    }fields;
 }TSL2561_DATA;
 
 class TSL2561 : public svtSensor{
 
-	public:        
+    public:        
         //---CLASS CONSTRUCTOR---//
-		TSL2561(int sensorID, uint8_t addr, int periodMs, pinName sda, PinName scl):i2c(sda,scl)
+        TSL2561(int sensorID, uint8_t addr, int periodMs, PinName sda, PinName scl);
+        ~TSL2561();
+    public:
+        virtual void init();
+        virtual void readSensor(timeout_state* pToState, char * pData);
+        virtual void readSensor(char * pData);
+        virtual int getSizeOfData();
         
-	private:
+        void selftest();
+        
+    private:
         bool begin(void);
         void enable(void);
         void disable(void);
@@ -146,7 +154,7 @@ class TSL2561 : public svtSensor{
         uint16_t getLuminosity (uint8_t channel);
         uint32_t getFullLuminosity ();
 
-	private:
+    private:
         I2C i2c;
         int8_t _addr;
         tsl2561IntegrationTime_t _integration;

@@ -58,21 +58,28 @@ class UDP_Packet:
 			if (self.sensorData[i] == "None"):	# skip if sensor has no data
 				continue
 			else:
-				print "TIMESTAMP: "
-				print self.sensorData[i][0]
+				print "TIMESTAMP: " + self.sensorData[i][0]
 				tags = {"run": runNo}
 				fields = {}
 				if i == 3: # special insertion for GPS data
 					rawLatitude = self.sensorData[i][2]	# assuming value is North of equator
-					minutesIndex = rawLatitude.index('.') - 2
+					assert(len(rawLatitude) >= 4)	# assert valid latitude
+					minutesIndex = rawLatitude.find('.') - 2
+					if (minutesIndex < 0):	# no decimal found
+						minutesIndex = 2
 					latitude = float(rawLatitude[0:minutesIndex]) + float(rawLatitude[minutesIndex:]) / 60
+					#print "LAT: " + str(rawLatitude) + " | " + str(rawLatitude[0:minutesIndex]) + " | " + str(rawLatitude[minutesIndex:]) + " | " + str(latitude) + " (" + str(minutesIndex) + ")"
 					rawLongitude = self.sensorData[i][3]	# assuming value is West of Prime Meridian (hence -1 multiplication)
-					minutesIndex = rawLongitude.index('.') - 2	
+					assert(len(rawLongitude) >= 4)	# assert valid longitude
+					minutesIndex = rawLongitude.find('.') - 2
+					if (minutesIndex < 0):	# no decimal found
+						minutesIndex = 2	
 					longitude = -1 * (float(rawLongitude[0:minutesIndex]) + float(rawLongitude[minutesIndex:]) / 60)
 					geohashValue = str(geohash.encode(latitude, longitude))
-					print geohashValue
+					#print "LONG: " + str(rawLongitude) + " | " + str(rawLongitude[0:minutesIndex]) + " | " + str(rawLongitude[minutesIndex:]) + " | " + str(longitude) + " (" + str(minutesIndex) + ")"
+					#print "GEO:" + geohashValue
 					tags["geohash"] = geohashValue
-					fields["metric"] = int(self.sensorData[i][0])
+					fields["metric"] = 1
 				else:
 					for j in range(2, len(self.sensorData[i])):
 						if (self.sensorData[i][j] == ""):	# skip if sensor value is empty
@@ -89,12 +96,13 @@ class UDP_Packet:
 							]
 				# Write JSON to InfluxDB
 				client.write_points(json_body)
-				print("LOGGED TO INFLUXDB\n")	
+				print "LOGGED TO INFLUXDB\n"	
 
 	# Clears sensorData list for reuse
 	def clearData(self):
-		print("CLEARED UDP PACKET\n")
 		self.sensorData[:] = [] # empty list
+		print "CLEARED UDP PACKET"
+		print "-------------------------------------\n"
 
 # Creates sensor label dictionary
 def setUpSensorDict():
@@ -160,7 +168,8 @@ def main():
 		while (1):
 			print "WAITING FOR PACKET"
 			packet = UDP_Packet(UDPclient.pollUDPclient())
-			#packet = UDP_Packet(["None", "None", "None", "12345,4,3007.83,9738.2133"])
+			#packet = UDP_Packet(["None", "None", "None", "12345,4,3008.992,9738.0774"])	# test geohash value
+			print "RECEIVED PACKET\n"
 			packet.writeToCSV(today)
 			packet.log(client, session, runNo, interval)    # log to InfluxDB
 			packet.clearData()     # log on InfluxDB

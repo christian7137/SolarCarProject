@@ -1,0 +1,5 @@
+The canbus_test directory contains a test program to check the CAN bus interface,
+and to use as a CAN bus experimental platform. The SV_** files are copies, maybe
+not upto date of the svserver files of same name.
+
+The program now writes incoming CAN messages to screen.

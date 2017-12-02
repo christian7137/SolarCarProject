@@ -1,0 +1,82 @@
+// config.txt
+// 
+// this document defines how the CAN messages will be handled
+// -First define:
+//	"NUM_STM_IN_SYS:[]"
+//	"STM_BUFFER_SIZE:[]"
+//	"MAX_NUMBER_SENSORS:[]"
+//	Fill in [] with integers
+// -Then define:
+//	"SENSORS"
+// -This is done by:
+// 	define "FILE=[]" which will name the output log file (Ex: STM1 will turn into log file "STM1.csv")
+//	define "NAME=[]" which will tell the log how to label the columns
+//	define "ID=[]" which tells the program which message ids are associated with sensors
+//	define "MSGFORMAT=[]" which tells the program how to use the values for the data
+//
+//	THIS ORDER IS IMPORTANT
+//	-Fill in [] with the value you want
+//	-FILE will be interpreted as a string
+//	-NAME will be interpreted as a string
+//	-ID will be interpreted as an integer
+//	-MSGFORMAT has multiple inputs
+//
+//	MSGFORMAT:
+//	Each element is separated by a ','
+//	[SensorName, ValueType, ByteIndex[MSB], ByteIndex[MSB-1],...]
+//	Ex: if there was a value that we wanted the first byte  to be just a signed byte of data
+//	[POWER,int8_t,1]
+//	if we wanted two bytes then we would if we want the second byte to be most significant:
+//	[POWER,int16_t,2,1]
+//
+//	SensorName MUST match the string used in NAME
+//
+//	valid ValueTypes:
+//	-int8_t,uint8_t
+//	-int16_t,uint16_t
+//	-int32_t,uint32_t
+//	-float
+//
+//	if you want to separate one ID into multiple columns then you would:
+//	NAME=[,,,]
+//	MSGFORMAT=[],[],[],[]
+//	Using the NAMEs in the SensorName field make multiple formats
+//	Ex:
+//	NAME=[ORIENTATION_X,ORIENTATION_Y,ORIENTATION_Z]
+//	MSGFORMAT=[ORIENTATION_X,int16_t,2,1],[ORIENTATION_Y,int16_t,4,3],[ORIENTATION_Z,int16_t,6,5]
+//	Make sure the separate values are all the same ValueType
+
+NUM_STM_IN_SYS:[2]
+STM_BUFFER_SIZE:[12]
+MAX_NUMBER_SENSORS:[20]
+SENSORS
+{
+FILE=[STM1]
+NAME=[LIGHT]
+ID=[3]
+MSGFORMAT=[LIGHT,int16_t,2,1]
+}
+{
+FILE=[STM1]
+NAME=[ORIENTATION_X,ORIENTATION_Y,ORIENTATION_Z]
+ID=[2]
+MSGFORMAT=[ORIENTATION_X,int16_t,2,1],[ORIENTATION_Y,int16_t,4,3],[ORIENTATION_Z,int16_t,6,5]
+}
+{
+FILE=[STM1]
+NAME=[GPS_LAT]
+ID=[4]
+MSGFORMAT=[GPS_LAT,float,1,2,3,4]
+}
+{
+FILE=[STM1]
+NAME=[GPS_LONG]
+ID=[5]
+MSGFORMAT=[GPS_LONG,float,1,2,3,4]
+}
+{
+FILE=[STM2]
+NAME=[CHARGE]
+ID=[6]
+MSGFORMAT=[CHARGE,uint16_t,2,1]
+}

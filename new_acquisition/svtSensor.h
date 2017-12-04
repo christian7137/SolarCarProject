@@ -48,8 +48,6 @@ public:
 	/*! timeToSample \brief compares the current time with the last time we sampled, if greater than threshold, return true 
 	*/
 	bool timeToSample();
-	void bullshit();
-	
 	
     /*! getPeriod - 
 	@return samplePeriodMs -  in ms

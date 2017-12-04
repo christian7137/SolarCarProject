@@ -36,7 +36,7 @@ class Server {
         Server(){
             port = 1500;    
             serverAddr.sin_family = AF_INET;
-            serverAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+            serverAddr.sin_addr.s_addr = inet_addr("169.254.252.250");//127.0.0.1
             serverAddr.sin_port = htons(port);
             length=sizeof(struct sockaddr_in);
 			connectSock();

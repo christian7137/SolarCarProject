@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 		server.sendPacket();
 		
 		//std::cout << "Sent message # " << i << std::endl;
-		usleep(184);//microseconds
+		//usleep(10);//microseconds
 	}
 	std::cout << "Total Messages Sent: " << i << std::endl;
 	/*while(count < 100){

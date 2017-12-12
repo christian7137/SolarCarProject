@@ -1,15 +1,15 @@
-# Solar Car Data Acquisition and Display Project
+# Raspberry Pi Configuration
 
-## Display System Documentation
-
-### Configuring a Raspberry Pi
 In the Raspberry Pi terminal,
 *	git clone https://github.com/christian7137/SolarCarProject.git
 *	cd SolarCarProject
 * 	chmod +x sysinit
 * 	./sysinit {pit|car}
 
-If the 'pit' argument is used, InfluxDB and Grafana should be installed and running upon boot. Next, configure InfluxDB settings. To do this, proceed on to <b>Setting up an InfluxDB Database</b>. 
+If the 'pit' argument is used, InfluxDB and Grafana should be installed and running upon boot. Next, configure InfluxDB settings. To do this, proceed on to <b>Display Side Configuration</b>.  
+If the 'car' argument is used, CAN should be installed and ready to run using the svtcan program upon boot. See the README inside 'Acquisition/CAN' for more details.
+
+## Display Side Configuration
 
 ### Setting up an InfluxDB database
 After successful installation of InfluxDB, connect to the InfluxDB command line interface and create users and databases as needed. The following steps will create one database `my_db` and an `admin` user as well as a `grafana` user. The grafana user will only be allowed to read data from `my_db`. This configuration is required to use the existing display-side python script.
@@ -47,19 +47,13 @@ In HTTP Auth,
 No other data source settings are needed to successfully query InfluxDB.
 
 ### Using the display side logger
-To actively look for UDP packets on the wireless network, you must run a script. In the 'Display' directory of this repository, run the shell script 'run.sh'. This script will search for and log UDP packets sent to the device's IP address.  
-
-Before powering off the device, be sure to run 'quit.sh' in the 'Display' directory.  
-
-Christian's note: It's probably better to make quit and run command line arguments of the base directory script.
+To actively look for UDP packets on the wireless network, you must run a script. Using the './sysinit run' command in the base of the repository will run this script. To safely power off the RPi, be sure to use './sysinit quit' prior to shutting down.
 
 ### Adding users to Grafana
 As a Grafana admin, go to `http://monitoring-host:3000/org/users`, where `monitoring-host` is the IP of the device hosting the Grafana service. In this menu, you can add or remove users as needed.
 
 ### Adding sensors to the display side logger
-Make changes to 'config_pit.txt'. 
-
-Christian's note: We need to finalize the format for this config file.
+Make changes to 'config_pit.txt'. Instructions on changing this file are included inside it as comments.
 
 ### Accessing display side data logs
 After running the display side logger for the first time, the 'Display' directory of this repository will contain a directory 'CSV' with the stored logs of the UDP packet data. Each file contains the date of the logger run and the type of sensor data logged. The sensor ID matches the ID set in 'config_pit.txt'.

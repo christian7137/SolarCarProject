@@ -29,3 +29,8 @@ cd ..
 
 echo "Rebooting . . ."
 sudo reboot
+
+# If not using the svtcan program, it is sometimes necessary to enable CAN after rebooting. The svtcan program automatically does this.
+# sudo ifconfig can0 down		# To disconnect CAN
+# sudo ip link set can0 type can bitrate 100000 triple-sampling off restart-ms 100	# To configure CAN
+# sudo ifconfig can0 up			# To reconnect CAN
